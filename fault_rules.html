@@ -1,0 +1,12 @@
+
+
+<FaultRule name="fr1">
+   <Condition>fault.category = "Policy"</Condition>
+   <PolicyAttachment>
+       <PolicyName>RateLimitPolicy</PolicyName>
+   </PolicyAttachment>
+   <PolicyAttachment>
+       <Condition>response.status.code = 500</Condition>
+       <PolicyName>FailWhalePagePolicy</PolicyName>
+   </PolicyAttachment>
+</FaultRule>

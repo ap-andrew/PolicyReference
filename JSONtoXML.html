@@ -1,0 +1,152 @@
+<p>[toc]</p>
+
+<p>Apigee enables developers to convert messages from the JavaScript object notation (JSON) format to the extensible markup language (XML) format by using the JSONtoXML policy type. This policy is useful for supporting services that require XML, but which must also support RESTful apps that require JSON (for example, due to a lack of an XML parsing capabilities on the client).</p>
+
+<p>In a typical mediation scenario, a JSONtoXML policy on the inbound request flow is often paired with an XMLtoJSON policy on the outbound response flow. By combining policies this way, a JSON API can be exposed for services that natively support only XML. For scenarios where APIs are consumed by diverse clients apps which may require either JSON and XML, the format of the response can be dynamically set by configuring JSONtoXML and XMLtoJSON policies to execute conditionally. See </p>
+	
+<p>The HTTP Content-type header of the source message must be set to <code>application/json</code>. If the HTTP Content-type of the source message is not <code>application/json</code>, the policy is not enforced. The payload of the JSON message is then parsed and converted into XML, and the HTTP Content-type header of the XML-formatted message is set to <code>application/xml</code>.</p>
+
+
+<p>Configure the JSONtoXML policy using the following optional elements. Reasonable defaults are provided for each setting, thus all elements in this policy type are optional unless <code>NamespaceBlockName</code> is set, in which case <code>DefaultNamespaceNodeName</code> and <code>NamespaceSeparator</code> must also be specified.</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th>Field Name</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Source</td>
+			<td>The variable containing the JSON-formatted message to be converted to XML.
+				<ul>
+					<li>If source is missing, it is treated as a simple message. For example, <code>&lt;Source&gt;message&lt;/Source&gt;</code></li>
+					<li>If the source variable cannot be resolved, or resolves to a non-message type, the policy execution fails.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<td>Output variable</td>
+			<td>
+				<div>The variable name of the resultant XML-formatted message.</div>
+				<div>If <code>OutputVariable</code> is not specified, then the source variable is treated as <code>OutputVariable</code>.</div>
+			</td>
+		</tr>
+		<tr>
+			<td>Invalid character replacement</td>
+			<td>
+				<div>Replaces any JSON elements that are invalid in XML with the defined string. For example:</div>
+				<pre>{"this is%%%invalid" : "value1/value2"}</pre>
+				<div>converts to:</div>
+				<pre>&lt;this_is_invalid&gt;value1value2&lt;/this_is_invalid&gt;</pre>
+			</td>
+		</tr>
+		<tr>
+			<td>Text node name</td>
+			<td>
+				<div>Converts the property into XML text. For example:</div>
+				<pre>{
+ "root" : {
+ "one": "value1",
+ "#text": "value0",
+ "two" : "value2"}
+}</pre>
+				<div>converts to:</div>
+				<pre>&lt;root&gt;
+  &lt;one&gt;value1&lt;/one&gt;value0&lt;two&gt;value2&lt;/two&gt;
+&lt;/root&gt;</pre>
+				<div>If <code>TextNodeName</code> is not specified, this XML is generated:</div>
+				<pre>&lt;root&gt;&lt;one&gt;value1&lt;/one&gt;&lt;_text&gt;value0&lt;/_text&gt;&lt;two&gt;value2&lt;/two&gt;&lt;/root&gt;</pre>
+			</td>
+		</tr>
+		<tr>
+			<td>Null value</td>
+			<td>
+				<div>Indicates a null value. By default the value is <code>NULL</code>. For example, where <code>I_AM_NULL</code> is configured for the Null value:</div>
+				<pre>{"root" : "I_AM_NULL"}</pre>
+				<div>converts to:</div>
+				<pre>&lt;root&gt;&lt;/root&gt;</pre>
+				<div>If Null value is not specified, this XML is generated:</div>
+				<pre>&lt;root&gt;I_AM_NULL&lt;/root&gt;</pre>
+			</td>
+		</tr>
+		<tr>
+			<td>Attribute block name</td>
+			<td>
+				<div>Converts the property into XML attributes. For example:</div>
+				<pre>{
+ "root" : {
+ "#attrs" : {
+ "@att1" : "value1",
+ "@att2" : "value2"
+ <code>"att3" : "value3"</code>
+ }, 
+ "child" : "value0",
+ }
+}</pre>
+				<div>converts to:</div>
+				<pre>&lt;root att1="value1" att2="value2"&gt;&lt;child&gt;value0&lt;/child&gt;&lt;/root&gt;</pre>
+				<div><strong>Note:</strong> The property <code>"att3" : "value3"</code> is ignored as it does not start with the <code>@</code> symbol.</div>
+			</td>
+		</tr>
+		<tr>
+			<td>Attribute prefix</td>
+			<td>
+				<div>Converts the property starting with the specified prefix into XML attributes. For example:</div>
+				<pre>{
+ "root" : {
+ "@att1" : "value1",
+ "child" : "value0",
+ "@att2" : "value2"
+ }
+}</pre>
+				<div>converts to:</div>
+				<pre>&lt;root att1="value1" att2="value2"&gt;&lt;child&gt;value0&lt;/child&gt;&lt;/root&gt;</pre>
+			</td>
+		</tr>
+		<tr>
+			<td>Namespace block name</td>
+			<td colspan="1" rowspan="3">
+				<div>Configures XML namespace properties. For example:</div>
+				<pre>{
+ "root" : {
+ "#namespaces" : {
+ "$default" : "http://default",
+ "xmlns:ns1" : "http://ns1"
+ },
+ "child1" : "value0",
+ "ns1:child2" : "value1"
+ }
+}</pre>
+				<div>converts to:</div>
+				<pre>&lt;root xmlns="http://default" xmlns:ns1="http://ns1"&gt;&lt;child1&gt;value0&lt;/child1&gt;&lt;ns1:child2&gt;value1&lt;/ns1:child2&gt;&lt;/root&gt;</pre>
+			</td>
+		</tr>
+		<tr>
+			<td>Default namespace node name</td>
+		</tr>
+		<tr>
+			<td>Namespace separator</td>
+		</tr>
+		<tr>
+			<td>Array root element name</td>
+			<td colspan="1" rowspan="2">
+				<div>Configures an XML array and item. For example:</div>
+				<pre>[ "one", { "two": 2 }, "three" ]</pre>
+				<div>converts to:</div>
+				<pre><code>&lt;Array&gt;
+ &lt;Item&gt;one&lt;/Item&gt;
+ &lt;Item&gt; &lt;two&gt;2&lt;/two&gt;&lt;/Item&gt;
+ &lt;Item&gt;three&lt;/Item&gt;
+&lt;/Array&gt;</code></pre>
+			</td>
+		</tr>
+		<tr>
+			<td>Array item element name</td>
+		</tr>
+	</tbody>
+</table>
+<h2><a class="jumplink" name="schema"></a>Policy schema</h2>
+<p>Each policy must conform to a policy schema. All policy constructs, such as the elements and attributes mentioned above, are defined in a schema. To download the schema, <a href="/docs/download/file/fid/189">click here</a>.</p>
+<h3>Example - JSON to XML</h3>
+<p>[gist:2581657]</p>
