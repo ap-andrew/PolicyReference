@@ -1,0 +1,30 @@
+<p>Apigee provides an alert feature in its fast and responsive user interface to monitor potential message flow violations.</p>
+<p>The Raise Alert policy sends an alert notification to a destination (a local disk or the system log server) when certain conditions are met, and when required.</p>
+<h2><a class="jumplink" name="configure"></a>Configuring the Raise Alert policy</h2>
+<p>You can configure the Raise Alert policy in one of two ways:</p>
+<ul>
+	<li><strong>Using the policy editor:</strong> Drag and drop the Raise Alert policy onto the message flow in the policy editor and then configure the elements of the policy using the Map view in the policy editor. For more information, see [node:219]. You can also configure the elements using the Code view in the policy editor that allows you to edit the XML fields directly instead of editing them offline. For more information on Code view, see [node:436].</li>
+	<li><strong>Using your favorite editor or IDE:</strong> Export your API proxy. Unzip and open/edit the API proxy configuration files offline in your favorite text editor or IDE. For more information, see [node:220].</li>
+</ul>
+<p>Configure the Raise Alert policy using the following elements.</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th colspan="2">Field Name</th>
+			<th colspan="2" rowspan="1">Field Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td colspan="1" rowspan="2" style="vertical-align: top;">Syslog Destination</td>
+			<td style="vertical-align: top;">Host</td>
+			<td colspan="2" rowspan="1">IP address of the Syslog server</td>
+		</tr>
+		<tr>
+			<td style="vertical-align: top;">Port</td>
+			<td colspan="2" rowspan="1">Port where the Syslog server is running</td>
+		</tr>
+	</tbody>
+</table>
+<h3>Example - Raise Alert policy</h3>
+<p>[gist:2634035]</p>

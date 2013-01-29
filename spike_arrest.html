@@ -1,0 +1,100 @@
+<p>[toc]</p>
+<p><em>Rate limiting</em> is used to control the rate of traffic sent to or received by an API. Traffic that is less than or equal to the specified rate is sent, whereas traffic that exceeds the rate is rejected. There are business and technical reasons to control the traffic an API receives. Rate limiting can be implemented with either quotas or spike arrests on the request path in a flow:</p>
+<ul>
+	<li>Quotas limit the number of API calls your application makes, ensuring that every developer consumes a proportionate amount of API resources for business reason.</li>
+	<li>Spike arrests stop traffic spikes (or bursts) that can be caused by an increase in usage, buggy clients, or malicious attacks.</li>
+</ul>
+<h2><a class="jumplink" name="spike_arrests"></a>About spike arrests</h2>
+<p>You can use spike arresting to keep your API operational and manage traffic when you have spikes due to increased usage.</p>
+<p>A spike arrest limits the number of requests sent to either the client or target endpoints. Spike arrest-based rate limiting supports short intervals such as seconds and minutes. A spike arrest configuration allows messages to pass at a steady rate. Any instantaneous bursts are suppressed.</p>
+<p>For example, if you define the rate as 100 messages per second, it translates to approximately 1 message every 10 milliseconds. A spike arrest works well provided you specify the number of messages in granularity of seconds, which means &gt;= 60 messages per minute or &gt;= 1 message per second.</p>
+<h2><a class="jumplink" name="configure"></a>Configuring a Spike Arrest policy</h2>
+<p>You can configure a Spike Arrest policy in one of two ways:</p>
+<ul>
+	<li><strong>Using the policy editor:</strong> Drag and drop the Spike Arrest policy onto the message flow in the policy editor and then configure the elements of the policy using the Map view in the policy editor. For more information, see [node:219]. You can also configure the elements using the Code view in the policy editor that allows you to edit the XML fields directly instead of editing them offline. For more information on Code view, see [node:436].</li>
+</ul>
+<p style="margin-left: 40px;">[[{"type":"media","view_mode":"media_original","fid":"429","attributes":{"alt":"","class":"media-image","height":"327","style":"width: 330px; height: 252px; border-width: 1px; border-style: solid; margin: 15px;","typeof":"foaf:Image","width":"428"}}]]</p>
+<ul>
+	<li><strong>Using your favorite editor or IDE:</strong> Export your API proxy. Unzip and open/edit the API proxy configuration files offline in your favorite text editor or IDE. For more information, see [node:220].</li>
+</ul>
+<p>Configure your Spike Arrest policy using the following elements.</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th>Field Name</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Rate or peak message rate (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td>Specifies the rate at which to limit the traffic spike (or burst).<br>
+				Valid value: integer per &lt;min&gt; or &lt;sec&gt;.</td>
+		</tr>
+		<tr>
+			<td>Identifier or client identifier (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>Variable used for uniquely identifying the client.</td>
+		</tr>
+		<tr>
+			<td>Message weight (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>Specifies the weighting defined for each message.<br>
+				Message weight is used to increase the message weighting, which is the amount of resources needed to process the message. Message weight can be extracted from headers/query parameters/message body. For example, if the limit is 10 messages/min and the weight is 2, then it can allow only 5 messages for processing (10/2). The rate limit is violated starting with the sixth message.</td>
+		</tr>
+	</tbody>
+</table>
+<h2><a class="jumplink" name="schema"></a>Policy schema</h2>
+<p>Each policy must conform to a policy schema. All policy constructs such as elements and attributes mentioned above are defined in a schema. To download the schema, <a href="/docs/download/file/fid/196">click here</a>.</p>
+<h3>Examples - Spike Arrests</h3>
+<h4>5 per second</h4>
+<pre>&lt;SpikeArrest name="SpikeArrest"&gt;
+&nbsp;&nbsp;&nbsp; &lt;Rate&gt;5ps&lt;/Rate&gt;
+&lt;/SpikeArrest&gt;</pre>
+<h4>12 per minute</h4>
+<pre>&lt;SpikeArrest name="SpikeArrest"&gt;
+&nbsp;&nbsp;&nbsp; &lt;Rate&gt;12pm&lt;/Rate&gt;
+&lt;/SpikeArrest&gt;</pre>
+<h4>12 per minute with message weight reference</h4>
+<pre>&lt;SpikeArrest name="SpikeArrest"&gt;
+&nbsp;&nbsp;&nbsp; &lt;Rate&gt;12pm&lt;/Rate&gt;
+&nbsp;&nbsp;&nbsp; &lt;Identifier ref="request.header.ID" /&gt;
+&nbsp;&nbsp;&nbsp; &lt;MessageWeight ref="request.header.weight" /&gt;
+&lt;/SpikeArrest&gt;</pre>
+<h3>Spike Arrest flow variables</h3>
+<p>Flow variables play a pivotal role in message flow. These variables enable advanced users to customize the behavior of policies and flows, based on the headers or message content, or the context available in the flow. The following predefined flow variables are accessed in spike arrest alert messages. For more information about flow variables, see [node:243].</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th>Variable</th>
+			<th>Type</th>
+			<th>Permission</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>ratelimit.&lt;policy-name&gt;.allowed.count</td>
+			<td>Long</td>
+			<td>Read-Only</td>
+			<td>Returns the allowed limit count</td>
+		</tr>
+		<tr>
+			<td>ratelimit.&lt;policy-name&gt;.used.count</td>
+			<td>Long</td>
+			<td>Read-Only</td>
+			<td>Returns the limit used in the counter</td>
+		</tr>
+		<tr>
+			<td>ratelimit.&lt;policy-name&gt;.exceed.count</td>
+			<td>Long</td>
+			<td>Read-Only</td>
+			<td>Returns the count exceeds the limit in the current counter</td>
+		</tr>
+		<tr>
+			<td>ratelimit.&lt;policy-name&gt;.expiry.time</td>
+			<td>Long</td>
+			<td>Read-Only</td>
+			<td>Returns the time in milliseconds based on which the limit expires and new counter starts</td>
+		</tr>
+	</tbody>
+</table>
+<p>&nbsp;</p>

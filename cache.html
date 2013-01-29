@@ -1,0 +1,276 @@
+<p>[toc]</p>
+<p>The Apigee cache sits between one or more servers (origin servers) and one or more clients, and watches requests, saving copies of the responses. If there is another request for the same URL, the cache can use the copied response instead of asking the originating server for that information.</p>
+<p>There are two main reasons for using a cache:</p>
+<ul>
+	<li><strong>To reduce latency:</strong> The request is satisfied from the cache (which is closer to the client) instead of the origin server, so the cache gets the representation and displays it in a shorter time. This makes the server more responsive.</li>
+	<li><strong>To reduce network traffic:</strong> Representations are reused, so the impact of processing duplicate or redundant requests is reduced. Cache reduces the amount of bandwidth you use, which decreases bandwidth requirements for the system.</li>
+</ul>
+<h2><a class="jumplink" name="define_resource"></a>Defining a cache resource</h2>
+<p>To use the caching policies, you need to set up a cache resource. You can create multiple cache resources in each environment. The scope of a cache is limited to an account. When the cache is created, you can put any serializable data into the cache or retrieve any data stored there.</p>
+<p><strong>Note:</strong> A default cache resource is configured for your organization when your Apigee account is set up. In ordinary circumstances, you do not need to explicitly configure a cache to use the Response Caching policy. Only configure a cache when you need to customize the cache settings and configuration optimize performance. If you have questions about your cache resource configuration, contact <a href="mailto:support@apigee.com">Apigee Support</a>.</p>
+<p>You can configure a cache resource using the following elements.</p>
+<table border="0" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th colspan="2" style="text-align: left;">Field Name</th>
+			<th style="text-align: left;">Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td colspan="2">Description</td>
+			<td>Description of the resource.</td>
+		</tr>
+		<tr>
+			<td colspan="2">MaxElementsInMemory</td>
+			<td>Maximum number of cache entries allowed in memory. Upon reaching the maximum limit, entries are discarded using Least Recently Used (LRU) algorithm.</td>
+		</tr>
+		<tr>
+			<td colspan="2">MaxElementsOnDisk</td>
+			<td>Maximum number of cache entries allowed in the disk. Upon reaching the maximum limit, entries are discarded using LRU algorithm.</td>
+		</tr>
+		<tr>
+			<td colspan="2">OverflowToDisk</td>
+			<td>Valid values: true/false<br>
+				Default value: false<br>
+				If true, the elements discarded from in-memory cache are stored to a disk cache. The elements discarded from disk cache are permanently deleted.</td>
+		</tr>
+		<tr>
+			<td colspan="2">Persistent</td>
+			<td>Valid values: true/false<br>
+				Default value: false<br>
+				If true, cache entries are persistent across restarts. Persistence of cache ensures that all cached messages are readily available during the crash-recovery process and therefore, prevents data loss.</td>
+		</tr>
+		<tr>
+			<td colspan="1" rowspan="3">ExpirySettings</td>
+			<td>TimeoutInSec</td>
+			<td>Duration (in seconds, ss) to leave for the cached entry.</td>
+		</tr>
+		<tr>
+			<td>TimeOfDay</td>
+			<td>A specific time (hh:mm:ss) of day.</td>
+		</tr>
+		<tr>
+			<td>ExpiryDate</td>
+			<td>Specify the date (mm-dd-yyyy).</td>
+		</tr>
+		<tr>
+			<td>Compression</td>
+			<td>MinimumSizeInKB</td>
+			<td>Optional. If specified, all entries above this size are compressed when stored to disk.</td>
+		</tr>
+	</tbody>
+</table>
+<h3>Example - Cache resource configuration</h3>
+<p>[gist:2627206]</p>
+<h3><a class="jumplink" name="cache_policies"></a>Caching policies</h3>
+<p>After you have successfully set up a cache resource, you can access the defined cache resource in a message flow by means of policies. The caching policies are as follows:</p>
+<ul>
+	<li><strong><a href="#lookup">Read from Cache policy</a>:</strong> Reads from the cache. It fetches data from the cache and writes to the flow variable specified in the policy. Note that it won't affect the message flow.</li>
+	<li><strong><a href="#populate">Write to Cache policy</a>:</strong> Writes to the cache. It fetches data from the message flow (source) and writes to the cache.</li>
+	<li><strong><a href="#invalidate">Remove from Cache policy</a>:</strong> Removes data from the cache. It clears/invalidates a specific cache entry from the cache based on a cache key.</li>
+	<li><strong>Response Caching policy:</strong> See [node:26].</li>
+</ul>
+<h3><a class="jumplink" name="configure_policies"></a>Configuring caching policies</h3>
+<p>You can configure a caching policy in one of two ways:</p>
+<ul>
+	<li><strong>Using the policy editor:</strong> Drag and drop the caching policy onto the message flow in the policy editor and then configure the elements of the policy using the Map view in the policy editor. For more information, see [node:219]. You can also configure the elements using the Code view in the policy editor that allows you to edit the XML fields directly instead of editing them offline. For more information on Code view, see [node:436].</li>
+	<li><strong>Using your favorite editor or IDE:</strong> Export your API proxy. Unzip and open/edit the API proxy configuration files offline in your favorite text editor or IDE. For more information, see [node:220].</li>
+</ul>
+<h2><a class="jumplink" name="lookup"></a>Configuring the Read from Cache policy</h2>
+<p>[[{"type":"media","view_mode":"media_original","fid":"443","attributes":{"alt":"","class":"media-image","height":"508","style":"width: 300px; height: 331px; border-width: 1px; border-style: solid; margin: 15px;","typeof":"foaf:Image","width":"461"}}]]</p>
+<p>Configure the Read from Cache policy using the following elements.</p>
+<table border="0" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th colspan="2" style="text-align: left;">Field Name</th>
+			<th style="text-align: left;">Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td colspan="2">CacheResource</td>
+			<td>Specifies the cache resource to be used.</td>
+		</tr>
+		<tr>
+			<td colspan="2">AssignTo</td>
+			<td>Specifies the variable where the cache entry needs to be assigned. Note that the variable must have write permissions.</td>
+		</tr>
+		<tr>
+			<td colspan="2">Scope</td>
+			<td>Used to construct the prefix, when Prefix in CacheKey is not provided. If Prefix is provided, then Scope is ignored.<br>
+				Allowed values are Global, Application, Proxy, Target, and Exclusive.</td>
+		</tr>
+		<tr>
+			<td colspan="1" rowspan="2">CacheKey</td>
+			<td>Prefix</td>
+			<td>
+				<div>Used for matching future requests to the cached response.</div>
+				<div>If provided, it is used as the prefix for all entries put into the cache by the policy.</div>
+			</td>
+		</tr>
+		<tr>
+			<td>KeyFragment</td>
+			<td>
+				<div>A cache key fragment can either contain a key or a value.</div>
+				<div>All fragments together (plus the prefix) are concatenated to create the cache key. For example, if a request message has headers id1=1 &amp; id2=1 then the cache key is <em>Apigee__1__2</em>.</div>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h4>Example - Read from Cache policy</h4>
+<p>[gist:2627295]</p>
+<h4>Flow variables - Read from Cache policy</h4>
+<p>Flow variables play a pivotal role in the message flow. These variables enable advanced users to customize the behavior of policies and flows, based on the headers or message content, or the context available in the flow. For more information about flow variables, see [node:243].</p>
+<p>The following predefined flow variables are available after you customize the behavior of the cache you define in a LookupCache policy.</p>
+<table border="0" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th scope="col">Variables</th>
+			<th scope="col">Type</th>
+			<th scope="col">Permission</th>
+			<th scope="col">Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>lookupcache.&lt;policy-name&gt;.cachename</td>
+			<td>String</td>
+			<td>Read-Only</td>
+			<td>Returns the cache name used in the policy.</td>
+		</tr>
+		<tr>
+			<td>lookupcache.&lt;policy-name&gt;.cachekey</td>
+			<td>String</td>
+			<td>Read-Only</td>
+			<td>Returns the key used.</td>
+		</tr>
+		<tr>
+			<td>lookupcache.&lt;policy-name&gt;.cachehit</td>
+			<td>Boolean</td>
+			<td>Read-Only</td>
+			<td>True if the policy execution is successful.</td>
+		</tr>
+		<tr>
+			<td>lookupcache.&lt;policy-name&gt;.assignto</td>
+			<td>String</td>
+			<td>Read-Only</td>
+			<td>Returns the variable to which cache is assigned.</td>
+		</tr>
+	</tbody>
+</table>
+<h2><a class="jumplink" name="populate"></a>Configuring the Write to Cache policy</h2>
+<p>[[{"type":"media","view_mode":"media_original","fid":"444","attributes":{"alt":"","class":"media-image","height":"509","style":"width: 300px; height: 332px; border-width: 1px; border-style: solid; margin: 15px;","typeof":"foaf:Image","width":"460"}}]]</p>
+<p>Configure the Write to Cache policy using the following elements.</p>
+<table border="0" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th colspan="2" style="text-align: left;">Field Name</th>
+			<th style="text-align: left;">Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td colspan="2">CacheResource</td>
+			<td>Specifies the cache resource to be used.</td>
+		</tr>
+		<tr>
+			<td colspan="2">Source</td>
+			<td>Writes specified information from the source to the cache.</td>
+		</tr>
+		<tr>
+			<td colspan="2">Scope</td>
+			<td>
+				<div>Used to construct the prefix, when Prefix in CacheKey is not provided. If Prefix is provided, then Scope is ignored.</div>
+				<div>Allowed values are Global, Application, Proxy, Target, and Exclusive.</div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="1" rowspan="2">CacheKey</td>
+			<td>Prefix</td>
+			<td>
+				<div>Used for matching future requests to the cached response.</div>
+				<div>If provided, it is used as the prefix for all the entries put into the cache by the policy.</div>
+			</td>
+		</tr>
+		<tr>
+			<td>KeyFragment</td>
+			<td>
+				<div>A cache key fragment can either contain a key or a value.</div>
+				<div>All the fragments together (plus the prefix) are concatenated to create the cache key. For example, if a request message has headers id1=1 &amp; id2=1 then the resultant cache key is <em>Apigee__1__2</em>.</div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="1" rowspan="3">ExpirySettings</td>
+			<td>TimeoutInSeconds</td>
+			<td>Duration (in seconds, ss) to leave for the cached entry.</td>
+		</tr>
+		<tr>
+			<td>TimeOfDay</td>
+			<td>A specific time (hh:mm:ss) of day.</td>
+		</tr>
+		<tr>
+			<td>ExpiryDate</td>
+			<td>Specify the date (mm-dd-yyyy).</td>
+		</tr>
+	</tbody>
+</table>
+<h4>Example - Write to Cache policy</h4>
+<p>[gist:2627308]</p>
+<h2><a class="jumplink" name="invalidate"></a>Configuring the Remove from Cache policy</h2>
+<p>[[{"type":"media","view_mode":"media_original","fid":"445","attributes":{"alt":"","class":"media-image","height":"572","style":"width: 300px; height: 401px; border-width: 1px; border-style: solid; margin: 15px;","typeof":"foaf:Image","width":"428"}}]]</p>
+<p>Configure the Remove Cache policy using the following elements.</p>
+<table border="0" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th colspan="2" style="text-align: left;">Field Name</th>
+			<th style="text-align: left;">Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td colspan="2">CacheResource (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td>Specifies the cache resource to be used.</td>
+		</tr>
+		<tr>
+			<td colspan="2">Scope (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>Used to construct the prefix, when Prefix in CacheKey is not provided. If Prefix is provided, then Scope is ignored.<br>
+				Allowed values are Global, Application, Proxy, Target, and Exclusive.</td>
+		</tr>
+		<tr>
+			<td colspan="1" rowspan="3">CacheContext (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>Application</td>
+			<td rowspan="3" style="vertical-align: middle;">Used to construct the cache key.</td>
+		</tr>
+		<tr>
+			<td>Proxy</td>
+		</tr>
+		<tr>
+			<td>Target</td>
+		</tr>
+		<tr>
+			<td colspan="1" rowspan="2">CacheKey (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>Prefix</td>
+			<td>
+				<div>Used for matching future requests to the cached response.</div>
+				<div>If provided, it is used as the prefix for all entries put into the cache by the policy.</div>
+			</td>
+		</tr>
+		<tr>
+			<td>KeyFragment</td>
+			<td>
+				<div>A cache key fragment can either contain a key or a value.</div>
+				<div>All fragments (plus the prefix) are concatenated to create the cache key. For example, if a request message has headers id1=1 &amp; id2=1 then the cache key is <em>Apigee__1__2</em>.</div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">PurgeChildEntries (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>Valid values: true/false<br>
+				Default value: false</td>
+		</tr>
+	</tbody>
+</table>
+<h4>Example - Remove from Cache policy</h4>
+<p>[gist:2627316]</p>
+<h2><a class="jumplink" name="schema"></a>Policy schema</h2>
+<p>Each policy must conform to a policy schema. All policy constructs such as elements and attributes mentioned above are defined in a schema. To download the schema, <a href="/docs/download/file/fid/197">click here</a>.</p>

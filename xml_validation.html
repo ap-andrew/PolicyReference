@@ -1,0 +1,64 @@
+<p>[toc]</p>
+<p>Using validation, the system can reject messages that do not conform to the request message schema definitions. That means developers building apps to consume your API are immediately notified if they are submitting non-conformant requests. Some examples are missing end tags in an XML document, and getting valid responses from malformed request messages.</p>
+<p>Validation can save you a call to tech support, and can help developers avoid time in the forums trying to find troubleshooting help. If developers are notified that they are submitting invalid requests, they can refer to the XML schema for the API to understand how to fix the error. Thus, the XML schema is an important component of your API documentation to help your developers understand how to interact with your API.</p>
+<p>Apigee allows you to configure your API with a Message Validation policy that validates messages with the XML payload.</p>
+<p>The policy also validates that an XML/JSON message is well formed, and the SOAP format is correct. The messages are validated against an XSD or WSDL file to ensure that every opening element tag has a corresponding nested tag. If the XML code is incomplete, the policy displays a message validation error. Note that the policy must be written as follow for any well formedness validation:</p>
+<pre>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
+&lt;MessageValidation name="MessageValidation"&gt;
+&lt;/MessageValidation&gt;</pre>
+<h2><a class="jumplink" name="configure_policy"></a>Configuring the Message Validation policy</h2>
+<p>You can configure the Message Validation policy in one of two ways:</p>
+<ul>
+	<li><strong>Using the policy editor:</strong> Drag and drop the Message Validation policy onto the message flow in the policy editor and then configure the elements of the policy using the Map view in the policy editor. For more information, see [node:219]. You can also configure the elements using the Code view in the policy editor that allows you to edit the XML fields directly instead of editing them offline. For more information on Code view, see [node:436].</li>
+</ul>
+<p style="margin-left: 40px;">[[{"type":"media","view_mode":"media_original","fid":"452","attributes":{"alt":"","class":"media-image","height":"539","style":"width: 330px; height: 386px; border-width: 1px; border-style: solid; margin: 15px;","typeof":"foaf:Image","width":"461"}}]]</p>
+<ul>
+	<li><strong>Using your favorite editor or IDE:</strong> Export your API proxy. Unzip and open/edit the API proxy configuration files offline in your favorite text editor or IDE. For more information, see [node:220].</li>
+</ul>
+<p>Configure the Message Validation using the following elements.</p>
+<table border="0" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th>Field Name</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Source (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>
+				<div>Source message to be validated.</div>
+				<ul>
+					<li>If the source is missing, it is treated as a simple message. For example, <span style="font-family: courier new,courier,monospace;">&lt;Source&gt;message&lt;/Source&gt;</span></li>
+					<li>If the source variable cannot be resolved, or resolves to a non-message type, the policy fails to respond.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<td>ResourceURL (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>
+				<div>XSD or WSDL file used in the schema validation against the source message. The message validation fails if the WSDL file does not have schemas or if the maximum import depth exceeds 10.</div>
+				<div>If ResourceURL is not specified, the message is checked for:</div>
+				<ul>
+					<li>Well-formed XML if the content-type is application/xml</li>
+					<li>Well-formed JSON if the content-type is application/json</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<td>SOAPMessage (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>
+				<div>Verifies that the message corresponds to the SOAP format of the specified version(s).</div>
+				<div>If the version attribute is not specified, the message could correspond to either SOAP 1.1 or 1.2 format (<a href="#validation">example</a> below).</div>
+			</td>
+		</tr>
+		<tr>
+			<td>Element (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>Specifies the valid root elements.</td>
+		</tr>
+	</tbody>
+</table>
+<h2><a class="jumplink" name="schema"></a>Policy schema</h2>
+<p>Each policy must conform to a policy schema. All policy constructs such as elements and attributes mentioned above are defined in a schema. To download the schema, <a href="/docs/download/file/fid/191">click here</a>.</p>
+<h3><a name="validation"></a>Example - Message Validation policy</h3>
+<p>[gist:2627963]</p>

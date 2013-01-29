@@ -1,0 +1,150 @@
+<p>[toc]</p>
+<p>Apigee provides API response caching that enables fine-grained control of field-level caching, reducing load on your back-end systems and ensuring fast response times to customers.</p>
+<p>[[{"type":"media","view_mode":"media_original","fid":"162","attributes":{"alt":"","class":"media-image","height":"307","style":"width: 550px; height: 240px; border-width: 0px; border-style: solid; margin: 15px;","typeof":"foaf:Image","width":"703"}}]]</p>
+<p>The API Platform provides a message cache that can be configured to save and periodically refresh copies of response messages. As apps make requests to the same URI, the API Platform can be configured to return cached responses, rather than forwarding those requests to the backend server.</p>
+<p>Response caching is commonly used when backend data is updated only periodically. For example, an API exposes catalog data and the data that updates only on the first day of the month. In this case, response caching can be used to eliminate network traffic to the backend server for the remainder of the month.</p>
+<p>There are two main benefits to response caching:</p>
+<ul>
+	<li><strong>Reduced latency:</strong> The request is satisfied from the cache (removing a network hop), so the response is returned in a shorter time, making the API more responsive.</li>
+	<li><strong>Reduced network traffic:</strong> Representations are reused, so the impact of processing duplicate or redundant requests is reduced. Response caching reduces the amount of bandwidth consumed overall.</li>
+</ul>
+<p>Unlike other policies, a ResponseCaching policy is attached to both request and response paths within a message flow. Cached response messages are returned to requesting apps based on request message keys configured in the policy. &nbsp;The API Platform inspects request message for a configured key, and when the key is present, it returns the cached response.</p>
+<p>The API Platform executes response caching as follows:</p>
+<ol>
+	<li>In the request path, the <span style="font-family:courier new,courier,monospace;">SkipCacheLookup</span> condition is evaluated.</li>
+	<li>If <span style="font-family:courier new,courier,monospace;">SkipCacheLookup</span> evaluates to true, no cache look up is performed.</li>
+	<li>If <span style="font-family:courier new,courier,monospace;">SkipCacheLookup</span> evaluates to false, a cache key is constructed using <span style="font-family:courier new,courier,monospace;">CacheKeyPrefix</span> and <span style="font-family:courier new,courier,monospace;">CacheKey</span> elements defined in the policy.</li>
+	<li>Look up on the cache using the key.</li>
+	<li>When a cached entry is found, it is returned to the client as a response.</li>
+	<li>If the response is not found in cache, the request is forwarded to the target backend service.</li>
+</ol>
+<p>You can also configure cache refresh by enabling a&nbsp;<em>condition</em>. If the condition evaluates to true, regardless of the data in the cache, the request is forwarded to the backend service and the cache is refreshed with the response. A common use of conditional cache refresh is a condition that defines a specific HTTP header that causes the condition to evaluate to true. A scripted client application could be configured to periodically submit a request with the appropriate header, explicitly causing the response cache to refresh.</p>
+<p>For more information about conditions, see [node:123].</p>
+<p><strong>Note:</strong> Response caching relies on a default <em>cache resource</em> configured for your organization when your Apigee account is set up. If you have questions about your cache resource configuration, contact <a href="mailto:support@apigee.com">Apigee Support</a>.</p>
+<h2><a class="jumplink" name="configure"></a>Configuring the Response Caching policy</h2>
+<p>You can configure a Response Caching policy in one of two ways:</p>
+<ul>
+	<li><strong>Using the policy editor:</strong> Drag and drop the Response Caching policy onto the message flow in the policy editor and then configure the elements of the policy using the Map view in the policy editor. For more information, see [node:219]. You can also configure the elements using the Code view in the policy editor that allows you to edit the XML fields directly instead of editing them offline. For more information on Code view, see [node:436].</li>
+</ul>
+<p style="margin-left: 40px;">[[{"type":"media","view_mode":"media_original","fid":"442","attributes":{"alt":"","class":"media-image","height":"559","style":"width: 330px; height: 430px; border-width: 1px; border-style: solid; margin: 15px;","typeof":"foaf:Image","width":"429"}}]]</p>
+<ul>
+	<li><strong>Using your favorite editor or IDE:</strong> Export your API proxy. Unzip and open/edit the API proxy configuration files offline in your favorite text editor or IDE. For more information, see [node:220].</li>
+</ul>
+<p>Configure the Response Caching policy using the following elements.</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th colspan="2" style="text-align: left;">Field Name</th>
+			<th colspan="2" style="text-align: left;">Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td colspan="2" style="vertical-align: top;">CacheResource (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>Specifies the cache where messages should be stored. A default cache is available for all organizations on the API Platform.</td>
+		</tr>
+		<tr>
+			<td colspan="2" style="vertical-align: top;">Scope (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>
+				<div>Used to construct the prefix, when Prefix in CacheKey is not provided. If Prefix is provided, then Scope is ignored.</div>
+				<div>Allowed values are Exclusive, Global, Application, Proxy, and Target.</div>
+				<ul>
+					<li>
+						<div><strong>Exclusive</strong> (default): ApiName_ProxyName if the policy is attached to the ProxyEndpoit flow. ApiName_TargetName if the policy is attached at TargetEndpoint flow.</div>
+					</li>
+					<li>
+						<div><strong>Global:</strong> Keys are shared across all API facades deployed in the environment.</div>
+					</li>
+					<li>
+						<div><strong>Application:</strong> ApiName is used as the prefix for all cache keys.</div>
+					</li>
+					<li>
+						<div><strong>Proxy:</strong> ApiName_ProxyName is used as the prefix for all cache keys.</div>
+					</li>
+					<li>
+						<div><strong>Target:</strong> ApiName_TargetName is used as the prefix for all cache keys.</div>
+					</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="1" rowspan="2" style="vertical-align: top;">CacheKey (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>Prefix</td>
+			<td>
+				<div>Used for matching requests to the cached response.</div>
+				<div>If provided, used as prefix for all entries &nbsp;stored in the cache by the policy.</div>
+			</td>
+		</tr>
+		<tr>
+			<td>KeyFragment</td>
+			<td>
+				<div>A cache key fragment can either contain a key or a value.</div>
+				<div>All the fragments together (plus the prefix) are concatenated to create the cache key. For example, if a request message has headers id1=1 &amp; id2=1, the cache key is <em>Apigee__1__2</em>.</div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" style="vertical-align: top;">SkipCacheLookup (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>Valid values: true/false</td>
+		</tr>
+		<tr>
+			<td colspan="2" style="vertical-align: top;">SkipCachePopulation (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>Valid values: true/false</td>
+		</tr>
+		<tr>
+			<td colspan="1" rowspan="3" style="vertical-align: top;">ExpirySettings (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>TimeoutInSeconds</td>
+			<td>Duration (in seconds, ss) to leave for the cached entry.</td>
+		</tr>
+		<tr>
+			<td>TimeOfDay</td>
+			<td>A specific time (hh:mm:ss) of day.</td>
+		</tr>
+		<tr>
+			<td>ExpiryDate</td>
+			<td>Specifies the date (mm-dd-yyyy).</td>
+		</tr>
+	</tbody>
+</table>
+<h2><a class="jumplink" name="schema"></a>Policy schema</h2>
+<p>Each policy must conform to a policy schema. All policy constructs such as elements and attributes mentioned above are defined in a schema. To download the schema, <a href="/docs/download/file/fid/197">click here</a>.</p>
+<h3>Example - Response caching</h3>
+<p>[gist:2626419]</p>
+<h3>Response caching flow variables</h3>
+<p>Flow variables play a pivotal role in message flow. These variables enable advanced users to customize the behavior of policies and flows, based on the headers or message content, or the context available in the flow. The following predefined flow variables are available after a Response Caching policy is executed. For more information about flow variables, see [node:243].</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th>Variables</th>
+			<th>Type</th>
+			<th>Permission</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>responsecache.&lt;policy-name&gt;.cachename</td>
+			<td>String</td>
+			<td>Read-Only</td>
+			<td>Returns the cache used in the policy</td>
+		</tr>
+		<tr>
+			<td>responsecache.&lt;policy-name&gt;.cachekey</td>
+			<td>String</td>
+			<td>Read-Only</td>
+			<td>Returns the key used</td>
+		</tr>
+		<tr>
+			<td>responsecache.&lt;policy-name&gt;.cachehit</td>
+			<td>Boolean</td>
+			<td style="vertical-align: top;">Read-Only</td>
+			<td>True if the policy execution is successful</td>
+		</tr>
+		<tr>
+			<td>responsecache.&lt;policy-name&gt;.invalidentry</td>
+			<td>Boolean</td>
+			<td>Read-Only</td>
+			<td>True if the cache entry in not valid</td>
+		</tr>
+	</tbody>
+</table>
+<p>&nbsp;</p>

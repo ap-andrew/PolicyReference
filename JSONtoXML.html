@@ -1,10 +1,10 @@
 <p>[toc]</p>
 
-<p>Apigee enables developers to convert messages from the JavaScript object notation (JSON) format to the extensible markup language (XML) format by using the JSONtoXML policy type. This policy is useful for supporting services that require XML, but which must also support RESTful apps that require JSON (for example, due to a lack of an XML parsing capabilities on the client).</p>
+<p>The API Platform enables developers to convert messages from the JavaScript object notation (JSON) format to the extensible markup language (XML) format by using the JSONtoXML policy type. This policy is useful for enabling backend XML services to support RESTful apps that require JSON (for example, due to a lack of an XML parsing capabilities on the client).</p>
 
-<p>In a typical mediation scenario, a JSONtoXML policy on the inbound request flow is often paired with an XMLtoJSON policy on the outbound response flow. By combining policies this way, a JSON API can be exposed for services that natively support only XML. For scenarios where APIs are consumed by diverse clients apps which may require either JSON and XML, the format of the response can be dynamically set by configuring JSONtoXML and XMLtoJSON policies to execute conditionally. See </p>
+<p>In a typical mediation scenario, a JSONtoXML policy on the inbound request flow is often paired with an XMLtoJSON policy on the outbound response flow. By combining policies this way, a JSON API can be exposed for services that natively support only XML. For scenarios where APIs are consumed by diverse clients apps which may require either JSON and XML, the format of the response can be dynamically set by configuring JSONtoXML and XMLtoJSON policies to execute conditionally. See the API Platform Developer Guide topic [node:4583] for an implementation of this scenario. </p>
 	
-<p>The HTTP Content-type header of the source message must be set to <code>application/json</code>. If the HTTP Content-type of the source message is not <code>application/json</code>, the policy is not enforced. The payload of the JSON message is then parsed and converted into XML, and the HTTP Content-type header of the XML-formatted message is set to <code>application/xml</code>.</p>
+<p>The HTTP Content-type header of the source message must be set to <code>application/json</code>. If the HTTP Content-type header of the source message is not <code>application/json</code>, the policy is not enforced. The payload of the JSON message is parsed and converted into XML, and the HTTP Content-type header of the XML-formatted message is set to <code>application/xml</code>.</p>
 
 
 <p>Configure the JSONtoXML policy using the following optional elements. Reasonable defaults are provided for each setting, thus all elements in this policy type are optional unless <code>NamespaceBlockName</code> is set, in which case <code>DefaultNamespaceNodeName</code> and <code>NamespaceSeparator</code> must also be specified.</p>
@@ -66,7 +66,7 @@
 				<pre>{"root" : "I_AM_NULL"}</pre>
 				<div>converts to:</div>
 				<pre>&lt;root&gt;&lt;/root&gt;</pre>
-				<div>If Null value is not specified, this XML is generated:</div>
+				<div>Where no value (or a value other than <code>I_AM_NULL</code>) is specified for the Null value, then the same payload converts to:</div>
 				<pre>&lt;root&gt;I_AM_NULL&lt;/root&gt;</pre>
 			</td>
 		</tr>
@@ -75,13 +75,15 @@
 			<td>
 				<div>Converts the property into XML attributes. For example:</div>
 				<pre>{
- "root" : {
- "#attrs" : {
- "@att1" : "value1",
- "@att2" : "value2"
- <code>"att3" : "value3"</code>
+"root" : 
+{
+   "#attrs" : 
+{
+   "@att1" : "value1",
+   "@att2" : "value2"
+   "att3" : "value3"
  }, 
- "child" : "value0",
+   "child" : "value0",
  }
 }</pre>
 				<div>converts to:</div>
@@ -95,9 +97,9 @@
 				<div>Converts the property starting with the specified prefix into XML attributes. For example:</div>
 				<pre>{
  "root" : {
- "@att1" : "value1",
- "child" : "value0",
- "@att2" : "value2"
+   "@att1" : "value1",
+   "child" : "value0",
+   "@att2" : "value2"
  }
 }</pre>
 				<div>converts to:</div>
@@ -110,12 +112,13 @@
 				<div>Configures XML namespace properties. For example:</div>
 				<pre>{
  "root" : {
- "#namespaces" : {
- "$default" : "http://default",
- "xmlns:ns1" : "http://ns1"
+   "#namespaces" : 
+{
+   "$default" : "http://default",
+   "xmlns:ns1" : "http://ns1"
  },
- "child1" : "value0",
- "ns1:child2" : "value1"
+   "child1" : "value0",
+   "ns1:child2" : "value1"
  }
 }</pre>
 				<div>converts to:</div>
@@ -135,9 +138,9 @@
 				<pre>[ "one", { "two": 2 }, "three" ]</pre>
 				<div>converts to:</div>
 				<pre><code>&lt;Array&gt;
- &lt;Item&gt;one&lt;/Item&gt;
- &lt;Item&gt; &lt;two&gt;2&lt;/two&gt;&lt;/Item&gt;
- &lt;Item&gt;three&lt;/Item&gt;
+   &lt;Item&gt;one&lt;/Item&gt;
+   &lt;Item&gt; &lt;two&gt;2&lt;/two&gt;&lt;/Item&gt;
+   &lt;Item&gt;three&lt;/Item&gt;
 &lt;/Array&gt;</code></pre>
 			</td>
 		</tr>

@@ -1,0 +1,54 @@
+<p>[toc]</p>
+<p>Any server that receives online data is subject to attack. Attacks can be malicious or unintentional.</p>
+<p>JSON has a simple programming interface, so JSON-related services and XML-based services are exposed to similar types of threats. For example, transporting JSON data over an unprotected connection can invite a cross-site scripting exposure as JSON data is evaluated by the JavaScript code.</p>
+<p>In Apigee, you can configure your API flow with a JSON Threat Protection policy, which can address JSON-related vulnerabilities and minimize attacks on your API.</p>
+<p>The JSON Threat Protection policy can detect JSON payload attacks based on configured limits. All the limits are optional.</p>
+<p><strong>Note:</strong> If a limit is not specified, the system applies a default value of -1 (the system equates a negative value to no limit).</p>
+<h2><a class="jumplink" name="threat_policy"></a>Configuring the JSON Threat Protection policy</h2>
+<p>You can configure the JSON Threat Protection policy in one of two ways:</p>
+<ul>
+	<li><strong>Using the policy editor:</strong> Drag and drop the JSON Threat Protection policy onto the message flow in the policy editor and then configure the elements of the policy using the Map view in the policy editor. For more information, see [node:219]. You can also configure the elements using the Code view in the policy editor that allows you to edit the XML fields directly instead of editing them offline. For more information on Code view, see [node:436].
+		<p>[[{"type":"media","view_mode":"media_original","fid":"433","attributes":{"alt":"","class":"media-image","height":"498","style":"width: 330px; height: 383px; border-width: 1px; border-style: solid; margin: 15px;","typeof":"foaf:Image","width":"429"}}]]</p>
+	</li>
+	<li><strong>Using your favorite editor or IDE:</strong> Export your API proxy. Unzip and open/edit the API proxy configuration files offline in your favorite text editor or IDE. For more information, see [node:220].</li>
+</ul>
+<p>Configure the JSON Threat Protection policy using the following elements.</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th scope="col" style="text-align: left;">Field Name</th>
+			<th scope="col" style="text-align: left;">Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Source</td>
+			<td>Request that needs to be validated for JSON payload attacks.</td>
+		</tr>
+		<tr>
+			<td>Container depth</td>
+			<td>Specifies the maximum allowed nested depth.<br>
+				JSON allows you to nest the containers (object and array) in any order to any depth.</td>
+		</tr>
+		<tr>
+			<td>Object entry count</td>
+			<td>Specifies the maximum number of entries allowed in an object.</td>
+		</tr>
+		<tr>
+			<td>Object entry name length</td>
+			<td>Specifies the maximum string length allowed for an object's entry name.</td>
+		</tr>
+		<tr>
+			<td>Array element count</td>
+			<td>Specifies the maximum number of elements allowed in an array.</td>
+		</tr>
+		<tr>
+			<td>String value length</td>
+			<td>Specifies the maximum length allowed for a string value.</td>
+		</tr>
+	</tbody>
+</table>
+<h2><a class="jumplink" name="schema"></a>Policy schema</h2>
+<p>Each policy must conform to a policy schema. All policy constructs, such as elements and attributes mentioned above, are defined in a schema. To download the schema, <a href="/docs/download/file/fid/459">click here</a>.</p>
+<h3>Example - JSON Threat Protection policy</h3>
+<p>[gist:2929432]</p>

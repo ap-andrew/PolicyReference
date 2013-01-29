@@ -1,0 +1,49 @@
+<p>RESTful services are usually available over the open Internet for consumption by developers building apps. In these cases, API providers need a mechanism to prevent unauthorized access to the API. One approach is to provision your developers with an API key that must be presented when invoking the API. "API keys" are called "consumer keys" and "app keys". The names can be used interchangeably.</p>
+	
+<p>By enforcing API keys, you gain access control over the apps that consume APIs exposed through the API Platform. The API Platform enables you to revoke API keys of poorly-coded, non-conforming, or malicious apps that may harm your API or your app end users. API keys also enable business enforcement over access to APIs, since API keys are also used to validate that an app is permitted to access specific URIs.</p>
+
+<p>The API Platform automatically generates a credential pair when an app is registered in organization. The credentials are stored in a database on the API Platform, where they can be managed (revoked, approved, deleted, associated with API products, disassociated with API products, etc.) by an organization administrator. By applying APIKeyValidation to an API you also enable runtime verification of API key validity.</p>
+
+<p>API keys are verified at runtime to validate that:</p>
+<ul><li>The API key presented is valid and has not been revoked</li>
+<li>The API key presented is approved to consume an API product that includes the requested URI</li></ul>
+
+<p>The only setting required for the VerifyAPIKey defines the expected location of the API Key in the request message. Only one location is supported.
+</p>
+
+<p>For example, to configure the policy to check a query parameter called <code>apikey</code>:</p>
+
+<pre>&lt;VerifyAPIKey name=&quot;APIKeyValidation&quot;&gt;
+    &lt;APIKey&gt;request.queryparameter.apikey&lt;/APIKey&gt;
+&lt;/VerifyAPIKey&gt;</pre>
+
+<p>For example, to configure the policy to check an HTTP header called <code>apikey</code>:</p>
+
+<pre>&lt;VerifyAPIKey name=&quot;APIKeyValidation&quot;&gt;
+    &lt;APIKey&gt;request.header.apikey&lt;/APIKey&gt;
+&lt;/VerifyAPIKey&gt;</pre>
+
+
+<p>When a VerifyAPIKey policy is enforced, the API Platform populates a set of flow variables that can be consumed by other policies or code in the API flow. </p>
+
+<p>The variable prefix is <code>verifyapikey.{policy_name}</code>.</p>
+
+<p>The variables populated are:</p>
+
+<ul><li><code>client_id</code>: The client_id supplied by the requesting app</li>
+<li><code>client_secret</code>: The consumer secret associated with the consumer key</li>
+<li><code>redirection_uris</code>: Any redirect URIs in the request</li>
+<li><code>developer.app.name</code>: The app name of the developer app making the request</li>
+<li><code>developer.id</code>: The developerID of the developer registered as the owner of the requesting app</li>
+<li><code>failed</code>: Set when API Key validation fails</li>
+<li><code>{custom_attribute_name_of_app}</code>:  Any custom attribute derived from the app profile</li>
+<li><code>{custom_attribute_name_of_appkey}</code>: Any custom attributes derived from the app key profile</li>
+<li><code>apiproduct.name*</code>: The name of the API product used to validate the request</li>
+<li><code>apiproduct.{custom_attribute_name_of_apiproduct}*</code>: Any custom attribute derived from the API product profile</li>
+
+<p>API product  variables will be populated automatically if the API products are configured with valid environment, proxies and API resources (derived from the <code>proxy.pathsuffix</code>). Explicitly setting  <code>flow.resource.name</code> variable is not required.</p>
+<p>Where the API products are not configured with valid environments and API proxies, then <code>flow.resource.name</code> must explicitly be set to populate API product variables in the flow.</p>
+
+
+<h3><a name="validation"></a>Example: API Key Validation policy</h3>
+<p>[gist:3718607]</p>

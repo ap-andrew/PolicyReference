@@ -1,0 +1,94 @@
+<p>[toc]</p>
+<p>The Key Value Map Operation policy is used to store information in cache provided by Apigee. <em>Key-value</em> refers to any arbitrary data. Each key-value pair that you define in this policy is stored in cache with an associated expiration interval. An example of a key-value map is name=map1, or more technically, SessionID=156374, which you can cache after login so you can use this SessionID in subsequent requests.</p>
+<p>In Apigee, the Key Value Map Operation policy allows you to maintain a map with the key instead of with values. A key-value map is preloaded with default key-value entries. This policy supports the following map operations of a key on a referenced key-value map.</p>
+<ul>
+	<li><strong>Put:</strong> Include an entry inside a key-value map.</li>
+	<li><strong>Get:</strong> Retrieve a value for a key.</li>
+	<li><strong>Delete:</strong> Delete a key.</li>
+</ul>
+<h2><a class="jumplink" name="configure"></a>Configuring the Key Value Map Operation policy</h2>
+<p>You can configure a Key Value Map Operation policy in one of two ways:</p>
+<ul>
+	<li><strong>Using the policy editor:</strong> Drag and drop the Key Value Map Operation policy onto the message flow in the policy editor and then configure the elements of the policy using the Map view in the policy editor. For more information, see [node:219]. You can also configure the elements using the Code view in the policy editor that allows you to edit the XML fields directly instead of editing them offline. For more information on Code view, see [node:436].</li>
+	<li><strong>Using your favorite editor or IDE:</strong> Export your API proxy. Unzip and open/edit the API proxy configuration files offline in your favorite text editor or IDE. For more information, see [node:220].</li>
+</ul>
+<p>Configure the Key Value Map Operation policy using the following elements.</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th colspan="6">Field Name</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td colspan="6" style="vertical-align: top;">ExclusiveCache (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>
+				<div>Valid values: true/false</div>
+				<div>Default value: false</div>
+				<div>If false, the cache provided by the environment is used.</div>
+				<div>If true, a cache is created exclusively.</div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="6" style="vertical-align: top;">ExpiryTimeInSecs (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>
+				<div>Indicates the duration of a specific key entry being retained in the key-value map before it expires. In the <a href="#example">example</a> below, the map entry expires after 60 seconds.</div>
+				<div>The default value is -1, which indicates that the entry never expires.</div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="3" rowspan="2" style="vertical-align: top;">InitialEntries (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td colspan="1" rowspan="2" style="vertical-align: top;">Entry</td>
+			<td>Key</td>
+			<td>Parameter (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td>The default value for the key-value entry that you define. A key can be composite, which means that more than one parameter can be appended to make the key. For example, User-ID and Role together is the key.</td>
+		</tr>
+		<tr>
+			<td colspan="2" rowspan="1" style="vertical-align: top;">Value (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td>Specifies the value for a key. In the <a href="#example">example</a> below, the map is initialized by the two key-value entries <span style="font-family: courier new,courier,monospace;">[k1] -&gt; [v1, v2]</span> and <span style="font-family: courier new,courier,monospace;">[k2, k3] -&gt; [v3, v4]</span>.</td>
+		</tr>
+		<tr>
+			<td colspan="3" rowspan="3" style="vertical-align: top;">Put (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td colspan="2" style="vertical-align: top;">Key</td>
+			<td style="vertical-align: top;">Parameter (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td>Includes an entry inside a key-value map for the specified key.</td>
+		</tr>
+		<tr>
+			<td colspan="3" rowspan="1" style="vertical-align: top;">Value (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td>You can specify multiple values for a key.</td>
+		</tr>
+		<tr>
+			<td colspan="3" style="vertical-align: top;">Override</td>
+			<td>
+				<div>Valid values: true/false</div>
+				<div>Default value: false</div>
+				<div>If true, it overrides the value for a key.</div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="3" rowspan="3" style="vertical-align: top;">Get (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td colspan="2" style="vertical-align: top;">Key</td>
+			<td style="vertical-align: top;">Parameter (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td>Retrieves a value for the specified key.</td>
+		</tr>
+		<tr>
+			<td colspan="3" style="vertical-align: top;">assignTo (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td>Assigns the retrieved value to a flow variable or simply a variable.</td>
+		</tr>
+		<tr>
+			<td colspan="3" style="vertical-align: top;">index (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>You can specify an index for a multi-valued key. In the <a href="#example">example</a> below, index is 1, meaning the value at index 1 is fetched and assigned to the variable <em>myvar</em>. If not specified, all the values of that entry are assigned to the variable as <em>java.util.List</em>.</td>
+		</tr>
+		<tr>
+			<td colspan="3" style="vertical-align: top;">Delete (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td colspan="2" style="vertical-align: top;">Key</td>
+			<td style="vertical-align: top;">Parameter (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td>Specifies the key to be deleted.</td>
+		</tr>
+	</tbody>
+</table>
+<h2><a class="jumplink" name="schema"></a>Policy schema</h2>
+<p>Each policy must conform to a policy schema. All policy constructs such as elements and attributes mentioned above are defined in a schema. To download the schema, <a href="/docs/download/file/fid/203">click here</a>.</p>
+<h3><a class="jumplink" name="example"></a>Example - Key Value Map Operation policy</h3>
+<p>[gist:2633928]</p>

@@ -1,0 +1,266 @@
+<p>[toc]</p>
+<p><em>Rate limiting</em> is used to control the rate of traffic sent to or received by an API. Traffic that is less than or equal to the specified rate is sent, whereas traffic that exceeds the rate is rejected. There are both business and technical reasons to control the traffic an API receives. Rate limiting can be implemented with either quotas or spike arrests on the request path in a flow:</p>
+<ul>
+	<li>Quotas limit the number of API calls your application makes, ensuring that every developer consumes a proportionate amount of API resources for business reasons.</li>
+	<li>Spike arrests stop traffic spikes (or bursts) that can be caused by an increase in usage, buggy clients, or malicious attacks. For more information on spike arrests, see [node:53].</li>
+</ul>
+<h2><a class="jumplink" name="quotas"></a>Using quotas</h2>
+<p>A <em>quota</em> facilitates equitable distribution of API resources, thereby protecting the system from receiving more operations than it can address. Quotas ensure that a sudden increase in API use by one developer does not adversely affect the activity of other developers.</p>
+<p>Quotas give you the flexibility to monitor API use during a specific period of time, and to limit the number of API requests sent during that time. When the quota is reached, subsequent API calls are rejected, and the requester receives an error message. Quotas are typically defined as the number of API calls that are accepted in an hour, a day, a week, or a month.</p>
+<p>For example, if the quota is defined as 2000 messages per day (24-hour period), then limiting happens only when 2000 messages is reached regardless of whether this 2000 messages was hit in the first hour or last hour of that period. The caller is blocked from making additional requests until the counter is reset at the end of each day (the counter is reset for an IP address after 24 hours).</p>
+<p>Quotas can also be specified in service plans, which are user-defined service levels. For example, you might have one of three service plans associated with your API, each with a different allowance of transactions per second (TPS) per resource:</p>
+<ul>
+	<li>Gold = 1000 TPS per resource</li>
+	<li>Silver = 500 TPS per resource</li>
+	<li>Bronze = 300 TPS per resource</li>
+</ul>
+<p>This means that when you associate a Gold service plan, the quota available is 1000 TPS per resource. (The service plans are configurable.)</p>
+<h2><a class="jumplink" name="disquotas"></a>Distributed quotas</h2>
+<p>The rate limit quota applies only to access from a specific message processor. So if a particular message processor has used an API, the processor allows the specified number of requests in a stipulated period of time.</p>
+<p>In contrast, with <em>distributed quotas</em>, all access requests to a given API are totalled for all message processors. If the total number of requests exceeds the specified distributed quota limit, all message processors are denied access to the API.</p>
+<h2><a class="jumplink" name="configure"></a>Configuring a Quota policy</h2>
+<p>You can configure a Quota policy in one of two ways:</p>
+<ul>
+	<li><strong>Using the policy editor:</strong> Drag and drop the Quota policy onto the message flow in the policy editor and then configure the elements of the policy using using the Map view in the policy editor. For more information, see [node:219]. You can also configure the elements using the Code view in the policy editor that allows you to edit the XML fields directly instead of editing them offline. For more information on Code view, see [node:436].
+		<p>[[{"type":"media","view_mode":"media_original","fid":"428","attributes":{"alt":"","class":"media-image","height":"506","style":"width: 330px; height: 443px; border-width: 1px; border-style: solid; margin: 15px;","typeof":"foaf:Image","width":"377"}}]]</p>
+	</li>
+	<li><strong>Using your favorite editor or IDE:</strong> Export your API proxy. Unzip and open/edit the API proxy configuration files offline in your favorite text editor or IDE. For more information, see [node:220].</li>
+</ul>
+<p>Configure the Quota policy using the following elements.</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th colspan="2" scope="col" style="text-align: left;">XML Field Name</th>
+			<th scope="col" style="text-align: left;">UI Field Name</th>
+			<th scope="col" style="text-align: left;">Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td colspan="2">Interval (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td>Calculation interval</td>
+			<td>
+				<div>Specifies the interval of time (in hours, minutes, or days as defined by TimeUnit) applicable to the quota. For example, a value of 24 for the Interval with a TimeUnit of hours means that the quota is applied over one day (24 hours).</div>
+				<div>Valid value: integer</div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">TimeUnit (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td>Time unit</td>
+			<td>
+				<div>Unit of time.</div>
+				<div>Valid values: second, minute, hour, day, or month</div>
+				<div><strong>Note:</strong> Distributed quotas cannot be configured in seconds for the time interval.</div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">Allow count (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td>Allowed limit (count)</td>
+			<td>
+				<div>Specifies a message count for the quota.</div>
+				<div>For example, a value of 100 for the Allow count with a duration of 1 month means that the quota is set to be 100 messages per month.</div>
+				<div>Valid value: integer</div>
+				<div><strong>Note:</strong> If a count reference is specified, it takes precedence over the Allow count value.</div>
+				<div>For example, the element <span style="font-family: courier new,courier,monospace;">&lt;Allow count="2000" countRef="request.header.allowed_quota"/&gt;</span> has a count header (<span style="font-family: courier new,courier,monospace;">countRef="request.header.allowed_quota"</span>) along with the count value of 2000.</div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">Identifier (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>Client identifier</td>
+			<td>Variable used for uniquely identifying the client.</td>
+		</tr>
+		<tr>
+			<td colspan="2">MessageWeight (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>Message weight</td>
+			<td>
+				<div>Specifies the weighting defined for each message.</div>
+				<div>Message weight is used to increase the message weighting, which is the amount of resources needed to process the message. Message weight can be extracted from the headers, query parameters, and message body. For example, if the limit is 10 messages/min and the weight is 2, then only 5 messages are allowed for processing (10/2). The rate limit is violated starting with the sixth message.</div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">Distributed</td>
+			<td>Distributed</td>
+			<td>
+				<div>If set to true, the quota defined is distributed across mutiple message processors. For example, if the limit is 10 messages/hour and number of message processors assigned is 2, then the quota is equally distributed in both the processors, i.e., 5 in one processor and 5 in another.</div>
+				<div>Valid values: true or false</div>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h2><a class="jumplink" name="schema"></a>Policy schema</h2>
+<p>Each policy must conform to a policy schema. All policy constructs such as elements and attributes mentioned above are defined in a schema. To download the schema, <a href="/docs/download/file/fid/196">click here</a>.</p>
+<h2><a class="jumplink" name="examples"></a>Quota examples</h2>
+<p>The variables shown in these examples are defined in the <a href="#flow">Quota flow variables</a> section below.</p>
+<h3>2000 requests per month (simple case)</h3>
+<p>[gist:2850737]</p>
+<h3>2000 requests per month (using flow variables)</h3>
+<p>[gist:2850767]</p>
+<p><strong>Note:</strong> If both Reference and Allow count values are specified, Reference gets priority. If the reference does not resolve at run time, then the Allow count value is used for enforcing the quota.</p>
+<h3>2000 requests per month</h3>
+<p>On exceeding the limit (1000 requests), send an alert to the local disk.</p>
+<p>[gist:2850788]</p>
+<h3>2000 requests per month</h3>
+<p>On exceeding the limit (1000 requests), send an alert to syslog.</p>
+<p>[gist:2850795]</p>
+<h3>2000 requests per month based on client identifier</h3>
+<p>[gist:2850806]</p>
+<h3>2000 requests per month based on client identifier (using service class identifier)</h3>
+<p>[gist:2850813]</p>
+<h3>2000 requests per month based on message weight reference</h3>
+<p>[gist:2850818]</p>
+<h3>Distributed quota</h3>
+<p>[gist:3141607]</p>
+<h2><a class="jumplink" name="flow"></a>Quota flow variables</h2>
+<p>Flow variables play a pivotal role in message flow. These variables enable advanced users to customize the behavior of policies and flows, based on the headers or message content, or the context available in the flow. The following predefined flow variables are accessed in quota alert messages. For more information about flow variables, see [node:243].</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th>Variables</th>
+			<th>Type</th>
+			<th>Permission</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>ratelimit.allowed.count</td>
+			<td scope="row">Long</td>
+			<td scope="row">Read-Only</td>
+			<td>Defined quota for which alerts are raised</td>
+		</tr>
+		<tr>
+			<td>ratelimit.used.count</td>
+			<td scope="row">Long</td>
+			<td scope="row">Read-Only</td>
+			<td>Used quota within a quota interval</td>
+		</tr>
+		<tr>
+			<td>ratelimit.available.count</td>
+			<td scope="row">Long</td>
+			<td scope="row">Read-Only</td>
+			<td>Available quota in the counter</td>
+		</tr>
+		<tr>
+			<td>ratelimit.exceed.count</td>
+			<td scope="row">Long</td>
+			<td scope="row">Read-Only</td>
+			<td>Exceeded quota in the current counter</td>
+		</tr>
+		<tr>
+			<td>ratelimit.total.exceed.count</td>
+			<td scope="row">Long</td>
+			<td scope="row">Read-Only</td>
+			<td>Total exceeds count across the counters, because the quota policy is attached</td>
+		</tr>
+		<tr>
+			<td>ratelimit.expiry.time</td>
+			<td scope="row">Long</td>
+			<td scope="row">Read-Only</td>
+			<td>Time in milliseconds at which new quota counter starts</td>
+		</tr>
+		<tr>
+			<td>ratelimit.identifier</td>
+			<td scope="row">String</td>
+			<td scope="row">Read-Only</td>
+			<td>Resolved value of the identifier reference</td>
+		</tr>
+		<tr>
+			<td>ratelimit.class</td>
+			<td scope="row">String</td>
+			<td scope="row">Read-Only</td>
+			<td>Resolved value of the quota class identifier reference</td>
+		</tr>
+	</tbody>
+</table>
+<h3>Variables after executing the Quota policy</h3>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th>Variables</th>
+			<th>Type</th>
+			<th>Permissions</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td class="rteleft">ratelimit.&lt;policy-name&gt;.allowed.count</td>
+			<td>Long</td>
+			<td>Read-Only</td>
+			<td>Returns the allowed quota count</td>
+		</tr>
+		<tr>
+			<td class="rteleft">ratelimit.&lt;policy-name&gt;.used.count</td>
+			<td>Long</td>
+			<td>Read-Only</td>
+			<td>Returns the current quota used within a quota interval</td>
+		</tr>
+		<tr>
+			<td class="rteleft">ratelimit.&lt;policy-name&gt;.available.count</td>
+			<td>Long</td>
+			<td>Read-Only</td>
+			<td>Returns the available quota count in the counter</td>
+		</tr>
+		<tr>
+			<td class="rteleft">ratelimit.&lt;policy-name&gt;.exceed.count</td>
+			<td>Long</td>
+			<td>Read-Only</td>
+			<td>Returns the count that exceeds the limit in the current counter</td>
+		</tr>
+		<tr>
+			<td class="rteleft">ratelimit.&lt;policy-name&gt;.total.exceed.count</td>
+			<td>Long</td>
+			<td>Read-Only</td>
+			<td>Returns the total count that exceeds the limit, because the quota policy is attached</td>
+		</tr>
+		<tr>
+			<td class="rteleft">ratelimit.&lt;policy-name&gt;.expiry.time</td>
+			<td>Long</td>
+			<td>Read-Only</td>
+			<td>Returns the time in milliseconds, which determines when the quota expires and new quota counter starts</td>
+		</tr>
+		<tr>
+			<td class="rteleft">ratelimit.&lt;policy-name&gt;.identifier</td>
+			<td>String</td>
+			<td>Read-Only</td>
+			<td>Returns the (client) identifier reference attached to the policy</td>
+		</tr>
+		<tr>
+			<td class="rteleft">ratelimit.&lt;policy-name&gt;.class</td>
+			<td>String</td>
+			<td>Read-Only</td>
+			<td>Returns the class associated with the client identifier</td>
+		</tr>
+		<tr>
+			<td class="rteleft">ratelimit.&lt;policy-name&gt;.class.allowed.count</td>
+			<td>Long</td>
+			<td>Read-Only</td>
+			<td>Returns the allowed quota count defined in the class</td>
+		</tr>
+		<tr>
+			<td class="rteleft">ratelimit.&lt;policy-name&gt;.class.used.count</td>
+			<td>Long</td>
+			<td>Read-Only</td>
+			<td>Returns the used quota within a class</td>
+		</tr>
+		<tr>
+			<td class="rteleft">ratelimit.&lt;policy-name&gt;.class.available.count</td>
+			<td>Long</td>
+			<td>Read-Only</td>
+			<td>Returns the available quota count in the class</td>
+		</tr>
+		<tr>
+			<td class="rteleft">ratelimit.&lt;policy-name&gt;.class.exceed.count</td>
+			<td>Long</td>
+			<td>Read-Only</td>
+			<td>Returns the count that exceeds the limit in the class</td>
+		</tr>
+		<tr>
+			<td class="rteleft">ratelimit.&lt;policy-name&gt;.class.total.exceed.count</td>
+			<td>Long</td>
+			<td>Read-Only</td>
+			<td>Returns the total count that exceeds the limit in the class, because the quota policy is attached</td>
+		</tr>
+	</tbody>
+</table>
+<p>&nbsp;</p>
