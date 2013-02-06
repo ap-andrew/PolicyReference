@@ -20,15 +20,24 @@
 
 <p>The basic of structure of an AccessEntity policy is:</p>
 
-<div id="class"><pre>&lt;AccessEntity enabled=&quot;true&quot; continueOnError=&quot;false&quot; async=&quot;false&quot; name=&quot;{policy_name}&quot;&gt;
-    &lt;EntityType  value=&quot;{entity_type}&quot;/&gt;
-    &lt;EntityIdentifier ref=&quot;{entity_identifier}&quot;/&gt; 
-    &lt;SecondaryIdentifier* ref=&quot;{secondary_identifier}&quot;/&gt;
-&lt;/AccessEntity&gt;</pre></div>
+<div id="class"><pre><AccessEntity enabled="true" continueOnError="false" async="false" name="{policy_name}">
+    <EntityType  value="{entity_type}"/>
+    <EntityIdentifier ref="{entity_identifier}" type="identifer_type"/> 
+    <SecondaryIdentifier* ref="{secondary_identifier}" type="identifer_type"/>
+</AccessEntity></pre></div>
 
 <ul><li><code>EntityType</code>: The name of the type of entity to be retrieved.</li> 
-<li><code>EntityIdentifier</code>: The value that identifies the specific entity whose profile should be retrieved.</li>
-<li><code>SecondaryIdentifier</code>: Supported where <code>EntityIdentifier</code> is not guaranteed unique, as with <code>appname</code>, or to filter multiple results. The use of multiple <code>SecondaryIdentifier</code> elements is not supported. This element is optional to support backward-compatibility with existing deployments.</li></ul>
+<li><code>EntityIdentifier</code>: The value that identifies the specific entity whose profile should be retrieved. The <code>ref</code> attribute identifies the variable that provides the source of the identifier, for example, <code>request.queryparameter.apikey</code>. The type identifies the entity type populated by the referenced variable, such as <code>consumerkey</code>.</li>
+<li><code>SecondaryIdentifier</code>: Supported where <code>EntityIdentifier</code> is not guaranteed unique, as with <code>appname</code>, or to filter multiple results. The <code>ref</code> attribute identifies the variable that provides the source of the identifier, for example, <code>request.queryparameter.apikey</code>. The type identifies the entity type populated by the referenced variable, such as <code>consumerkey</code>. The use of multiple <code>SecondaryIdentifier</code> elements is not supported. This element is optional to support backward-compatibility with existing deployments.</li>
+<li><code>type</code>: An attribute that defines the type populated by the entity reference. Supported types are:
+<ul><li>appname</li>
+<li>appid</li>
+<li>developeremail</li>
+<li>developerid</li>
+<li>companyname</li>
+<li>apiproductname</li>
+<li>consumerkey</li>
+<li>apiresource</li></ul></li></ul>
 
 <p>Where multiple matches exist for a given <code>EntityIdentifier</code> and <code>SupportingIdentifier</code> combination, the first match will be populated in the flow. An example where such a conflict might arise is where:</p>
 <ul><li><code>EntityType</code> is set to <code>apiproduct</code></li>
@@ -39,12 +48,7 @@
 
 <h2>AccessEntity variables</h2>
 
-When the entity profile specified in the AccessEntity policy is retrieved, the resultant XML-formatted profile object is added to the message context. The user-provided name of the AccessEntity policy is set as the variable prefix. For example, if an AccessEntity policy with name of <code>GetDeveloper</code> is executed, then the message context is populated with:
-GetDeveloper.name
-
-AccessEntity.GetDeveloper.name
-AccessEntity.GetDeveloper.developerid
-AccessEntity.GetDeveloper.email
+<p>When the entity profile specified in the AccessEntity policy is retrieved, the resultant XML-formatted profile object is added to the message context. The user-provided name of the AccessEntity policy is set as the variable prefix. For example, if an AccessEntity policy with name of <code>GetDeveloper</code> is executed, then the XML-formatted profile is stored, as a while, under the variable <code>AccessEntity.GetDeveloper</code>. The XML-formatted profile can then be parsed using an XPath defined in an ExtractVariables policy that specifies <code>AccessEntity.GetDeveloper</code> as its source.</p>
 
 
 <h2><code>EntityType</code> specification</h2>
@@ -97,14 +101,14 @@ AccessEntity.GetDeveloper.email
 		</tr>
 		<tr>
 			<td><code>consumerkey</code></td>
-			<td><code>consumerkey</code></td>
+			<td><ul><li><code>consumerkey</code></li></ul></td>
 			<td>None (<code>consumerkey</code> is globally unique)</td>
 		</tr>
 		<tr>
 			<td><code>developer</code></td>
 			<td><ul><li><code>developeremail*</code></li>
 			        <li><code>developerid*</code></li>
-				    <li><code>appid (Supported but not recommended)</code></li>
+				    <li><code>appid (Not guaranteed to be unique within an organization)</code></li>
 			        <li><code>consumerkey</code></li>
 			</ul></td>
 			<td>None</td>
@@ -117,41 +121,19 @@ AccessEntity.GetDeveloper.email
 
 <h2>Configuring ExtractVariables to use AccessEntity lookup</h2>
 
-<p>When an AccessEntity policy executes, the result is a flow variable populated with an XML-formatted profile object. The XML-formatted profile object can be sued as a source of data for an ExtractVariables policy. </p>
+<p>When an AccessEntity policy executes, the result is a flow variable populated with an XML-formatted profile object. The XML-formatted profile object can be used as a source of data for a flow by configuring an ExtractVariables policy to parse the profile.</p>
 
-<p>In the following example, an ExtractVariables policy is used to parse a developer profile retrieved by AccessEntity in order to obtain the value of a custom attribute.
+<p>In the following example, an ExtractVariables policy is used to parse a developer profile retrieved by AccessEntity to obtain the value of a custom attribute. The source is set to the variable where the developer profile is stored by the AccessEntity policy, which is <code>AccessEntity.{policy_name}</code>. The profile can be parsed using XPath, just as any other XML document. Sample profiles are provided below.
 </p>
 <pre>&lt;ExtractVariables name=&quot;GetDeveloperAttribute&quot;&gt;
-  &lt;Source&gt;AccessEntity.GetDeveloper.developeremail&lt;/Source&gt; 
+  &lt;Source&gt;AccessEntity.GetDeveloper&lt;/Source&gt; 
   &lt;VariablePrefix&gt;developer_attribute&lt;/VariablePrefix&gt;
   &lt;XMLPayload&gt;
-    &lt;Namespaces&gt;
-      &lt;Namespace prefix=&quot;?&quot;&gt;What&#x27;s the namespace for developer profiles?&lt;/Namespace&gt;
-    &lt;/Namespaces&gt;
     &lt;Variable name=&quot;developer_attribute&quot; type=&quot;string&quot;&gt;
       	&lt;XPath&gt;/developer/attributes/@name&lt;/XPath&gt;
     &lt;/Variable&gt;
   &lt;/XMLPayload&gt;
 &lt;/ExtractVariables&gt;</pre>
-
-<h2>Configuring AssignMessage to use AccessEntity lookup</h2>
-
-<p>The AssignMessage policy below is configured to add the attribute in the developer profile as a query parameter on the outbound request to the target service.
-</p><p><b>Guidance needed on how to do this, and under what circumstances it make sense.</b></p>
-
-<pre>&lt;AssignMessage name=&quot;GenerateRequest&quot;&gt;
-  &lt;AssignTo createNew=&quot;false&quot; type=&quot;request&quot;&gt;Request&lt;/AssignTo&gt;
-  &lt;Set&gt;
-    &lt;QueryParams&gt;
-      &lt;QueryParam name=&quot;developer_attribute&quot;&gt;{request.queryparam.developer_attribute}&lt;/QueryParam&gt;
-    &lt;/QueryParams&gt;
-  &lt;/Set&gt;
-  &lt;!-- While we&#x27;re at it, save these in variables so we can use them in the response --&gt;
-  &lt;AssignVariable&gt;
-    &lt;Name&gt;DeveloperAttribute&lt;/Name&gt;
-    &lt;Ref&gt;request.queryparam.postalcode&lt;/Ref&gt;
-  &lt;/AssignVariable&gt;
-&lt;/AssignMessage&gt;</pre>
 
 <h2>Retrieving entity profiles using the Platform API</h2>
 <p>When configuring an AccessEntity policy, it can be useful to retrieve sample entity profiles to assist in selection of appropriate identifiers. For details, refer to the [node:4972]
@@ -160,10 +142,16 @@ AccessEntity.GetDeveloper.email
 
 <h3>Apps</h3>
 <pre>$ curl -H "Accept:text/xml" -X GET \
-https://api.enterprise.apigee.com/v1/o/{org_name}/apps/{app_name} \
+https://api.enterprise.apigee.com/v1/o/{org_name}/apps/{app_id} \
 -u myname:mypass</pre>
 
-Sample profile:
+<p>Or:</p>
+
+<pre>$ curl -H "Accept:text/xml" -X GET \
+https://api.enterprise.apigee.com/v1/o/{org_name}/developers/{developer_email}/apps/{app_name} \
+-u myname:mypass</pre>
+
+<p>Sample profile:</p>
 
 <pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;
 &lt;App name=&quot;weatherapp&quot;&gt;
@@ -203,6 +191,10 @@ Sample profile:
 <pre>$ curl  -H "Accept:text/xml" -X GET \
 https://api.enterprise.apigee.com/v1/o/{org_name}/apiproducts/{apiproduct_name} \
 -u myname:mypass</pre>
+
+<p>Sample XPath, retrieves the second API resource (URI) from the API product named <code>weather_free</code>:</p>
+
+<pre>/ApiProduct['@name=weather_free']/ApiResources/ApiResource[1]/text()</pre>
 
 <p>Sample profile:</p>
 
@@ -292,6 +284,10 @@ https://api.enterprise.apigee.com/v1/o/{org_name}/companies/{company_name}/devel
 https://api.enterprise.apigee.com/v1/o/{org_name}/developers/{developer_email}/apps/{app_name}/keys/{consumer_key} \
 -u myname:mypass</pre>
 
+<p>Sample XPath:</p>
+
+<pre>/Credential/ApiProducts/ApiProduct[Name='weather_free']/Status/text()</pre>
+
 <p>Sample profile:</p>
 
 <pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;
@@ -313,6 +309,12 @@ https://api.enterprise.apigee.com/v1/o/{org_name}/developers/{developer_email}/a
 <pre>$ curl -H "Accept:text/xml" -X GET \
 https://api.enterprise.apigee.com/v1/o/{org_name}/developers/{developer_email} \
 -u myname:mypass</pre>
+
+
+<p>Sample XPath:</p>
+
+<pre>/Developer/Attributes/Attribute[Name='my_custom_attribute']/Value/text()</pre>
+<pre>/Developer/Email/text()</pre>
 
 <p>Sample profile:</p>
 

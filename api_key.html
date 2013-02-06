@@ -2,7 +2,7 @@
 	
 <p>By enforcing API keys, you gain access control over the apps that consume APIs exposed through the API Platform. The API Platform enables you to revoke API keys of poorly-coded, non-conforming, or malicious apps that may harm your API or your app end users. API keys also enable business enforcement over access to APIs, since API keys are also used to validate that an app is permitted to access specific URIs.</p>
 
-<p>The API Platform automatically generates a credential pair when an app is registered in organization. The credentials are stored in a database on the API Platform, where they can be managed (revoked, approved, deleted, associated with API products, disassociated with API products, etc.) by an organization administrator. By applying APIKeyValidation to an API you also enable runtime verification of API key validity.</p>
+<p>The API Platform automatically generates a credential pair (consumer key and secret) when a developer app or company app is registered in organization. The credentials are stored in a database on the API Platform, where they can be managed (revoked, approved, deleted, associated with API products, disassociated with API products, etc.) by an organization administrator. By applying APIKeyValidation to an API you also enable runtime verification of API key validity.</p>
 
 <p>API keys are verified at runtime to validate that:</p>
 <ul><li>The API key presented is valid and has not been revoked</li>
