@@ -19,13 +19,7 @@
 <p>The rate limit quota applies only to access from a specific message processor. So if a particular message processor has used an API, the processor allows the specified number of requests in a stipulated period of time.</p>
 <p>In contrast, with <em>distributed quotas</em>, all access requests to a given API are totalled for all message processors. If the total number of requests exceeds the specified distributed quota limit, all message processors are denied access to the API.</p>
 <h2><a class="jumplink" name="configure"></a>Configuring a Quota policy</h2>
-<p>You can configure a Quota policy in one of two ways:</p>
-<ul>
-	<li><strong>Using the policy editor:</strong> Drag and drop the Quota policy onto the message flow in the policy editor and then configure the elements of the policy using using the Map view in the policy editor. For more information, see [node:219]. You can also configure the elements using the Code view in the policy editor that allows you to edit the XML fields directly instead of editing them offline. For more information on Code view, see [node:436].
-		<p>[[{"type":"media","view_mode":"media_original","fid":"428","attributes":{"alt":"","class":"media-image","height":"506","style":"width: 330px; height: 443px; border-width: 1px; border-style: solid; margin: 15px;","typeof":"foaf:Image","width":"377"}}]]</p>
-	</li>
-	<li><strong>Using your favorite editor or IDE:</strong> Export your API proxy. Unzip and open/edit the API proxy configuration files offline in your favorite text editor or IDE. For more information, see [node:220].</li>
-</ul>
+
 <p>Configure the Quota policy using the following elements.</p>
 <table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
 	<thead>

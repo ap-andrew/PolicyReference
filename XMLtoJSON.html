@@ -1,0 +1,283 @@
+<p>[toc]</p>
+<p>Does your business require that you offer multiple formats of data representations? Do you need to convert content syntax to or from SOAP, REST, REST/JSON, and other formats?</p>
+<p>XML is difficult to parse (in JavaScript), so many newer APIs are switching to JSON formats. Also, the RESTful API model encourages JSON support because of its easy programming interface and use of selected JavaScript syntax to simply and effectively describe objects.</p>
+<p>Apigee allows you to convert your XML data to JSON using an XML to JSON policy. To apply this policy, you attach it in both the request and response paths in an API flow. The source content type must be <em>application/xml</em> or the policy is not executed. The payload of the XML message is then parsed and converted into JSON, and the content type is changed to <em>application/json</em>.</p>
+<h2><a class="jumplink" name="configure"></a>Configuring an XML to JSON policy</h2>
+<p>Configure the XML To JSON policy using the following elements. All fields are optional. However, if you specify <em>NamespaceBlockName</em>, you must also specify <em>DefaultNamespaceNodeName</em> and <em>NamespaceSeparator</em>.</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th>Field Name</th>
+			<th colspan="3">Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Source</td>
+			<td colspan="3">
+				<div>Contains the XML data that needs to be converted to JSON.</div>
+				<ul>
+					<li>If source is missing, it is treated as a simple message. For example, <span style="font-family: courier new,courier,monospace;">&lt;Source&gt;message&lt;/Source&gt;</span></li>
+					<li>If the source variable cannot be resolved, or resolves to a non-message type, the policy execution fails.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<td>OutputVariable</td>
+			<td colspan="3">
+				<div>Stores the output of the XML to JSON format conversion.</div>
+				<div>If OutputVariable is not specified, the source is treated as OutputVariable.</div>
+			</td>
+		</tr>
+		<tr>
+			<td rowspan="2">RecognizeNumber</td>
+			<td colspan="3">
+				<div>Valid values: true/false</div>
+				<div>Default is false.</div>
+				<div>If true, number fields in the XML payload retain their original format.</div>
+			</td>
+		</tr>
+		<tr>
+			<td style="vertical-align: top;">
+				<div>Consider the following XML example:</div>
+				<pre>&lt;a&gt;
+&nbsp; &nbsp; &lt;b&gt;100&lt;/b&gt;
+&nbsp; &nbsp; &lt;c&gt;value&lt;/c&gt;
+&lt;/a&gt;</pre>
+			</td>
+			<td style="vertical-align: top;">
+				<div>If true, converts to:</div>
+				<pre>{
+&nbsp;&nbsp;&nbsp; "a" : {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "b" : 100,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "c" : "value"
+&nbsp;&nbsp;&nbsp; }
+}</pre>
+			</td>
+			<td>
+				<div>If false, converts to:</div>
+				<pre>{
+&nbsp;&nbsp;&nbsp; "a" : {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "b" : "100",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "c" : "value"
+&nbsp;&nbsp;&nbsp; }
+}</pre>
+			</td>
+		</tr>
+		<tr>
+			<td rowspan="2">RecognizeBoolean</td>
+			<td colspan="3">
+				<div>Valid values: true/false</div>
+				<div>Default is false.</div>
+			</td>
+		</tr>
+		<tr>
+			<td style="vertical-align: top;">
+				<div>Consider the following XML example:</div>
+				<pre>&lt;a&gt;
+&nbsp;&nbsp;&nbsp; &lt;b&gt;true&lt;/b&gt;
+&nbsp;&nbsp;&nbsp; &lt;c&gt;value&lt;/c&gt;
+&lt;/a&gt;</pre>
+			</td>
+			<td>
+				<div>If true, converts to:</div>
+				<pre>{
+&nbsp;&nbsp;&nbsp; "a" : {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "b" : true,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "c" : "value"
+&nbsp;&nbsp;&nbsp; }
+}</pre>
+			</td>
+			<td>
+				<div>If false, converts to:</div>
+				<pre>{
+&nbsp;&nbsp;&nbsp; "a" : {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "b" : "true",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "c" : "value"
+&nbsp;&nbsp;&nbsp; }
+}</pre>
+			</td>
+		</tr>
+		<tr>
+			<td rowspan="2">RecognizeNull</td>
+			<td colspan="3">
+				<div>Valid values: true/false</div>
+				<div>Default is false.</div>
+			</td>
+		</tr>
+		<tr>
+			<td style="vertical-align: top;">
+				<div>Consider the following XML example:</div>
+				<pre>&lt;a&gt;
+&nbsp;&nbsp;&nbsp; &lt;b&gt;&lt;/b&gt;
+&nbsp;&nbsp;&nbsp; &lt;c&gt;value&lt;/c&gt;
+&lt;/a&gt;</pre>
+			</td>
+			<td>
+				<div>If true, converts to:</div>
+				<pre>{
+&nbsp;&nbsp;&nbsp; "a" : {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "b" : null,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "c" : "value"
+&nbsp;&nbsp;&nbsp; }
+}</pre>
+			</td>
+			<td>
+				<div>If false, converts to:</div>
+				<pre>{
+&nbsp;&nbsp;&nbsp; "a" : {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "b" : {},
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "c" : "value"
+&nbsp;&nbsp;&nbsp; }
+}</pre>
+			</td>
+		</tr>
+		<tr>
+			<td>NullValue</td>
+			<td colspan="3">Indicates a null value. By default the value is NULL.</td>
+		</tr>
+		<tr>
+			<td>NamespaceSeparator</td>
+			<td colspan="5" rowspan="3">
+				<div>Consider the following XML example:</div>
+				<pre>&lt;a xmlns="http://ns.com" xmlns:ns1="http://ns1.com"&gt;
+&nbsp;&nbsp;&nbsp; &lt;ns1:b&gt;value&lt;/ns1:b&gt;
+&lt;/a&gt;</pre>
+				<div>If NamespaceSeparator is not specified, this JSON is generated:</div>
+				<pre>{
+&nbsp;&nbsp;&nbsp; "a" : {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "b" : "value"
+&nbsp;&nbsp;&nbsp; }
+}</pre>
+				<div>If all the attributes (NamespaceSeparator, NamespaceBlockName, and DefaultNamespaceNodeName) are specified as defined in the XML to JSON example, this JSON is generated:</div>
+				<pre>{
+&nbsp;&nbsp;&nbsp; "a" : {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "#namespaces" : {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "&amp;" : "http://ns.com",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "ns1" : "http://ns1.com"
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; },
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "ns1%b" : "value"
+&nbsp;&nbsp;&nbsp; }
+}</pre>
+			</td>
+		</tr>
+		<tr>
+			<td>NamespaceBlockName</td>
+		</tr>
+		<tr>
+			<td>DefaultNamespaceNodeName</td>
+		</tr>
+		<tr>
+			<td>TextAlwaysAsProperty</td>
+			<td colspan="4" rowspan="2">
+				<div>Valid values: true/false</div>
+				<div>Default is false.</div>
+				<div>If set to true, the content of the XML element is converted to a string property.</div>
+				<div>Consider the following XML example:</div>
+				<pre>&lt;a&gt;
+&nbsp;&nbsp;&nbsp; &lt;b&gt;value1&lt;/b&gt;
+&nbsp;&nbsp;&nbsp; &lt;c&gt;value2&lt;d&gt;value3&lt;/d&gt;value4&lt;/c&gt;
+&lt;/a&gt;</pre>
+				<div>If TextAlwaysAsProperty is set to true and TextNodeName specified as TEXT, this JSON is generated:</div>
+				<pre>{
+&nbsp;&nbsp;&nbsp; "a": {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "b": {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "TEXT" : "value1"
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; },
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "c": {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "TEXT" : [ "value2", "value4" ],
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "d" : {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "TEXT" : "value3"
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; }
+}</pre>
+				<div>If TextAlwaysAsProperty is set to false and TextNodeName specified as TEXT, this JSON is generated:</div>
+				<pre>{
+&nbsp;&nbsp;&nbsp; "a": {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "b": "value1",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "c": {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "TEXT" : [ "value2", "value4" ],
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "d" : "value3",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; }
+}</pre>
+			</td>
+		</tr>
+		<tr>
+			<td>TextNodeName</td>
+		</tr>
+		<tr>
+			<td>AttributeBlockName</td>
+			<td colspan="4" rowspan="2">
+				<div>Consider the following XML example:</div>
+				<pre>&lt;a att1="value1" att2="value2"/&gt;</pre>
+				<div>If both the attributes (AttributeBlockName and AttributePrefix) are specified as defined in the XML to JSON example, this JSON is generated:</div>
+				<pre>{
+&nbsp;&nbsp;&nbsp; "a" : {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "ATT_BLOCK" : {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "@att1" : "value1",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "@att2" : "value2"
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; }
+}</pre>
+				<div>If only AttributeBlockName is specified, this JSON is generated:</div>
+				<pre>&nbsp;{
+&nbsp; "a" : {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "ATT_BLOCK" : {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "att1" : "value1",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "att2" : "value2"
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; }
+}</pre>
+				<div>If only AttributePrefix is specified, this JSON is generated:</div>
+				<pre>{
+&nbsp;&nbsp;&nbsp; "a" : {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "@att1" : "value1",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "@att2" : "value2"
+&nbsp;&nbsp;&nbsp; }
+}</pre>
+				<div>If neither is specified, this JSON is generated:</div>
+				<pre>{
+&nbsp;&nbsp;&nbsp; "a" : {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "att1" : "value1",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "att2" : "value2"
+&nbsp;&nbsp;&nbsp; }
+}</pre>
+			</td>
+		</tr>
+		<tr>
+			<td>AttributePrefix</td>
+		</tr>
+		<tr>
+			<td>OutputPrefix</td>
+			<td colspan="4" rowspan="2">
+				<div>Consider the following XML example:</div>
+				<pre>&lt;a&gt;value&lt;/a&gt;</pre>
+				<div>If both the attributes (OutputPrefix and OutputSuffix) are specified as defined in the XML to JSON example, this JSON is generated:</div>
+				<pre>PREFIX_{
+&nbsp;&nbsp;&nbsp; "a" : "value"
+}_SUFFIX</pre>
+				<div>If only OutputPrefix is specified, this JSON is generated:</div>
+				<pre>PREFIX_{
+&nbsp;&nbsp;&nbsp; "a" : "value"
+}</pre>
+				<div>If only OutputSuffix is specified, this JSON is generated:</div>
+				<pre>{
+&nbsp;&nbsp;&nbsp; "a" : "value"
+}_SUFFIX</pre>
+				<div>If neither is specified, this JSON is generated:</div>
+				<pre>{
+&nbsp;&nbsp;&nbsp; "a" : "value"
+}</pre>
+			</td>
+		</tr>
+		<tr>
+			<td>OutputSuffix</td>
+		</tr>
+	</tbody>
+</table>
+<h2><a class="jumplink" name="schema"></a>Policy schema</h2>
+<p>Each policy must conform to a policy schema. All policy constructs such as elements and attributes mentioned above are defined in a schema. To download the schema, <a href="/docs/download/file/fid/180">click here</a>.</p>
+<h3>Example - XML to JSON</h3>
+<p>[gist:2626512]</p>

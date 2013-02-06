@@ -1,0 +1,129 @@
+<p>[toc]</p>
+<p>The number and variety of devices in the market has dramatically increased, so users often need access to their data in a variety of ways, including for web browsers and on different mobile devices. As developers, we need to be able to render that data for them.</p>
+<p>A best practice is to customize responses in simple HTML or plain ASCII text using XSL Transformation (XSLT) for each device.</p>
+<p>Here are some XSLT examples with sample request messages and transformed messages.</p>
+<h3>XSLT file</h3>
+<pre>&lt;xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"&gt;
+
+  &lt;xsl:output method="text"/&gt;
+
+  &lt;xsl:variable name="newline"&gt;
+&lt;xsl:text&gt;
+&lt;/xsl:text&gt;
+  &lt;/xsl:variable&gt;
+
+  &lt;xsl:template match="/"&gt;
+&lt;xsl:text&gt;&amp;lt;Life&amp;gt;&lt;/xsl:text&gt;
+
+    &lt;xsl:value-of select="$newline"/&gt;
+    &lt;xsl:text&gt;Here are the odd-numbered items from the list:&lt;/xsl:text&gt;
+    &lt;xsl:value-of select="$newline"/&gt;
+    &lt;xsl:for-each select="list/listitem"&gt;
+      &lt;xsl:if test="(position() mod 2) = 1"&gt;
+        &lt;xsl:number format="1. "/&gt;
+        &lt;xsl:value-of select="."/&gt;
+        &lt;xsl:value-of select="$newline"/&gt;
+      &lt;/xsl:if&gt;
+    &lt;/xsl:for-each&gt;
+&lt;xsl:text&gt;&amp;lt;/Life&amp;gt;&lt;/xsl:text&gt;
+  &lt;/xsl:template&gt;
+
+&lt;/xsl:stylesheet&gt;</pre>
+<h3>Request Message</h3>
+<pre>&lt;?xml version="1.0"?&gt;
+&lt;list&gt;
+  &lt;title&gt;A few of my favorite albums&lt;/title&gt;
+  &lt;listitem&gt;A Love Supreme&lt;/listitem&gt;
+  &lt;listitem&gt;Beat Crazy&lt;/listitem&gt;
+  &lt;listitem&gt;Here Come the Warm Jets&lt;/listitem&gt;
+  &lt;listitem&gt;Kind of Blue&lt;/listitem&gt;
+  &lt;listitem&gt;London Calling&lt;/listitem&gt;
+  &lt;listitem&gt;Remain in Light&lt;/listitem&gt;
+  &lt;listitem&gt;The Joshua Tree&lt;/listitem&gt;
+  &lt;listitem&gt;The Indestructible Beat of Soweto&lt;/listitem&gt;
+&lt;/list&gt;</pre>
+<h3>Transformed message</h3>
+<pre>&lt;Life&gt;
+Here are the odd-numbered items from the list:
+1. A Love Supreme
+3. Here Come the Warm Jets
+5. London Calling
+7. The Joshua Tree
+&lt;/Life&gt;</pre>
+<p>Apigee allows you to configure an XSL Transformation policy to leverage XSLT from within the API. The XSL Transformation policy describes a set of rules for transforming source XML data into another XML/XHTML document, allowing you to customize the API response for a specific client type. You can attach the policy in both the request and response paths in an API flow.</p>
+<p>Apigee supports both XSLT 1.0 and 2.0. To execute a transformation process, an XSLT processor needs the following:</p>
+<ul>
+	<li>An XSLT stylesheet containing a set of transformation rules</li>
+	<li>The source containing the XML code</li>
+</ul>
+<p><strong>Note:</strong> The XSL Transformation policy is designed to support only XML documents.</p>
+<h2><a class="jumplink" name="configure_policy"></a>Configuring an XSL Transformation policy</h2>
+<p>Configure an XSL Transformation policy using the following elements.</p>
+<p><strong>Note:</strong> <span style="font-family:courier new,courier,monospace;">&lt;xsl:include&gt;</span> and <span style="font-family:courier new,courier,monospace;">&lt;xsl:import&gt;</span> are not supported.</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th colspan="3" rowspan="1" style="text-align: left;">Field Name</th>
+			<th colspan="2" style="text-align: left;">Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td colspan="3" rowspan="1">Name (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td>Name of the policy.</td>
+		</tr>
+		<tr>
+			<td colspan="3" rowspan="1">Source (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>Contains the message from which information needs to be extracted.
+				<ul>
+					<li>If source is missing, it is treated as a simple message. For example, <span style="font-family: courier new,courier,monospace;">&lt;Source&gt;message&lt;/Source&gt;</span></li>
+					<li>If the source variable cannot be resolved, or resolves to a non-message type, the transformation step fails.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="3" rowspan="1">OutputVariable (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>
+				<div>A variable that stores the output of the transformation.</div>
+				<div>If OutputVariable is not specified, the message content is replaced with the output of the transformation.</div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="3" rowspan="1">ResourceURL (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td>The XSLT file to be used for transforming the message.</td>
+		</tr>
+		<tr>
+			<td colspan="1" rowspan="4">Parameters (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td colspan="2" rowspan="1">ignoreUnresolvedVariables (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>
+				<div>Ignores any unresolved variable errors in the XSLT script instructions.</div>
+				<div>Valid values: true/false</div>
+				<div>Default value: false</div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="1" rowspan="3">Parameter (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>name (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td>Name of a custom parameter. Note that with name you can only use one of the optional parameters listed below.</td>
+		</tr>
+		<tr>
+			<td>ref (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>
+				<div>Specifies the reference that sources the value from a variable.</div>
+				<div>In the <a href="#XSL">XSL example</a> below, if <span style="font-family:courier new,courier,monospace;">request.header.greeting</span> is null, ignoreUnresolvedVariables responds in one of two ways:</div>
+				<ul>
+					<li>If ignoreUnresolvedVariables is false, an exception is raised.</li>
+					<li>If ignoreUnresolvedVariables is true, the p2 parameter is not passed to the XSL processor.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<td>value (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>Value of the parameter.</td>
+		</tr>
+	</tbody>
+</table>
+<h2><a class="jumplink" name="schema"></a>Policy schema</h2>
+<p>Each policy must conform to a policy schema. All policy constructs such as elements and attributes mentioned above are defined in a schema. To download the schema, <a href="/docs/download/file/fid/190">click here</a>.</p>
+<h3><a name="XSL"></a>Example - XSL Transformation policy</h3>
+<p>[gist:2627705]</p>
