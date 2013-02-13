@@ -1,12 +1,42 @@
+[toc]
 
 
-<FaultRule name="fr1">
+
+<p>FaultRules are optional configuration elements for all policy types.</p>
+
+The typical structure of a FaultRule is:
+
+<FaultRule name="ExceptionHandler">
    <Condition>fault.category = "Policy"</Condition>
-   <PolicyAttachment>
-       <PolicyName>RateLimitPolicy</PolicyName>
-   </PolicyAttachment>
-   <PolicyAttachment>
+   <Step>
+       <Name>RateLimitPolicy</Name>
+   </Step>
+   <Step>
        <Condition>response.status.code = 500</Condition>
-       <PolicyName>FailWhalePagePolicy</PolicyName>
-   </PolicyAttachment>
+       <Name>FailWhalePagePolicy</Name>
+   </Step>
 </FaultRule>
+
+
+
+
+<p>To explicitly handle HTTP error codes (that is, any HTTP response codes other than 2xx), the response codes must be defined as success by setting the <code>additional.success.code</code> property on the Endpoint. For example to treat HTTP response codes 400-500 as success, and thereby enable policy execution on those responses, configure the TargetEndpoint as follows:</p>
+
+
+<div id="well"><pre>&lt;TargetEndpoint name=&quot;default&quot;&gt;
+    &lt;HTTPTargetConnection&gt;
+        &lt;Properties&gt;
+	      &lt;Property name=&quot;additional.success.code&quot;&gt;4xx, 500&lt;/Property&gt;
+	    &lt;/Properties&gt;
+        &lt;URL&gt;http://weather.yahooapis.com&lt;/URL&gt;
+    &lt;/HTTPTargetConnection&gt;
+&lt;/TargetEndpoint&gt;</pre></div>
+
+<Response>
+  <Step>
+    <Condition>(response.status.code = 503) or (response.status.code = 400)</Condition>
+    <Name>MaintenancePolicy</Name>
+  </Step>
+</Response>
+
+

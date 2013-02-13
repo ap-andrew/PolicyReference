@@ -1,0 +1,432 @@
+<p>[toc]</p>
+<p>The Apigee API Platform encapsulates OAuth 1a and OAuth 2 capabilities in a set of policies. The life cycle management of tokens and secrets, including generation, validation, and storage, is managed by the Apigee API Platform on behalf of your backend services.</p>
+<p>This document specifies the flow variables defined by OAuth policies. The variables can be used to implement custom behavior for OAuth flows. For OAuth usage, please refer to <a href="/docs/api/quick-starts-index/">Developer Quick Starts</a>.</p>
+<h2>OAuth 2.0 flow variables</h2>
+<p>The flow variables defined in this table are populated when the respective OAuth policies are executed, and hence are available to other policies or applications executing in the API proxy flow.</p>
+<table class="table table-bordered" style="width: 690px;">
+	<tbody><!-- Start Policy -->
+		<tr>
+			<td>Verify access token policy</td>
+		</tr>
+		<tr></tr>
+		<tr>
+			<td>
+				<ul>
+					<li><code>organization_name</code></li>
+					<li><code>organization_name</code></li>
+					<li><code>developer.id</code></li>
+					<li><code>developer.app.name</code></li>
+					<li><code>client_id</code></li>
+					<li><code>grant_type</code></li>
+					<li><code>token_type</code></li>
+					<li><code>access_token</code></li>
+					<li><code>accesstoken.{custom_attribute}</code></li>
+					<li><code>issued_at</code></li>
+					<li><code>expires_in</code></li>
+					<li><code>status</code></li>
+					<li><code>scope</code></li>
+					<li><code>apiproduct.name*</code></li>
+					<li><code>apiproduct.&lt;custom_attribute_name&gt;*</code></li>
+				</ul>
+				<p><i>* API product variables</i></p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<p>Sample policy:</p>
+				<div id="class">
+					<pre>&lt;OAuthV2 name="VerifyAccessToken"&gt;
+    &lt;Operation&gt;VerifyAccessToken&lt;/Operation&gt;
+    &lt;Scope&gt;space-separated-scopes&lt;/Scope&gt;*
+    &lt;AccessToken&gt;flow.variable&lt;/AccessToken&gt;*        
+    &lt;AccessTokenPrefix&gt;Bearer&lt;/AccessTokenPrefix&gt;*
+&lt;/OAuthV2&gt;</pre>
+				</div>
+				<p>Only bearer tokens are supported. MAC tokens are not supported.</p>
+				<p>By default, the access token must be passed in the Authorization HTTP request header.</p>
+				<p>For example:</p>
+				<p><code>"Authorization: Bearer {PlainText_AccessToken}"</code></p>
+				<p>Any <code>flow.variable</code> can be passed as:</p>
+				<ul>
+					<li><code>HTTP Header: request.header.{variable_name}</code></li>
+					<li><code>Query parameter: request.queryparam.{variable_name}</code></li>
+					<li><code>Form parameterL request.formparam.{variable_name}</code></li>
+				</ul>
+				<p>If the optional fields are not specified, the values are extracted per the OAuth 2.0 specification.</p>
+			</td>
+		</tr>
+		<!-- End Policy -->
+		<tr>
+			<td>Generate authorization code policy</td>
+		</tr>
+		<tr>
+			<td>Variables set on success:
+				<ul>
+					<li><code>oauthv2authcode.{policy_name}.code</code></li>
+					<li><code>oauthv2authcode.{policy_name}.redirect_ur</code></li>
+					<li><code>oauthv2authcode.{policy_name}.scope</code></li>
+					<li><code>oauthv2authcode.{policy_name}.client_id</code></li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<p>Sample policy:</p>
+				<div id="class">
+					<pre>&lt;OAuthV2 name="GetAuthCode"&gt;
+  &lt;Operation&gt;GenerateAuthorizationCode&lt;/Operation&gt;
+  &lt;ExpiresIn&gt;1000&lt;ExpiresIn&gt;
+  &lt;ResponseType&gt;flow.variable&lt;/ResponseType&gt;*
+  &lt;ClientId&gt;flow.variable&lt;/ClientId&gt;*
+  &lt;RedirectUri&gt;flow.variable&lt;/RedirectUri&gt;*
+  &lt;Scope&gt;flow.variable&lt;/Scope&gt;*
+  &lt;State&gt;flow.variable&lt;/State&gt;*
+  &lt;Attributes&gt;*	
+    &lt;Attribute name=”1” ref=”flow.variable”&gt;value1&lt;/Attribute&gt;
+    &lt;Attribute name=”2” ref=”flow.variable”&gt;value2&lt;/Attribute&gt;
+  &lt;/Attributes&gt;
+&lt;/OAuthV2&gt;</pre>
+				</div>
+				<p><i>* Optional</i></p>
+				<p>Any <code>flow.variable</code> can be passed as:</p>
+				<ul>
+					<li><code>HTTP Header: request.header.{variable_name}</code></li>
+					<li><code>Query parameter: request.queryparam.{variable_name}</code></li>
+					<li><code>Form parameterL request.formparam.{variable_name}</code></li>
+				</ul>
+				<p>If the optional fields are not specified, the values are extracted per the OAuth 2.0 specification.</p>
+				<p>Attribute values are derived dynamically from the specified flow variable, or statically using a default value in the policy.</p>
+				<p>If both are specified, flow variable takes precedence.</p>
+			</td>
+		</tr>
+		<tr>
+			<td>Generate access token policy for grant types authorization code, user credentials, and client credentials</td>
+		</tr>
+		<tr>
+			<td>Variables set on success:
+				<ul>
+					<li><code>oauthv2accesstoken.{policy_name}.access_token</code></li>
+					<li><code>oauthv2accesstoken.{policy_name}.token_type</code></li>
+					<li><code>oauthv2accesstoken.{policy_name}.expires_in</code></li>
+					<li><code>oauthv2accesstoken.{policy_name}.refresh_token</code></li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<p>Sample policy:</p>
+				<div id="class">
+					<pre>&lt;OAuthV2 name="GenerateAccessToken"&gt;
+  &lt;Operation&gt;GenerateAccessToken&lt;/Operation&gt;
+  &lt;ExpiresIn&gt;1000&lt;ExpiresIn&gt;
+  &lt;SupportedGrantTypes&gt;*
+    &lt;GrantType&gt;authorization_code&lt;/GrantType&gt;
+    &lt;GrantType&gt;password&lt;/GrantType&gt;
+   &lt;GrantType&gt;client_credentials&lt;/GrantType&gt;
+  &lt;/SupportedGrantTypes&gt;
+  &lt;GrantType&gt;flow.variable&lt;/GrantType&gt;* 
+  &lt;ClientId&gt;flow.variable&lt;/ClientId&gt;* 
+  &lt;RedirectUri&gt;flow.variable&lt;/RedirectUri&gt;* 
+  &lt;Scope&gt;flow.variable&lt;/Scope&gt;* 
+  &lt;AppEndUser&gt;flow.variable&lt;/AppEndUser&gt;* 
+  &lt;Code&gt;flow.variable&lt;/Code&gt;* 
+  &lt;UserName&gt;flow.variable&lt;/UserName&gt;* 
+  &lt;PassWord&gt;flow.variable&lt;/PassWord&gt;*
+  &lt;Attributes&gt;*
+    &lt;Attribute name=”1” ref=”flow.variable”&gt;value1&lt;/Attribute&gt; 
+    &lt;Attribute name=”2” ref=”flow.variable”&gt;value2&lt;/Attribute&gt;  
+  &lt;/Attributes&gt;
+&lt;/OAuthV2&gt;</pre>
+				</div>
+				<p><i>* Optional</i></p>
+				<p>Any <code>flow.variable</code> can be passed as:</p>
+				<ul>
+					<li><code>HTTP Header: request.header.{variable_name}</code></li>
+					<li><code>Query parameter: request.queryparam.{variable_name}</code></li>
+					<li><code>Form parameterL request.formparam.{variable_name}</code></li>
+				</ul>
+				<p>If the optional fields are not specified, the values are extracted per the OAuth 2.0 specification.</p>
+				<p>Attribute values are derived dynamically from the specified flow variable, or statically using a default value in the policy.</p>
+				<p>If both are specified, flow variable takes precedence.</p>
+			</td>
+		</tr>
+		<tr>
+			<td>Generate access token policy for Implicit grant type</td>
+		</tr>
+		<tr>
+			<td>Variables set on success:
+				<ul>
+					<li><code>oauthv2accesstoken.{policy_name}.access_token</code></li>
+					<li><code>oauthv2accesstoken.{policy_name}.token_type</code></li>
+					<li><code>oauthv2accesstoken.{policy_name}.expires_in</code></li>
+					<li><code>oauthv2accesstoken.{policy_name}.refresh_token</code></li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<p>Sample policy:</p>
+				<div id="class">
+					<pre>&lt;OAuthV2 name="GenerateAccessToken"&gt;
+  &lt;Operation&gt;GenerateAccessTokenImplicitGrant&lt;/Operation&gt;
+  &lt;ExpiresIn&gt;1000&lt;ExpiresIn&gt;
+  &lt;ResponseType&gt;flow.variable&gt;&lt;/ResponseType&gt;*
+  &lt;ClientId&gt;flow.variable&gt;&lt;/ClientId&gt;*
+  &lt;RedirectUri&gt;flow.variable&gt;&lt;/RedirectUri&gt;*
+  &lt;Scope&gt;flow.variable&gt;&lt;/Scope&gt;*
+  &lt;State&gt;flow.variable&gt;&lt;/State&gt;*
+  &lt;AppEndUser&gt;flow.variable&lt;/AppEndUser&gt;*					
+  &lt;Attributes&gt;*
+    &lt;Attribute name=”1” ref=”flow.variable”&gt;value1&lt;/Attribute&gt;
+    &lt;Attribute name=”2” ref=”flow.variable”&gt;value2&lt;/Attribute&gt;
+  &lt;/Attributes&gt;
+&lt;/OAuthV2&gt;</pre>
+				</div>
+				<p><i>* Optional</i></p>
+				<p>Any <code>flow.variable</code> can be passed as:</p>
+				<ul>
+					<li><code>HTTP Header: request.header.{variable_name}</code></li>
+					<li><code>Query parameter: request.queryparam.{variable_name}</code></li>
+					<li><code>Form parameterL request.formparam.{variable_name}</code></li>
+				</ul>
+				<p>If the optional fields are not specified, the values are extracted per the OAuth 2.0 specification.</p>
+				<p>Attribute values are derived dynamically from the specified flow variable, or statically using a default value in the policy.</p>
+				<p>If both are specified, flow variable takes precedence.</p>
+			</td>
+		</tr>
+		<tr>
+			<td>Refresh access token policy</td>
+		</tr>
+		<tr></tr>
+		<tr>
+			<td>Variables set on success:
+				<ul>
+					<li><code>oauthv2accesstoken.{policy_name}.access_token</code></li>
+					<li><code>oauthv2accesstoken.{policy_name}.token_type</code></li>
+					<li><code>oauthv2accesstoken.{policy_name}.expires_in</code></li>
+					<li><code>oauthv2accesstoken.{policy_name}.refresh_token</code></li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<p>Sample policy:</p>
+				<div id="class">
+					<pre>&lt;OAuthV2 name="RefreshAccessToken"&gt;
+  &lt;Operation&gt;RefreshAccessToken&lt;/Operation&gt;
+  &lt;ExpiresIn&gt;1000&lt;ExpiresIn&gt;
+  &lt;GrantType&gt;flow.variable&lt;/GrantType&gt;*
+  &lt;RefreshToken&gt;flow.variable&lt;/RefreshToken&gt;*
+&lt;/OAuthV2&gt;</pre>
+				</div>
+				<p><i>* Optional</i></p>
+				<p>Any <code>flow.variable</code> can be passed as:</p>
+				<ul>
+					<li><code>HTTP Header: request.header.{variable_name}</code></li>
+					<li><code>Query parameter: request.queryparam.{variable_name}</code></li>
+					<li><code>Form parameterL request.formparam.{variable_name}</code></li>
+				</ul>
+				<p>If the optional fields are not specified, the values are extracted per the OAuth 2.0 specification.</p>
+			</td>
+		</tr>
+		<!-- Start Policy -->
+		<tr>
+			<td>Get client attributes policy</td>
+		</tr>
+		<tr></tr>
+		<tr>
+			<td><!-- <ul>
+					<li><code>oauthv2accesstoken.{policy_name}.access_token</code></li>
+				</ul> --></td>
+			<td>
+				<p>Sample policy:</p>
+				<div id="class">
+					<pre>&lt;GetOAuthV2Info name="GetClientAttributes"&gt;
+&lt;ClientId ref="{variable_name}"/&gt;
+&lt;/GetOAuthV2Info&gt;</pre>
+				</div>
+				<p>Sample policy:</p>
+				<div id="class">
+					<pre>&lt;GetOAuthV2Info name="GetClientAttributes"&gt;
+  &lt;ClientId&gt;{client_id}&lt;/ClientId&gt;
+&lt;/GetOAuthV2Info&gt;</pre>
+				</div>
+			</td>
+		</tr>
+		<!-- End Policy --><!-- Start Policy -->
+		<tr>
+			<td>Get access token attributes policy</td>
+		</tr>
+		<tr></tr>
+		<tr>
+			<td>Variables set on success:
+				<ul>
+					<li><code>oauthv2accesstoken.{policy_name}.access_token</code></li>
+					<li><code>oauthv2accesstoken.{policy_name}.scope</code></li>
+					<li><code>oauthv2accesstoken.{policy_name}.refresh_token</code></li>
+					<li><code>oauthv2accesstoken.{policy_name}.accesstoken.{custom_attribute_name}</code></li>
+					<li><code>oauthv2accesstoken.{policy_name}.developer.id</code></li>
+					<li><code>oauthv2accesstoken.{policy_name}.developer.app.name</code></li>
+					<li><code>oauthv2accesstoken.{policy_name}.expires_in</code></li>
+					<li><code>oauthv2accesstoken.{policy_name}.status</code></li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<p>Sample policy:</p>
+				<div id="class">
+					<pre>&lt;GetOAuthV2Info name="GetTokenAttributes"&gt;
+  &lt;AccessToken ref="{variable_name}"/&gt;
+&lt;/GetOAuthV2Info&gt;</pre>
+				</div>
+				<p>Sample policy:</p>
+				<div id="class">
+					<pre>&lt;GetOAuthV2Info name="GetTokenAttributes"&gt;
+&lt;AccessToken&gt;{access_token}&lt;/AccessToken&gt;
+&lt;/GetOAuthV2Info&gt;</pre>
+				</div>
+			</td>
+		</tr>
+		<!-- End Policy --><!-- Start Policy -->
+		<tr>
+			<td>Get authorization code attributes policy</td>
+		</tr>
+		<tr></tr>
+		<tr>
+			<td><!-- <ul>
+					<li><code>organization_name</code></li>
+				</ul> --></td>
+			<td>
+				<p>Sample policy:</p>
+				<div id="class">
+					<pre>&lt;GetOAuthV2Info name="GetAuthCodeAttributes"&gt;
+ &lt;AuthorizationCode ref="{variable_name}"/&gt;
+&lt;/GetOAuthV2Info&gt;</pre>
+				</div>
+				<p>Sample policy:</p>
+				<div id="class">
+					<pre>&lt;GetOAuthV2Info name="GetAuthCodeAttributes"&gt;
+    &lt;AuthorizationCode&gt;{authorization_code}&lt;/AuthorizationCode&gt;
+&lt;/GetOAuthV2Info&gt;</pre>
+				</div>
+			</td>
+		</tr>
+		<!-- End Policy --><!-- Start Policy -->
+		<tr>
+			<td>Get refresh token attributes policy</td>
+		</tr>
+		<tr></tr>
+		<tr>
+			<td><!-- <ul>
+					<li><code>organization_name</code></li>
+				</ul> --></td>
+		</tr>
+		<tr>
+			<td>
+				<p>Sample policy:</p>
+				<div id="class">
+					<pre>&lt;GetOAuthV2Info name="GetTokenAttributes"&gt;
+  &lt;RefreshToken ref="{variable_name}"/&gt;
+&lt;/GetOAuthV2Info&gt;</pre>
+				</div>
+				<p>Sample policy:</p>
+				<div id="class">
+					<pre>&lt;GetOAuthV2Info name="GetTokenAttributes"&gt;
+    &lt;RefreshToken&gt;{refresh_token}&lt;/RefreshToken&gt;
+&lt;/GetOAuthV2Info&gt;</pre>
+				</div>
+			</td>
+		</tr>
+		<!-- End Policy --></tbody>
+</table>
+<h2>OAuth 1.0a flow variables</h2>
+<p>The flow variables defined in this table are populated when the respective OAuth policies are executed, and hence are available to other policies or applications executing in the API proxy flow.</p>
+<h3>Generate request token policy</h3>
+<p>Sample policy:</p>
+<div id="class">
+	<pre>&lt;OAuthV1 name="GenerateRequestToken"&gt;
+  &lt;Operation&gt;GenerateRequestToken&lt;/Operation&gt;
+&lt;/OAuthV1&gt;</pre>
+</div>
+<p>Variables set on success:</p>
+<ul>
+	<li><code>oauth_token</code></li>
+	<li><code>oauth_token_secret</code></li>
+	<li><code>oauth_callback_confirmed</code></li>
+	<li><code>oauth_response</code></li>
+	<li><code>oauth_consumer_key</code></li>
+	<li><code>oauth_consumer_secret</code></li>
+</ul>
+<h3>Generate access token policy</h3>
+<p>Sample policy:</p>
+<div id="class">
+	<pre>&lt;OAuthV1 name="GenerateAccessToken"&gt;
+  &lt;Operation&gt;GenerateAccessToken&lt;/Operation&gt;
+&lt;/OAuthV1&gt;</pre>
+</div>
+<p>Variables set on success:</p>
+<ul>
+	<li><code>oauth_token</code></li>
+	<li><code>oauth_token_secret</code></li>
+	<li><code>oauth_response</code></li>
+	<li><code>oauth_consumer_key</code></li>
+	<li><code>oauth_consumer_secret</code></li>
+</ul>
+<h3>Access token verification policy</h3>
+<p>Sample policy:</p>
+<div id="class">
+	<pre>&lt;OAuthV1 name="VerifyAccessToken"&gt;
+  &lt;Operation&gt;VerifyAccessToken&lt;/Operation&gt;
+&lt;/OAuthV1&gt;</pre>
+</div>
+<p>Variables set on success:</p>
+<ul>
+	<li><code>oauth_token</code></li>
+	<li><code>oauth_token_secret</code></li>
+	<li><code>oauth_response</code></li>
+	<li><code>oauth_consumer_key</code></li>
+	<li><code>oauth_consumer_secret</code></li>
+</ul>
+<h3>Verify API key policy</h3>
+<p>Sample policy:</p>
+<div id="class">
+	<pre>&lt;GetOAuthV1Info name="VerifyApiKey"&gt;
+  &lt;OAuthConfig&gt;{config_name}&lt;/OAuthConfig&gt;*
+  &lt;APIKey ref="{variable_name}" /&gt;
+&lt;/GetOAuthV1Info&gt;</pre>
+</div>
+<p><i>* Optional</i></p>
+<p>Variables set on success:</p>
+<ul>
+	<li><code>oauth_consumer_key</code></li>
+	<li><code>oauth_consumer_secret</code></li>
+</ul>
+<h3>Verify consumer policy</h3>
+<p>Sample policy:</p>
+<div id="class">
+	<pre>&lt;GetOAuthV1Info name="VerifyConsumer"&gt;
+  &lt;OAuthConfig&gt;{config_name}&lt;/OAuthConfig&gt;*
+  &lt;ConsumerKey ref="{variable_name}" /&gt;
+&lt;/GetOAuthV1Info&gt;</pre>
+</div>
+<p><i>* Optional</i></p>
+<p>Variables set on success:</p>
+<ul>
+	<li><code>oauth_consumer_key</code></li>
+	<li><code>oauth_consumer_secret</code></li>
+</ul>
+<h3>Verify token policy</h3>
+<p>Sample policy:</p>
+<div id="class">
+	<pre>&lt;GetOAuthV1Info name="VerifyToken"&gt;
+  &lt;OAuthConfig&gt;{config_name}&lt;/OAuthConfig&gt;*
+  &lt;RequestToken ref="{variable_name}" /&gt;
+&lt;/GetOAuthV1Info&gt;</pre>
+</div>
+<p><i>* Optional</i></p>
+<p>Variables set on success:</p>
+<ul>
+	<li><code>oauth_token</code></li>
+	<li><code>oauth_token_secret</code></li>
+</ul>

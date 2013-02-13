@@ -1,12 +1,15 @@
 <p>[toc]</p>
-<p>The Key Value Map Operation policy is used to store information in cache provided by Apigee. <em>Key-value</em> refers to any arbitrary data. Each key-value pair that you define in this policy is stored in cache with an associated expiration interval. An example of a key-value map is name=map1, or more technically, SessionID=156374, which you can cache after login so you can use this SessionID in subsequent requests.</p>
-<p>In Apigee, the Key Value Map Operation policy allows you to maintain a map with the key instead of with values. A key-value map is preloaded with default key-value entries. This policy supports the following map operations of a key on a referenced key-value map.</p>
+<p>The KeyValueMapOperation policy stores data in cache on the API Platform. <code>KeyValue</code> refers to any arbitrary data. Each key/value pair that you define in persisted to the cache, along with an associated expiration interval. 
+	
+<p>An example usage of a KeyValueMap is session persistence, where some session token, for example <code>SessionID</code>, is stored cached for use in multiple contexts--for example multiple outbound requests.  
+</p>
+<p>KeyValueMapOperation  policy supports the following map operations of a key on a referenced key-value map.</p>
 <ul>
-	<li><strong>Put:</strong> Include an entry inside a key-value map.</li>
-	<li><strong>Get:</strong> Retrieve a value for a key.</li>
-	<li><strong>Delete:</strong> Delete a key.</li>
+	<li><strong>PUT:</strong> Include an entry inside a key/value map.</li>
+	<li><strong>GET:</strong> Retrieve a value for a key.</li>
+	<li><strong>DELETE:</strong> Delete a key.</li>
 </ul>
-<h2><a class="jumplink" name="configure"></a>Configuring the Key Value Map Operation policy</h2>
+<h2><a class="jumplink" name="configure"></a>Configuring the KeyValueMapOperation policy</h2>
 
 <p>Configure the Key Value Map Operation policy using the following elements.</p>
 <table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">

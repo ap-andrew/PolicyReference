@@ -1,16 +1,16 @@
 <p>[toc]</p>
-<p><em>Rate limiting</em> is used to control the rate of traffic sent to or received by an API. Traffic that is less than or equal to the specified rate is sent, whereas traffic that exceeds the rate is rejected. There are business and technical reasons to control the traffic an API receives. Rate limiting can be implemented with either quotas or spike arrests on the request path in a flow:</p>
+<p><em>Rate limiting</em> is used to control the rate of traffic sent to or received by an API. Traffic that is less than or equal to the specified rate is sent, whereas traffic that exceeds the rate is rejected. There are business and technical reasons to control the traffic an API receives. Rate limiting can be implemented with either quotas or SpikeArrests on the request path in a flow:</p>
 <ul>
 	<li>Quotas limit the number of API calls your application makes, ensuring that every developer consumes a proportionate amount of API resources for business reason.</li>
-	<li>Spike arrests stop traffic spikes (or bursts) that can be caused by an increase in usage, buggy clients, or malicious attacks.</li>
+	<li>SpikeArrests stop traffic spikes (or bursts) that can be caused by an increase in usage, buggy clients, or malicious attacks.</li>
 </ul>
-<h2><a class="jumplink" name="spike_arrests"></a>About spike arrests</h2>
-<p>You can use spike arresting to keep your API operational and manage traffic when you have spikes due to increased usage.</p>
-<p>A spike arrest limits the number of requests sent to either the client or target endpoints. Spike arrest-based rate limiting supports short intervals such as seconds and minutes. A spike arrest configuration allows messages to pass at a steady rate. Any instantaneous bursts are suppressed.</p>
-<p>For example, if you define the rate as 100 messages per second, it translates to approximately 1 message every 10 milliseconds. A spike arrest works well provided you specify the number of messages in granularity of seconds, which means &gt;= 60 messages per minute or &gt;= 1 message per second.</p>
-<h2><a class="jumplink" name="configure"></a>Configuring a Spike Arrest policy</h2>
+<h2><a class="jumplink" name="spike_arrests"></a>About SpikeArrests</h2>
+<p>You can use SpikeArresting to keep your API operational and manage traffic when you have spikes due to increased usage.</p>
+<p>A SpikeArrest limits the number of requests sent to either the client or target endpoints. SpikeArrest-based rate limiting supports short intervals such as seconds and minutes. A SpikeArrest configuration allows messages to pass at a steady rate. Any instantaneous bursts are suppressed.</p>
+<p>For example, if you define the rate as 100 messages per second, it translates to approximately 1 message every 10 milliseconds. A SpikeArrest works well provided you specify the number of messages in granularity of seconds, which means &gt;= 60 messages per minute or &gt;= 1 message per second.</p>
+<h2><a class="jumplink" name="configure"></a>Configuring a SpikeArrest policy</h2>
 
-<p>Configure your Spike Arrest policy using the following elements.</p>
+<p>Configure your SpikeArrest policy using the following elements.</p>
 <table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
 	<thead>
 		<tr>
@@ -37,7 +37,7 @@
 </table>
 <h2><a class="jumplink" name="schema"></a>Policy schema</h2>
 <p>Each policy must conform to a policy schema. All policy constructs such as elements and attributes mentioned above are defined in a schema. To download the schema, <a href="/docs/download/file/fid/196">click here</a>.</p>
-<h3>Examples - Spike Arrests</h3>
+<h3>Examples - SpikeArrests</h3>
 <h4>5 per second</h4>
 <pre>&lt;SpikeArrest name="SpikeArrest"&gt;
 &nbsp;&nbsp;&nbsp; &lt;Rate&gt;5ps&lt;/Rate&gt;
@@ -52,8 +52,8 @@
 &nbsp;&nbsp;&nbsp; &lt;Identifier ref="request.header.ID" /&gt;
 &nbsp;&nbsp;&nbsp; &lt;MessageWeight ref="request.header.weight" /&gt;
 &lt;/SpikeArrest&gt;</pre>
-<h3>Spike Arrest flow variables</h3>
-<p>Flow variables play a pivotal role in message flow. These variables enable advanced users to customize the behavior of policies and flows, based on the headers or message content, or the context available in the flow. The following predefined flow variables are accessed in spike arrest alert messages. For more information about flow variables, see [node:243].</p>
+<h3>SpikeArrest flow variables</h3>
+<p>Flow variables play a pivotal role in message flow. These variables enable advanced users to customize the behavior of policies and flows, based on the headers or message content, or the context available in the flow. The following predefined flow variables are accessed in SpikeArrest alert messages. For more information about flow variables, see [node:243].</p>
 <table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
 	<thead>
 		<tr>

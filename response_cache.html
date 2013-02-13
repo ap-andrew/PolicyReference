@@ -1,29 +1,65 @@
 <p>[toc]</p>
-<p>Apigee provides API response caching that enables fine-grained control of field-level caching, reducing load on your back-end systems and ensuring fast response times to customers.</p>
-<p>[[{"type":"media","view_mode":"media_original","fid":"162","attributes":{"alt":"","class":"media-image","height":"307","style":"width: 550px; height: 240px; border-width: 0px; border-style: solid; margin: 15px;","typeof":"foaf:Image","width":"703"}}]]</p>
-<p>The API Platform provides a message cache that can be configured to save and periodically refresh copies of response messages. As apps make requests to the same URI, the API Platform can be configured to return cached responses, rather than forwarding those requests to the backend server.</p>
-<p>Response caching is commonly used when backend data is updated only periodically. For example, an API exposes catalog data and the data that updates only on the first day of the month. In this case, response caching can be used to eliminate network traffic to the backend server for the remainder of the month.</p>
-<p>There are two main benefits to response caching:</p>
-<ul>
-	<li><strong>Reduced latency:</strong> The request is satisfied from the cache (removing a network hop), so the response is returned in a shorter time, making the API more responsive.</li>
-	<li><strong>Reduced network traffic:</strong> Representations are reused, so the impact of processing duplicate or redundant requests is reduced. Response caching reduces the amount of bandwidth consumed overall.</li>
-</ul>
-<p>Unlike other policies, a ResponseCaching policy is attached to both request and response paths within a message flow. Cached response messages are returned to requesting apps based on request message keys configured in the policy. &nbsp;The API Platform inspects request message for a configured key, and when the key is present, it returns the cached response.</p>
-<p>The API Platform executes response caching as follows:</p>
-<ol>
-	<li>In the request path, the <span style="font-family:courier new,courier,monospace;">SkipCacheLookup</span> condition is evaluated.</li>
-	<li>If <span style="font-family:courier new,courier,monospace;">SkipCacheLookup</span> evaluates to true, no cache look up is performed.</li>
-	<li>If <span style="font-family:courier new,courier,monospace;">SkipCacheLookup</span> evaluates to false, a cache key is constructed using <span style="font-family:courier new,courier,monospace;">CacheKeyPrefix</span> and <span style="font-family:courier new,courier,monospace;">CacheKey</span> elements defined in the policy.</li>
-	<li>Look up on the cache using the key.</li>
-	<li>When a cached entry is found, it is returned to the client as a response.</li>
-	<li>If the response is not found in cache, the request is forwarded to the target backend service.</li>
-</ol>
-<p>You can also configure cache refresh by enabling a&nbsp;<em>condition</em>. If the condition evaluates to true, regardless of the data in the cache, the request is forwarded to the backend service and the cache is refreshed with the response. A common use of conditional cache refresh is a condition that defines a specific HTTP header that causes the condition to evaluate to true. A scripted client application could be configured to periodically submit a request with the appropriate header, explicitly causing the response cache to refresh.</p>
-<p>For more information about conditions, see [node:123].</p>
-<p><strong>Note:</strong> Response caching relies on a default <em>cache resource</em> configured for your organization when your Apigee account is set up. If you have questions about your cache resource configuration, contact <a href="mailto:support@apigee.com">Apigee Support</a>.</p>
-<h2><a class="jumplink" name="configure"></a>Configuring the Response Caching policy</h2>
 
-<p>Configure the Response Caching policy using the following elements.</p>
+<p>ResponseCache can be configured to save and periodically refresh copies of response messages. As apps make requests to the same URI, the API Platform can be configured to return cached responses, rather than forwarding those requests to the backend server.</p>
+<p>ResponseCache is commonly used when backend data is updated only periodically. For example, an API that exposes weather report data might only refresh the weather data once every ten minutes. By returning cached responses and refreshing once every ten minutes, ResponseCache decreases the number of request reaching the backend, and also eliminates a network hop for a significant portion of requests to the API.</p>
+<p>There are two main benefits to ResponseCache:</p>
+<ul>
+<li><strong>Reduced latency:</strong> The request is satisfied from the cache (removing a network hop), so the response is returned in a shorter time, making the API more responsive.</li>
+<li><strong>Reduced network traffic:</strong> Representations are reused, so the impact of processing duplicate or redundant requests is reduced. ResponseCache reduces the amount of bandwidth consumed overall.</li>
+</ul>
+<p>Unlike other policies, a ResponseCache policy is attached to both request and response paths within a Flow. Cached response messages are returned to requesting apps based on request message keys configured in the policy. &nbsp;The API Platform inspects request message for a configured key, and when the key is present, it returns the cached response.</p>ß
+
+<h2>Sample</h2>
+
+<p>For example, responses to the following API call need to be cached for ten minutes. </p>
+<pre>http://weather.yahooapis.com/forecastrss?w=12797282</pre>
+
+<p>The query parameter <code>w</code>, which designates WOIED, can be used as a cache key. Whenever a request is received, the API Platform checks the value of the query parameter <code>w</code>. If a valid response is present in the cache, the cached response is returned to the requesting client.</p>. 
+
+<pre>&lt;ResponseCache name=&quot;ReponseCache&quot;&gt;
+    &lt;CacheKey&gt;
+        &lt;KeyFragment ref=&quot;request.queryparam.w&quot; /&gt;
+    &lt;/CacheKey&gt;
+    &lt;ExpirySettings&gt;
+        &lt;TimeoutInSec&gt;6000&lt;/TimeoutInSec&gt;
+    &lt;/ExpirySettings&gt;
+&lt;/ResponseCache&gt;</pre>
+
+<h2>Attaching a ResponseCache policy</h2>
+
+<p>ResponseCache is unique in that it must be attached to both the request and response Flow. ResponseCache is usually attached to the ProxyEndpoint PreFlow Request and Response, as in this example:</p>
+
+<pre>&lt;PreFlow name=&quot;PreFlow&quot;&gt;
+    &lt;Request&gt;
+        &lt;Step&gt;&lt;Name&gt;ResponseCache&lt;/Name&gt;&lt;/Step&gt;
+    &lt;/Request&gt;
+    &lt;Response&gt;
+        &lt;Step&gt;&lt;Name&gt;ResponseCache&lt;/Name&gt;&lt;/Step&gt;
+    &lt;/Response&gt;
+&lt;/PreFlow&gt;</pre>
+
+<p>In the request path, SkipCacheLookup condition is evaluated. Look up is skipped and the cache is refreshed if the condition evaluates to true. For example, the following configuration refreshes the cached response for the configuration below:</p>
+
+<pre>'http://{apifactory}org_name}-test.apigee.net/weather/forecastrss?w=23424778' -H "bypass-cache:true"</pre>
+
+<pre>&lt;ResponseCache name=&quot;ResponseCache&quot;&gt;
+    &lt;CacheKey&gt;
+        &lt;KeyFragment ref=&quot;request.queryparam.w&quot; /&gt;
+    &lt;/CacheKey&gt;
+    &lt;!-- Explicitly refresh the cached response --&gt;
+    &lt;SkipCacheLookup&gt;request.header.bypass-cache = &quot;true&quot;&lt;/SkipCacheLookup&gt;
+    &lt;ExpirySettings&gt;
+        &lt;TimeoutInSec&gt;6000&lt;/TimeoutInSec&gt;
+    &lt;/ExpirySettings&gt;
+&lt;/ResponseCache&gt;</pre>
+
+<p>A common use of conditional cache refresh is a condition that defines a specific HTTP header that causes the condition to evaluate to true. A scripted client application could be configured to periodically submit a request with the appropriate HTTP header, explicitly causing the response cache to refresh.</p>
+<p>For more information about conditions, see [node:123].</p>
+<p><strong>Note:</strong> ResponseCache relies on a default cache resource configured for your organization when your API Platform account is provisioned. If you have questions about your cache resource configuration, contact <a href="mailto:support@apigee.com">Apigee Support</a>.</p>
+
+<h2><a class="jumplink" name="configure"></a>Configuring the ResponseCache policy</h2>
+
+<p>Configure the ResponseCache policy using the following elements.</p>
 <table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
 	<thead>
 		<tr>
@@ -43,19 +79,19 @@
 				<div>Allowed values are Exclusive, Global, Application, Proxy, and Target.</div>
 				<ul>
 					<li>
-						<div><strong>Exclusive</strong> (default): ApiName_ProxyName if the policy is attached to the ProxyEndpoit flow. ApiName_TargetName if the policy is attached at TargetEndpoint flow.</div>
+						<div><strong>Exclusive</strong> (default): <code>ApiName_ProxyName</code> if the policy is attached to the ProxyEndpoint flow. <code>ApiName_TargetName</code> if the policy is attached at TargetEndpoint flow.</div>
 					</li>
 					<li>
-						<div><strong>Global:</strong> Keys are shared across all API facades deployed in the environment.</div>
+						<div><strong>Global:</strong> Keys are shared across all API proxies deployed in the environment.</div>
 					</li>
 					<li>
-						<div><strong>Application:</strong> ApiName is used as the prefix for all cache keys.</div>
+						<div><strong>Application:</strong> <code>ApiName</code> is used as the prefix for all cache keys.</div>
 					</li>
 					<li>
-						<div><strong>Proxy:</strong> ApiName_ProxyName is used as the prefix for all cache keys.</div>
+						<div><strong>Proxy:</strong> <code>ApiName_ProxyName</code> is used as the prefix for all cache keys.</div>
 					</li>
 					<li>
-						<div><strong>Target:</strong> ApiName_TargetName is used as the prefix for all cache keys.</div>
+						<div><strong>Target:</strong> <code>ApiName_TargetName </code>is used as the prefix for all cache keys.</div>
 					</li>
 				</ul>
 			</td>
@@ -72,7 +108,7 @@
 			<td>KeyFragment</td>
 			<td>
 				<div>A cache key fragment can either contain a key or a value.</div>
-				<div>All the fragments together (plus the prefix) are concatenated to create the cache key. For example, if a request message has headers id1=1 &amp; id2=1, the cache key is <em>Apigee__1__2</em>.</div>
+				<div>All the fragments together (plus the prefix) are concatenated to create the cache key. For example, if a request message has headers id1=1 &amp; id2=1, the cache key is Apigee__1__2.</div>
 			</td>
 		</tr>
 		<tr>
@@ -100,10 +136,10 @@
 </table>
 <h2><a class="jumplink" name="schema"></a>Policy schema</h2>
 <p>Each policy must conform to a policy schema. All policy constructs such as elements and attributes mentioned above are defined in a schema. To download the schema, <a href="/docs/download/file/fid/197">click here</a>.</p>
-<h3>Example - Response caching</h3>
+<h3>Example - ResponseCache</h3>
 <p>[gist:2626419]</p>
-<h3>Response caching flow variables</h3>
-<p>Flow variables play a pivotal role in message flow. These variables enable advanced users to customize the behavior of policies and flows, based on the headers or message content, or the context available in the flow. The following predefined flow variables are available after a Response Caching policy is executed. For more information about flow variables, see [node:243].</p>
+<h3>ResponseCache flow variables</h3>
+<p>Flow variables play a pivotal role in message flow. These variables enable advanced users to customize the behavior of policies and flows, based on the headers or message content, or the context available in the flow. The following predefined flow variables are available after a ResponseCache policy is executed. For more information about flow variables, see [node:243].</p>
 <table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
 	<thead>
 		<tr>

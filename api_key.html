@@ -30,7 +30,7 @@
 
 <p>The variables populated are:</p>
 
-<ul><li><code>client_id</code>: The client_id supplied by the requesting app</li>
+<ul><li><code>client_id</code>: The consumer key (aka API key or app key) supplied by the requesting app</li>
 <li><code>client_secret</code>: The consumer secret associated with the consumer key</li>
 <li><code>redirection_uris</code>: Any redirect URIs in the request</li>
 <li><code>developer.app.name</code>: The app name of the developer app making the request</li>
@@ -39,11 +39,17 @@
 <li><code>{custom_attribute_name_of_app}</code>:  Any custom attribute derived from the app profile</li>
 <li><code>{custom_attribute_name_of_appkey}</code>: Any custom attributes derived from the app key profile</li>
 <li><code>apiproduct.name*</code>: The name of the API product used to validate the request</li>
-<li><code>apiproduct.{custom_attribute_name_of_apiproduct}*</code>: Any custom attribute derived from the API product profile</li>
+<li><code>apiproduct.{custom_attribute_name_of_apiproduct}*</code>: Any custom attribute derived from the API product profile</li></ul>
 
 <p>API product  variables will be populated automatically if the API products are configured with valid environment, proxies and API resources (derived from the <code>proxy.pathsuffix</code>). Explicitly setting  <code>flow.resource.name</code> variable is not required.</p>
 <p>Where the API products are not configured with valid environments and API proxies, then <code>flow.resource.name</code> must explicitly be set to populate API product variables in the flow.</p>
 
+<p>Analytics variables:</p>
+<p>The following variables are automatically populated in Analytics when a VerifyAPIKey policy is enforced. The variables and values can thereafter be used as dimensions to build Analytics reports to gain visibility into consumption patterns by developers and applications. </p>
+<ul><li><code>apiproduct.name</code>:</li>
+<li><code>developer.app.name</code>:</li>
+<li><code>client_id</code>:</li>
+<li><code>developer.id</code>:</li></ul>
 
 <h3><a name="validation"></a>Example: API Key Validation policy</h3>
 <p>[gist:3718607]</p>

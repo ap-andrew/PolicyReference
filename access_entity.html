@@ -20,11 +20,11 @@
 
 <p>The basic of structure of an AccessEntity policy is:</p>
 
-<div id="class"><pre><AccessEntity enabled="true" continueOnError="false" async="false" name="{policy_name}">
-    <EntityType  value="{entity_type}"/>
-    <EntityIdentifier ref="{entity_identifier}" type="identifer_type"/> 
-    <SecondaryIdentifier* ref="{secondary_identifier}" type="identifer_type"/>
-</AccessEntity></pre></div>
+<div id="class"><pre>&lt;AccessEntity enabled=&quot;true&quot; continueOnError=&quot;false&quot; async=&quot;false&quot; name=&quot;{policy_name}&quot;&gt;
+    &lt;EntityType  value=&quot;{entity_type}&quot;/&gt;
+    &lt;EntityIdentifier ref=&quot;{entity_identifier}&quot; type=&quot;identifer_type&quot;/&gt; 
+    &lt;SecondaryIdentifier* ref=&quot;{secondary_identifier}&quot; type=&quot;identifer_type&quot;/&gt;
+&lt;/AccessEntity&gt;</pre></div>
 
 <ul><li><code>EntityType</code>: The name of the type of entity to be retrieved.</li> 
 <li><code>EntityIdentifier</code>: The value that identifies the specific entity whose profile should be retrieved. The <code>ref</code> attribute identifies the variable that provides the source of the identifier, for example, <code>request.queryparameter.apikey</code>. The type identifies the entity type populated by the referenced variable, such as <code>consumerkey</code>.</li>

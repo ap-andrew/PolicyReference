@@ -1,0 +1,1418 @@
+<p>[toc]</p>
+<p>Predefined variables are categorized based on functionality. These variables have a well-defined data type. All variables follow a "dotted" naming convention (components separated by periods, e.g., system.time.hour) and each segment in the variable name indicates the scope of the variable. All variable names are lower case. When you declare a variable, you need to specify the type of value it holds along with the name of the variable.</p>
+<p>See [node:193] for more information about variable types.</p>
+
+<p>For OAuth-related variables, see [node:241].</p>
+
+<h2><a class="jumplink" name="system"></a>System variables</h2>
+<p>System variables contain system-related information. A system variable is prefixed with <span style="font-family:courier new,courier,monospace;">_system.</span> wherever it is referenced. The part of the variable that appears after the prefix specifies the function in the system, such as host name, date, time, and interfaces. The supported system variables are listed below.</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px; ">
+	<thead>
+		<tr>
+			<th scope="col">System variable</th>
+			<th scope="col">Scope</th>
+			<th scope="col">Type</th>
+			<th scope="col">Permission</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>system.timestamp</td>
+			<td>Always</td>
+			<td>Date</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>system.time</td>
+			<td>Always</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>system.time.year</td>
+			<td>Always</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>system.time.month</td>
+			<td>Always</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>system.time.day</td>
+			<td>Always</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>system.time.dayofweek</td>
+			<td>Always</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>system.time.hour</td>
+			<td>Always</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>system.time.minute</td>
+			<td>Always</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>system.time.second</td>
+			<td>Always</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>system.time.millisecond</td>
+			<td>Always</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>system.time.zone</td>
+			<td>Always</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>system.time.host</td>
+			<td>Always</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>system.interface.{interface_name}</td>
+			<td>Always</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+	</tbody>
+</table>
+<h2><a class="jumplink" name="configuration"></a>Configuration variables</h2>
+<p>Configuration variables represent the application's configuration features such as account.name, application.name, proxy.name, target.url, and policy properties. The supported configuration variables are listed below.</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px; ">
+	<thead>
+		<tr>
+			<th scope="col">Configuration variables</th>
+			<th scope="col">Scope</th>
+			<th scope="col">Type</th>
+			<th scope="col">Permission</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>organization.name</td>
+			<td>Always</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>environment.name</td>
+			<td>Always</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>account.name</td>
+			<td>Always</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>application.name</td>
+			<td>Always</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>apiproxy.name</td>
+			<td>Always</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>apiproxy.revision</td>
+			<td>Always</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>is.error</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>proxy.basepath</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>proxy.name</td>
+			<td>Always</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>proxy.pathsuffix</td>
+			<td>Always</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+	</tbody>
+</table>
+<h2><a class="jumplink" name="message"></a>Message variables</h2>
+<p>Message variables are contextual objects, and are the same as requests during the request flow, responses during the response flow, or errors during the error flow. The supported message variables are listed below.</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px; ">
+	<thead>
+		<tr>
+			<th scope="col">Message variables</th>
+			<th scope="col">Scope</th>
+			<th scope="col">Type</th>
+			<th scope="col">Permission</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>error</td>
+			<td>Error</td>
+			<td>Message</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>error.content</td>
+			<td>Error</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>error.message</td>
+			<td>Error</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>error.transport.message</td>
+			<td>Error</td>
+			<td>Transport_Message</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>error.state</td>
+			<td>Error</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>message</td>
+			<td>Always</td>
+			<td>Message</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>message.content</td>
+			<td>Always</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>message.formparam.{formparam_name}</td>
+			<td>Always</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>message.formparam.{formparam_name}.values</td>
+			<td>Always</td>
+			<td>Collection</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>message.formparam.{formparam_name}.values.count</td>
+			<td>Always</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>message.formparams.count</td>
+			<td>Always</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>message.formparams.names</td>
+			<td>Always</td>
+			<td>Collection</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>message.formstring</td>
+			<td>Always</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>message.header.{header_name}</td>
+			<td>Always</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>message.header.{header_name}.values</td>
+			<td>Always</td>
+			<td>Collection</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>message.header.{header_name}.values.count</td>
+			<td>Always</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>message.headers.count</td>
+			<td>Always</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>message.headers.names</td>
+			<td>Always</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>messagelogging.{policy-name}.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>messagelogging.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>message.queryparam.{queryparam_name}.values</td>
+			<td>Always</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>message.transport.message</td>
+			<td>Always</td>
+			<td>Transport_Message</td>
+			<td>Read</td>
+		</tr>
+	</tbody>
+</table>
+<h2><a class="jumplink" name="policy"></a>Policy variables</h2>
+<p>Policy variables are created as a result of policy executions, and are in the format &lt;PolicyType&gt;.&lt;PolicyName&gt;.&lt;VariableName&gt;</p>
+<p><strong>Note:</strong> &lt;PolicyType&gt;.&lt;PolicyName&gt;.failed and &lt;PolicyType&gt;.failed variables return true if the policy execution fails. The value is null/false when a policy executes successfully. The supported policy variables are listed below.</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px; ">
+	<thead>
+		<tr>
+			<th scope="col">Configuration variables</th>
+			<th scope="col">Scope</th>
+			<th scope="col">Type</th>
+			<th scope="col">Permission</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>acl.{policy-name}.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>acl.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>assignmessage.{policy-name}.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>assignmessage.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>extractvariables.{policy-name}.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>extractvariables.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>is.error</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>invalidatecache.{policy-name}.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>invalidatecache.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>javacallout.{policy-name}.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>javacallout.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>lookupcache.{policy-name}.assignto</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>lookupcache.{policy-name}.cachehit</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>lookupcache.{policy-name}.cachekey</td>
+			<td>Always</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>lookupcache.{policy-name}.cachename</td>
+			<td>Always</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>lookupcache.{policy-name}.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>lookupcache.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>populatecache.{policy-name}.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>populatecache.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>ratelimit.{policy-name}.allowed.count</td>
+			<td>Always</td>
+			<td>Long</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>ratelimit.{policy-name}.available.count</td>
+			<td>Always</td>
+			<td>Long</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>ratelimit.{policy-name}.class</td>
+			<td>Always</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>ratelimit.{policy-name}.class.allowed.count</td>
+			<td>Always</td>
+			<td>Long</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>ratelimit.{policy-name}.class.available.count</td>
+			<td>Always</td>
+			<td>Long</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>ratelimit.{policy-name}.class.exceed.count</td>
+			<td>Always</td>
+			<td>Long</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>ratelimit.{policy-name}.class.total.exceed.count</td>
+			<td>Always</td>
+			<td>Long</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>ratelimit.{policy-name}.class.used.count</td>
+			<td>Always</td>
+			<td>Long</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>ratelimit.{policy-name}.exceed.count</td>
+			<td>Always</td>
+			<td>Long</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>ratelimit.{policy-name}.expiry.time</td>
+			<td>Always</td>
+			<td>Long</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>ratelimit.{policy-name}.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>ratelimit.{policy-name}.identifier</td>
+			<td>Always</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>ratelimit.{policy-name}.total.exceed.count</td>
+			<td>Always</td>
+			<td>Long</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>ratelimit.{policy-name}.used.count</td>
+			<td>Always</td>
+			<td>Long</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>ratelimit.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>request.formparam.{formparam_name}.values</td>
+			<td>Always</td>
+			<td>Collection</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>request.queryparam.{queryparam_name}.values</td>
+			<td>Always</td>
+			<td>Collection</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>responsecache.{policy-name}.cachehit</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>responsecache.{policy-name}.cachekey</td>
+			<td>Always</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>responsecache.{policy-name}.cachename</td>
+			<td>Always</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>responsecache.{policy-name}.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>responsecache.{policy-name}.invalidentry</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>responsecache.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>response.formparam.{formparam_name}.values</td>
+			<td>Always</td>
+			<td>Collection</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>script.{policy-name}.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>script.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>servicecallout.{policy-name}.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>servicecallout.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>xsl.{policy-name}.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>xsl.failed</td>
+			<td>Always</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+	</tbody>
+</table>
+<h2><a class="jumplink" name="request"></a>Request message variables</h2>
+<p>Request message variables include components such as header, query param, form param, source IP, and XPath. Request messages are received by proxy and the same request is sent to the target. The supported request message variables are listed below.</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px; ">
+	<thead>
+		<tr>
+			<th scope="col">Request message variables</th>
+			<th scope="col">Scope</th>
+			<th scope="col">Type</th>
+			<th scope="col">Permission</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>client.cn</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>client.country</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>client.email.address</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>client.host</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>client.ip</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>client.organization</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>client.organization.unit</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>client.locality</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>client.port</td>
+			<td>Proxy request</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>client.received.end.time</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>client.received.end.timestamp</td>
+			<td>Proxy request</td>
+			<td>Long</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>client.received.start.time</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>client.received.start.timestamp</td>
+			<td>Proxy request</td>
+			<td>Long</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>client.state</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>client.scheme</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>client.ssl.enabled</td>
+			<td>Proxy request</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>keyvaluemapoperations (policy name) - {key}</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>message.path</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>message.queryparam.{queryparam_name}</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>message.queryparam.{queryparam_name}.values.count</td>
+			<td>Proxy request</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>message.queryparams.count</td>
+			<td>Proxy request</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>message.queryparams.names</td>
+			<td>Proxy request</td>
+			<td>Collection</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>message.querystring</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>message.uri</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>message.verb</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>message.version</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>proxy.basepath</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>proxy.client.ip</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>proxy.path(D)</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>proxy.pathsuffix</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>proxy.url</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>request</td>
+			<td>Proxy request</td>
+			<td>Message</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>request.content</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>request.formparam.{formparam_name}</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>request.formparam.{formparam_name}.values.count</td>
+			<td>Proxy request</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>request.formparams.count</td>
+			<td>Proxy request</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>request.formparams.names</td>
+			<td>Proxy request</td>
+			<td>Collection</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>request.formstring</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>request.header.{header_name}</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>request.header.{header_name}.values</td>
+			<td>Proxy request</td>
+			<td>Collection</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>request.header.{header_name}.values.count</td>
+			<td>Proxy request</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>request.headers.count</td>
+			<td>Proxy request</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>request.headers.names</td>
+			<td>Proxy request</td>
+			<td>Collection</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>request.path</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>request.queryparam.{queryparam_name}</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>request.queryparam.{queryparam_name}.values.count</td>
+			<td>Proxy request</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>request.queryparams.count</td>
+			<td>Proxy request</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>request.queryparams.names</td>
+			<td>Proxy request</td>
+			<td>Collection</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>request.querystring</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>request.transportid</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>request.transport.message</td>
+			<td>Proxy request</td>
+			<td>Transport Message</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>request.uri</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>request.verb</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>request.version</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>response.formstring</td>
+			<td>Target request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>route.target</td>
+			<td>Target request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>servicecallout.{policy-name}.expectedcn</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>servicecallout.{policy-name}.target.url</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>target.basepath</td>
+			<td>Target request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>target.basepath.with.query</td>
+			<td>Target request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>target.copy.pathsuffix</td>
+			<td>Target request</td>
+			<td>Boolean</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>target.copy.queryparams</td>
+			<td>Target request</td>
+			<td>Boolean</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>target.cn</td>
+			<td>Target request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>target.expectedcn</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>target.host</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>target.name</td>
+			<td>Target request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>target.ip</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>target.port</td>
+			<td>Proxy request</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>targetserver.name</td>
+			<td>Target request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>target.scheme</td>
+			<td>Target request</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>target.sent.end.time</td>
+			<td>Target request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>target.sent.end.timestamp</td>
+			<td>Target request</td>
+			<td>Long</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>target.sent.start.time</td>
+			<td>Target request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>target.sent.start.timestamp</td>
+			<td>Target request</td>
+			<td>Long</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>target.ssl.enabled</td>
+			<td>Proxy request</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>target.url</td>
+			<td>Target request</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>variable.expectedcn</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>virtualhost.aliases</td>
+			<td>Proxy request</td>
+			<td>String_array</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>virtualhost.name</td>
+			<td>Proxy request</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>virtualhost.ssl.enabled</td>
+			<td>Proxy request</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+	</tbody>
+</table>
+<h2><a class="jumplink" name="response"></a>Response message variables</h2>
+<p>Response message variables include components such as status code, reason phrase, header, and XPath. The supported response message variables are listed below.</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px; ">
+	<thead>
+		<tr>
+			<th scope="col">Response message variable</th>
+			<th scope="col">Scope</th>
+			<th scope="col">Type</th>
+			<th scope="col">Permission</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>client.sent.end.time</td>
+			<td>Proxy response</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>client.sent.end.timestamp</td>
+			<td>Proxy response</td>
+			<td>Long</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>client.sent.start.time</td>
+			<td>Proxy response</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>client.sent.start.timestamp</td>
+			<td>Proxy response</td>
+			<td>Long</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>loadbalancing.failedservers</td>
+			<td>Target response</td>
+			<td>String_array</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>loadbalancing.isfallback</td>
+			<td>Target response</td>
+			<td>Boolean</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>loadbalancing.targetserver</td>
+			<td>Target response</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>message.reason.phrase</td>
+			<td>Target response</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>message.status.code</td>
+			<td>Target response</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>response</td>
+			<td>Target response</td>
+			<td>Message</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>response.content</td>
+			<td>Target response</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>response.formparam.{formparam_name}</td>
+			<td>Target response</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>response.formparam.{formparam_name}.values.count</td>
+			<td>Target response</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>response.formparams.count</td>
+			<td>Target response</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>response.formparams.names</td>
+			<td>Target response</td>
+			<td>Collection</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>response.header.{header_name}</td>
+			<td>Target response</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>response.header.{header_name}.values</td>
+			<td>Target response</td>
+			<td>Collection</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>response.header.{header_name}.values.count</td>
+			<td>Target response</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>response.headers.count</td>
+			<td>Target response</td>
+			<td>Integer</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>response.headers.names</td>
+			<td>Target response</td>
+			<td>Collection</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>response.reason.phrase</td>
+			<td>Target response</td>
+			<td>String</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>response.status.code</td>
+			<td>Target response</td>
+			<td>Integer</td>
+			<td>Read/Write</td>
+		</tr>
+		<tr>
+			<td>response.transport.message</td>
+			<td>Target response</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>target.country</td>
+			<td>Target response</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>target.email.address</td>
+			<td>Target response</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>target.organization</td>
+			<td>Target response</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>target.organization.unit</td>
+			<td>Target response</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>target.locality</td>
+			<td>Target response</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>target.received.end.time</td>
+			<td>Target response</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>target.received.end.timestamp</td>
+			<td>Target response</td>
+			<td>Long</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>target.received.start.time</td>
+			<td>Target response</td>
+			<td>String</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>target.received.start.timestamp</td>
+			<td>Target response</td>
+			<td>Long</td>
+			<td>Read</td>
+		</tr>
+		<tr>
+			<td>target.state&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+			<td>&nbsp;Target response</td>
+			<td>String&nbsp;</td>
+			<td>Read</td>
+		</tr>
+	</tbody>
+</table>
+<h2><a class="jumplink" name="path"></a>Path variables</h2>
+<p>Path variables are predefined variables that can be used to retrieve elements of the request URI path.</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px; ">
+	<tbody>
+		<tr>
+			<td><strong>Variables</strong></td>
+			<td><strong>Path</strong></td>
+			<td><strong>Description</strong></td>
+		</tr>
+		<tr>
+			<td colspan="1" rowspan="3">Request variables</td>
+			<td>request.uri</td>
+			<td>The HTTP request URI path, which includes a URI path and a query string separated by a question mark (&nbsp;?&nbsp;)</td>
+		</tr>
+		<tr>
+			<td>request.path</td>
+			<td>The HTTP request path without the query string</td>
+		</tr>
+		<tr>
+			<td>request.querystring</td>
+			<td>The portion of the HTTP request path after the question mark (&nbsp;?&nbsp;)</td>
+		</tr>
+		<tr>
+			<td>Application variables</td>
+			<td>application.basepath</td>
+			<td>The deployment base path (specified during API deployment)</td>
+		</tr>
+		<tr>
+			<td colspan="1" rowspan="2">Proxy Variables</td>
+			<td>proxy.basepath</td>
+			<td>The base path as configured in the proxy XML file</td>
+		</tr>
+		<tr>
+			<td>proxy.pathprefix</td>
+			<td>The portion of the request path after the proxy basepath</td>
+		</tr>
+		<tr>
+			<td colspan="1" rowspan="3">Target variables</td>
+			<td>target.url</td>
+			<td>The URL configured in the target XML file or the dynamic target URL (if target.url is set during the message flow)</td>
+		</tr>
+		<tr>
+			<td>target.basepath</td>
+			<td>The path (without host or port) in the URL configured in the target XML file or the dynamic target URL (if target.url is set during the message flow)</td>
+		</tr>
+		<tr>
+			<td>target.basepath.with.query</td>
+			<td>The path along with query params (without host or port) in the URL configured in the target XML file or the dynamic target URL (if target.url is set during the message flow)</td>
+		</tr>
+	</tbody>
+</table>
+<h4>Example</h4>
+<p>Consider the following deployment:</p>
+<ol>
+	<li>Deployment path: /dev/</li>
+	<li>Proxy base path: /twitter/</li>
+	<li>Virtual host port: 8090</li>
+	<li>Virtual host alias: mytwitter.com</li>
+	<li>Target URL: http://api.twitter.com/1/</li>
+</ol>
+<p><strong>Request from client</strong> - The client makes the request:</p>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GET /dev/twitter/help/test.json
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; curl http://{host}:8090/dev/twitter/help/test.json -H 'host: mytwitter.com'</pre>
+<p><strong>The path is visualized as :</strong></p>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {VERB} {application.basepath}/{proxy.basepath}/{proxy.pathsuffix}</pre>
+<p><strong>Request is sent to target as:</strong></p>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GET /1/help/test.json
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; equivalent to:&nbsp; curl http://api.twitter.com/1/help/test.json</pre>
+<p><strong>The path is visualized as:</strong></p>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {VERB} {target.basepath}/{proxy.pathsuffix}?{query params}</pre>
+<h4>Usage in flows</h4>
+<p>Paths are usually used to classify requests as REST <em>resources</em>. This is achieved using conditional flows in a path match condition. Consider the following two requests based on the example above, which are two resources:</p>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GET /dev/twitter/help/test.json
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GET /dev/twitter/statuses/public_timeline.json</pre>
+<p>You can enforce different policies on these resources. The <strong>proxy.pathsuffix variable</strong> policy is recommended in conditions.</p>
+<p><strong>Note:</strong> You cannot use <strong>request.path</strong> because it includes the deployment path, which can change. The same bundle should work with different deployment paths.</p>
+
+
+		
+		
+		
+		
+
+
+
