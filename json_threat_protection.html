@@ -1,8 +1,10 @@
 <p>[toc]</p>
-<p>Any server that receives online data is subject to attack. Attacks can be malicious or unintentional.</p>
-<p>JSON has a simple programming interface, so JSON-related services and XML-based services are exposed to similar types of threats. For example, transporting JSON data over an unprotected connection can invite a cross-site scripting exposure as JSON data is evaluated by the JavaScript code.</p>
-<p>In Apigee, you can configure your API flow with a JSON Threat Protection policy, which can address JSON-related vulnerabilities and minimize attacks on your API.</p>
-<p>The JSON Threat Protection policy can detect JSON payload attacks based on configured limits. All the limits are optional.</p>
+
+<p>In much the same way as XML-based services, APIs that support JavaScript object notation (JSON) are vulnerable to content-level attacks. Simple JSON attacks attempt to use structures that overwhelm JSON parsers to crash a service and induce application-level denial-of-service attacks. </p>
+
+
+<p> The JSONThreatProtection policy minimizes the risk posed by such attacks by enabling you to specify limits on various JSON structures, such as arrays and strings. All settings are optional and should be tuned to optimize your service requirements against potential vulnerabilities.</p>
+
 <p><strong>Note:</strong> If a limit is not specified, the system applies a default value of -1 (the system equates a negative value to no limit).</p>
 <h2><a class="jumplink" name="threat_policy"></a>Configuring the JSON Threat Protection policy</h2>
 

@@ -123,7 +123,7 @@
 
 <p>When an AccessEntity policy executes, the result is a flow variable populated with an XML-formatted profile object. The XML-formatted profile object can be used as a source of data for a flow by configuring an ExtractVariables policy to parse the profile.</p>
 
-<p>In the following example, an ExtractVariables policy is used to parse a developer profile retrieved by AccessEntity to obtain the value of a custom attribute. The source is set to the variable where the developer profile is stored by the AccessEntity policy, which is <code>AccessEntity.{policy_name}</code>. The profile can be parsed using XPath, just as any other XML document. Sample profiles are provided below.
+<p>In the following example, an ExtractVariables policy is used to parse a developer profile retrieved by AccessEntity to obtain the value of a custom attribute. The source is set to the variable where the developer profile is stored by the AccessEntity policy, which is <code>AccessEntity.{policy_name}</code>. The profile can be parsed using XPath, just as any other XML document. Sample profiles for entities managed by the API Platform are provided below.
 </p>
 <pre>&lt;ExtractVariables name=&quot;GetDeveloperAttribute&quot;&gt;
   &lt;Source&gt;AccessEntity.GetDeveloper&lt;/Source&gt; 

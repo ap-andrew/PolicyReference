@@ -1,0 +1,145 @@
+
+
+<p>[toc]</p>
+<p>A <em>regular expression</em>, or <em>regex</em> for short, is a set of strings that specify a pattern in a string. Regular expressions enable content to be programmatically evaluated for patterns. Regular expressions can be used, for example, to evaluate entered a properly structured email address. For more information, see <a href="http://docs.oracle.com/javase/tutorial/essential/regex/intro.html">Regular Expressions</a> in the Java Tutorials.</p>
+<p>The PAI Platform enables you to configure regular expressions that can be evaluated at runtime against API traffic to identify common content-level threats that follow certain patterns. The policy extracts information from a message (for example, URI Path, Query Param, Header, Form Param, Variable, XML Payload, or JSON Payload) and evaluates that content against pre-defined regular expressions. If any specified regular expressions evaluate to true, the message is considered a threat and is rejected.</p>
+
+<p>The most common usage of RegularExpressionProtection is the evaluation of JSON and XML payloads for malicious content.</p>
+
+<p>For example, to evaluate JSON payloads for SQL injection attacks, evaluate the JSON payload using the following JSONPath expression combined with a regular expression. The regular expression pattern is evaluated against the content extracted by the JSONPath expression:</p>
+
+<pre>&lt;RegularExpressionProtection name=&quot;JsonSQLInjectionEvaluation&quot;&gt;
+    &lt;Source&gt;request&lt;/Source&gt;
+    &lt;JSONPayload&gt;
+        &lt;JSONPath&gt;
+            &lt;Expression&gt;$.&lt;/Expression&gt;
+            &lt;Pattern&gt;[\s]*((delete)|(exec)|(drop\s*table)|(insert)|(shutdown)|(update)|(or))&lt;/Pattern&gt;
+        &lt;/JSONPath &gt;
+    &lt;/JSONPayload&gt;
+&lt;/RegularExpressionProtection&gt;</pre>
+
+<p>No regular expression can eliminate all content-based attacks, and multiple mechanisms should be combined to enable defense-in-depth. With this in mind, some recommended patterns for blacklisting content:</p>
+
+<h2><a class="jumplink" name="blacklist"></a>Blacklisted patterns</h2>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th style="text-align: left;">Name</th>
+			<th style="text-align: left;">Regular Expression</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>SQL Injection</td>
+			<td>[\s]*((delete)|(exec)|(drop\s*table)|(insert)|(shutdown)|(update)|(or))</td>
+		</tr>
+		<tr>
+			<td>Server-Side Include Injection</td>
+			<td>&lt;!--\s*&lt;!--(include|exec|echo|config|printenv)\s+.*</td>
+		</tr>
+		<tr>
+			<td>XPath Abbreviated Syntax Injection</td>
+			<td>(/(@?[\w_?\w:\*]+(\[[^]]+\])*)?)+</td>
+		</tr>
+		<tr>
+			<td>XPath Expanded Syntax Injection</td>
+			<td>/?(ancestor(-or-self)?|descendant(-or-self)?|following(-sibling))</td>
+		</tr>
+		<tr>
+			<td>JavaScript Injection</td>
+			<td>&lt;\s*script\b[^&gt;]*&gt;[^&lt;]+&lt;\s*/\s*script\s*&gt;</td>
+		</tr>
+		<tr>
+			<td>Java Exception Injection</td>
+			<td>.*Exception in thread.*</td>
+		</tr>
+	</tbody>
+</table>
+<h2><a class="jumplink" name="configure"></a>Configuring RegularExpressionProtection policy</h2>
+<p>Configure the RegularExpressionProtection policy using the following elements.</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th colspan="3" style="text-align: left;">Field Name</th>
+			<th colspan="3" style="text-align: left;">Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td colspan="3">Source (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>Contains the message from which information needs to be extracted.
+				<ul>
+					<li>If the Source variable is missing, it is treated as a simple message. For example, &lt;Source&gt;message&lt;/Source&gt;</li>
+					<li>If the Source variable cannot be resolved, or resolves to a non-message type, the policy fails to respond.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="3">IgnoreUnresolvedVariables (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>Valid values: true/false<br>
+				Default value: false<br>
+				If set to false and any variable is unresolvable, the policy fails to respond.<br>
+				If set to true and any variable is unresolvable, it is treated as empty string (Null).</td>
+		</tr>
+		<tr>
+			<td colspan="1" rowspan="5">Patterns (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td colspan="2">URIPath</td>
+			<td>Extracts information from the request URI path and matches it with the specified regular expressions.</td>
+		</tr>
+		<tr>
+			<td colspan="2">QueryParam</td>
+			<td>Extracts information from the request query parameter and matches it with the specified regular expressions.</td>
+		</tr>
+		<tr>
+			<td colspan="2">Header</td>
+			<td>Extracts information from the request and response header and matches it with the specified regular expressions.</td>
+		</tr>
+		<tr>
+			<td colspan="2">FormParam</td>
+			<td>Extracts information from the request form parameter and matches it with the specified regular expressions.</td>
+		</tr>
+		<tr>
+			<td colspan="2">Variable</td>
+			<td>Extracts information from the given variable and matches it with the specified regular expressions.</td>
+		</tr>
+		<tr>
+			<td colspan="1" rowspan="4">XMLPayload (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td colspan="2">Namespaces</td>
+			<td>Specifies the namespace to be used in the XPath evaluation.</td>
+		</tr>
+		<tr>
+			<td colspan="1" rowspan="3">XPath</td>
+			<td>Expression</td>
+			<td>Specifies the XPath expression defined for the variable. Only XPath 1.0 expressions are supported. For example, <span style="font-family: courier new,courier,monospace;">&lt;Expression&gt;/company/employee[@age&gt;=$request.header.age]&lt;/Expression&gt;</span> extracts details for employees whose age is greater than or equal to the value specified in <span style="font-family: courier new,courier,monospace;">request.header.age</span>.</td>
+		</tr>
+		<tr>
+			<td>Type</td>
+			<td>Specifies the datatype; default is string.</td>
+		</tr>
+		<tr>
+			<td>Pattern</td>
+			<td>Defines the regular expression pattern.</td>
+		</tr>
+		<tr>
+			<td colspan="1" rowspan="2">JSONPayload (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td colspan="1" rowspan="2">JSONPath</td>
+			<td>Expression</td>
+			<td>Specifies the JSONPath expression defined for the variable.</td>
+		</tr>
+		<tr>
+			<td>Pattern</td>
+			<td>Defines the regular expression pattern.</td>
+		</tr>
+	</tbody>
+</table>
+<h2><a class="jumplink" name="schema">Policy schema</a></h2>
+<p>Each policy must conform to a policy schema. All policy constructs such as elements and attributes mentioned above are defined in a schema. To download the schema, <a href="/docs/download/file/fid/204">click here</a>.</p>
+<h3>Example - Regular Expression Protection policy</h3>
+<p>[gist:2634017]</p>
+
+
+
+
+
+
+

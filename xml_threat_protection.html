@@ -1,0 +1,163 @@
+<p>[toc]</p>
+<p>Any server that receives online data is subject to attack, whether maliciously or unintentionally. Some attacks take advantage of the flexibility of XML by constructing invalid documents that compromise  back-end systems. Corrupt or extremely complex XML documents can cause ervers to allocate more memory than is available, tying up CPU and memory resources, crashing parsers, and generally disabling message processing and creating application-level denial-of-service attacks.</p>
+<p>The API Platform enables you to enforce XMLThreatProtection policies that address XML vulnerabilities and minimize attacks on your API.</p>
+<p>You can screen against XML threats using the following approaches:</p>
+<ul>
+	<li>Validate messages against an XML schema (<code>.xsd</code>)</li>
+	<li>Evaluate message content for specific black-listed keywords or patterns</li>
+	<li>Detect corrupt or malformed messages before those messages are parsed</li>
+</ul>
+<p>The XMLThreatProtection policy can detect XML payload attacks based on configured limits.</p>
+
+<p><strong>Note:</strong> All limits are optional. If a limit is not specified, the system applies a default value of -1 (the system equates a negative value to no limit).</p>
+<h2><a class="jumplink" name="configure_policy"></a>Configuring the XMLThreatProtection policy</h2>
+<p>Configure the Threat Protection policy using the following elements.</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th colspan="2" rowspan="1" style="text-align: left;">Field Name</th>
+			<th style="text-align: left;">Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td colspan="2" rowspan="1">Source</td>
+			<td>
+				<div>Request that needs to be validated for XML payload attacks.</div>
+			</td>
+		</tr>
+		<tr>
+			<td rowspan="4" style="vertical-align: top;">StructuralLimits (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>NodeDepth</td>
+			<td>
+				<div>Specifies the maximum node depth allowed in the XML.</div>
+				<div>Valid value: Integer</div>
+			</td>
+		</tr>
+		<tr>
+			<td>AttributeCountPerElement</td>
+			<td>
+				<div>Specifies the maximum number of attributes allowed in an element.</div>
+				<div>Valid value: Integer</div>
+				<div>Example:</div>
+				<pre>&lt;e1 attr1="val1" attr2="val2"&gt;
+&nbsp;&nbsp;&nbsp; &lt;e2 xmlns="http://apigee.com" xmlns:yahoo="http://yahoo.com" one="1" yahoo:two="2"/&gt;
+&lt;/e1&gt;</pre>
+				<div>Here <span style="font-family:courier new,courier,monospace;">&lt;e1&gt;</span> has 2 attributes and <span style="font-family:courier new,courier,monospace;">&lt;e2&gt;</span> also has 2 attributes. Note that attributes used for defining namespaces are not counted.</div>
+			</td>
+		</tr>
+		<tr>
+			<td>NamespaceCountPerElement</td>
+			<td>
+				<div>Specifies the maximum number of namespace definitions allowed in an element.</div>
+				<div>Valid value: Integer</div>
+				<div>Example:</div>
+				<pre>&lt;e1 attr1="val1" attr2="val2"&gt;
+&nbsp;&nbsp;&nbsp; &lt;e2 xmlns="http://apigee.com" xmlns:yahoo="http://yahoo.com" one="1" yahoo:two="2"/&gt;
+&lt;/e1&gt;</pre>
+				<div>Here <span style="font-family:courier new,courier,monospace;">&lt;e1&gt;</span> has 0 namespace definitions and <span style="font-family:courier new,courier,monospace;">&lt;e2&gt;</span> has 2 namespace definitions. Note that attributes used for defining namespaces are not counted.</div>
+			</td>
+		</tr>
+		<tr>
+			<td>ChildCount</td>
+			<td>
+				<div>Specifies the maximum number of children allowed in an element.</div>
+				<div>Valid value: Integer</div>
+			</td>
+		</tr>
+		<tr>
+			<td rowspan="5" style="vertical-align: top;">ValueLimits (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>Text</td>
+			<td>
+				<div>Specifies the maximum text value.</div>
+				<div>Valid value: Integer</div>
+				<div>Example:</div>
+				<pre>&lt;a&gt;this is text&lt;/a&gt;</pre>
+				<div>The value of the text <span style="font-family:courier new,courier,monospace;">this is text</span> is checked for the specified limit.</div>
+			</td>
+		</tr>
+		<tr>
+			<td>Attribute</td>
+			<td>
+				<div>Specifies the maximum attribute value.</div>
+				<div>Valid value: Integer</div>
+				<div>Example:</div>
+				<pre>&lt;ns1:myelem xmlns:ns1="http://ns1.com" ns1:attr1="val1"/&gt;</pre>
+				<div>The attribute value <span style="font-family:courier new,courier,monospace;">val1</span> is checked for the specified limit.</div>
+			</td>
+		</tr>
+		<tr>
+			<td>Namespace</td>
+			<td>
+				<div>Specifies the maximum namespace value.</div>
+				<div>Valid value: Integer</div>
+				<div>Example:</div>
+				<pre>&lt;ns1:myelem xmlns:ns1="http://ns1.com"/&gt;</pre>
+				<div>The namespace value <span style="font-family:courier new,courier,monospace;">http://ns1.com</span> is checked for the specified limit.</div>
+			</td>
+		</tr>
+		<tr>
+			<td>Comment</td>
+			<td>
+				<div>Specifies the maximum comment value.</div>
+				<div>Valid value: Integer</div>
+			</td>
+		</tr>
+		<tr>
+			<td>ProcessingInstructionData</td>
+			<td>
+				<div>Specifies the maximum processing instruction value.</div>
+				<div>Valid value: Integer</div>
+				<div>Example:</div>
+				<pre>&lt;xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"&gt;</pre>
+				<div>The value of processing instruction <span style="font-family:courier new,courier,monospace;">version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"</span> is checked for the specified limit.</div>
+			</td>
+		</tr>
+		<tr>
+			<td rowspan="4" style="vertical-align: top;">NameLimits (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>Element</td>
+			<td>
+				<div>Specifies the maximum number of characters in the element.</div>
+				<div>Valid value: Integer</div>
+				<div>Example:</div>
+				<pre>&lt;ns1:myelem xmlns:ns1="http://ns1.com"/&gt;</pre>
+				<div>The element <span style="font-family:courier new,courier,monospace;">myelem</span> is checked for the specified limit.</div>
+			</td>
+		</tr>
+		<tr>
+			<td>Attribute</td>
+			<td>
+				<div>Specifies the maximum number of characters in the attribute.</div>
+				<div>Valid value: Integer</div>
+				<div>Example:</div>
+				<pre>&lt;ns1:myelem xmlns:ns1="http://ns1.com" ns1:attr1="val1"/&gt;</pre>
+				<div>The attribute <span style="font-family:courier new,courier,monospace;">attr1</span> is checked for the specified limit.</div>
+			</td>
+		</tr>
+		<tr>
+			<td>Prefix</td>
+			<td>
+				<div>Specifies the maximum number of characters in the namespace prefix.</div>
+				<div>Valid value: Integer</div>
+				<div>Example:</div>
+				<pre>&lt;ns1:myelem xmlns:ns1="http://ns1.com"/&gt;</pre>
+				<div>The prefix <span style="font-family:courier new,courier,monospace;">ns1</span> is check for the specified limit.</div>
+			</td>
+		</tr>
+		<tr>
+			<td>ProcessingInstructionTarget</td>
+			<td>
+				<div>Specifies the maximum number of characters in the target of processing instruction.</div>
+				<div>Valid value: Integer</div>
+				<div>Example:</div>
+				<pre>&lt;xsl:stylesheet version="1.0"
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; xmlns:xsl="http://www.w3.org/1999/XSL/Transform"&gt;</pre>
+				<div>The target of processing instruction <span style="font-family:courier new,courier,monospace;">xsl:stylesheet</span> is checked for specified limit.</div>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h2><a class="jumplink" name="schema"></a>Policy schema</h2>
+<p>Each policy must conform to a policy schema. All policy constructs such as elements and attributes mentioned above are defined in a schema. To download the schema, <a href="/docs/download/file/fid/194">click here</a>.</p>
+<h3>Example - XMLThreatProtection policy</h3>
+<p>[gist:2424801]</p>
