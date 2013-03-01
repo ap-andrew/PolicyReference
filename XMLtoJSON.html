@@ -1,9 +1,29 @@
 <p>[toc]</p>
-<p>Does your business require that you offer multiple formats of data representations? Do you need to convert content syntax to or from SOAP, REST, REST/JSON, and other formats?</p>
-<p>XML is difficult to parse (in JavaScript), so many newer APIs are switching to JSON formats. Also, the RESTful API model encourages JSON support because of its easy programming interface and use of selected JavaScript syntax to simply and effectively describe objects.</p>
-<p>Apigee allows you to convert your XML data to JSON using an XML to JSON policy. To apply this policy, you attach it in both the request and response paths in an API flow. The source content type must be <em>application/xml</em> or the policy is not executed. The payload of the XML message is then parsed and converted into JSON, and the content type is changed to <em>application/json</em>.</p>
+<p>The API Platform enables developers to convert messages from the extensible markup language (XML) format to JavaScript object notation (JSON) format to the by using the XMLtoJSON policy type. This policy is useful for enabling backend XML services to support RESTful apps that require JSON (for example, due to a lack of an XML parsing capabilities on the client).</p>
+
+<p>In a typical mediation scenario, a JSONtoXML policy on the inbound request flow is often paired with an XMLtoJSON policy on the outbound response flow. By combining policies this way, a JSON API can be exposed for backend services that natively support only XML. For scenarios where APIs are consumed by diverse clients apps which may require either JSON and XML, the format of the response can be dynamically set by configuring JSONtoXML and XMLtoJSON policies to execute conditionally. See the API Platform Developer Guide topic [node:4583] for an implementation of this scenario. </p>
+	
+<p>The HTTP Content-type header of the source message must be set to <code>text/xml</code>. If the HTTP Content-type header of the source message is not <code>text/xml</code>, the policy is not enforced. The payload of the XML message is parsed and converted into JSON, and the HTTP Content-type header of the XML-formatted message is set to <code>application/json</code>.</p>
+
+<h2>Sample</h2>
+
+<p>The minimal policy configuration required to convert XML to JSON is the following:</p>
+
+<pre>&lt;XMLToJSON async=&quot;false&quot; continueOnError=&quot;false&quot; enabled=&quot;true&quot; name=&quot;ConvertToJSON&quot;&gt;
+	&lt;Options&gt;
+		&lt;NamespaceBlockName&gt;#namespaces&lt;/NamespaceBlockName&gt;
+		&lt;DefaultNamespaceNodeName&gt;$default&lt;/DefaultNamespaceNodeName&gt;
+		&lt;NamespaceSeparator&gt;_&lt;/NamespaceSeparator&gt;
+	&lt;/Options&gt;
+	&lt;OutputVariable&gt;response&lt;/OutputVariable&gt;
+	&lt;Source&gt;response&lt;/Source&gt;
+&lt;/XMLToJSON&gt;</pre>
+
+<p>Assuming that the intent is to convert an XML-formatted response into a JSON-formatted response, the policy would be attached to a response Flow (for example, the ProxyEndpoint response PostFlow). This configuration takes a JSON-formatted response message as the source, and then creates an XML-formatted message that is populated in the <cpde>response</cpde> OutputVariable. The API Platform automatically uses the content of this variable as the message for next processing step.</p>
+
+
 <h2><a class="jumplink" name="configure"></a>Configuring an XML to JSON policy</h2>
-<p>Configure the XML To JSON policy using the following elements. All fields are optional. However, if you specify <em>NamespaceBlockName</em>, you must also specify <em>DefaultNamespaceNodeName</em> and <em>NamespaceSeparator</em>.</p>
+<p>For more advanced control over mapping XML to JSON structures, use the following configuration elements.. All fields are optional. However, if you specify <code>NamespaceBlockName</code>, you must also specify <code>DefaultNamespaceNodeName</code> and <code>NamespaceSeparator</code>.</p>
 <table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
 	<thead>
 		<tr>
