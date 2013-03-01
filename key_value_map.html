@@ -21,7 +21,7 @@
 	</thead>
 	<tbody>
 		<tr>
-			<td colspan="6" style="vertical-align: top;">ExclusiveCache (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td colspan="6" style="vertical-align: top;">ExclusiveCache (<b>DEPRECATED</b>: Use <code>Scope</code> instead.)</td>
 			<td>
 				<div>Valid values: true/false</div>
 				<div>Default value: false</div>
@@ -29,6 +29,16 @@
 				<div>If true, a cache is created exclusively.</div>
 			</td>
 		</tr>
+		
+			<td colspan="6" style="vertical-align: top;">Scope (Optional)</td>
+			<td>
+				<div>Valid values: organization, environment, apiproxy</div>
+				<div>Default value: environment</div>
+				<div>Defines the boundary of accessibility for KeyValueMaps. The default scope is environment, meaning that, by default, maps entries are shared by all API proxies running in an environment.</div>
+			</td>
+		</tr>
+		
+		
 		<tr>
 			<td colspan="6" style="vertical-align: top;">ExpiryTimeInSecs (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
 			<td>
