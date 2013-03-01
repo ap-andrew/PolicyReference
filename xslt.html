@@ -1,7 +1,26 @@
 <p>[toc]</p>
-<p>The number and variety of devices in the market has dramatically increased, so users often need access to their data in a variety of ways, including for web browsers and on different mobile devices. As developers, we need to be able to render that data for them.</p>
-<p>A best practice is to customize responses in simple HTML or plain ASCII text using XSL Transformation (XSLT) for each device.</p>
-<p>Here are some XSLT examples with sample request messages and transformed messages.</p>
+
+<p>XML stylesheet language transformations (XSLT) is a language for converting documents from one XML format to another XML format. It is often used to integrate applications that support XML, but that require different XML-formats for the same data.</p>
+
+<p>The API Platform relies on the <a href="http://saxon.sourceforge.net/">Saxon XSLT processor</a>, and supports XSLT 1.0 and 2.0.</p>
+
+The XSL policy type enables XSLT to execute as a processing step in an API proxy flow. The XSLT is implemented in a stand-alone <code>.xslt</code> file, which is stored in the API proxy under <code>/resources/xsl</code>. The XSL policy merely references the XSL file.
+
+<p>The XSL policy requires two inputs:</p>
+<ul>
+	<li>An name of an XSLT stylesheet, which contains a set of transformation rules) stored in the PAI proxy under <code>/resources/xsl</code></li>
+	<li>The source of the XML to be transformed (typically a request or response message)</li>
+</ul>
+
+<p>A simple XSL policy is:</p>
+
+<pre>&lt;XSL name=&quot;TransformXML&quot;&gt;
+  &lt;ResourceURL&gt;xsl://{myfile}.xsl&lt;/ResourceURL&gt;
+  &lt;Source&gt;request&lt;/Source&gt;
+&lt;/XSL&gt;</pre>
+
+
+<p>There are many tools and resources on the Internet implementing XSLT. For reference, below are some XSLT examples with sample request messages and transformed messages.</p>
 <h3>XSLT file</h3>
 <pre>&lt;xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"&gt;
 
@@ -50,13 +69,7 @@ Here are the odd-numbered items from the list:
 5. London Calling
 7. The Joshua Tree
 &lt;/Life&gt;</pre>
-<p>Apigee allows you to configure an XSL Transformation policy to leverage XSLT from within the API. The XSL Transformation policy describes a set of rules for transforming source XML data into another XML/XHTML document, allowing you to customize the API response for a specific client type. You can attach the policy in both the request and response paths in an API flow.</p>
-<p>Apigee supports both XSLT 1.0 and 2.0. To execute a transformation process, an XSLT processor needs the following:</p>
-<ul>
-	<li>An XSLT stylesheet containing a set of transformation rules</li>
-	<li>The source containing the XML code</li>
-</ul>
-<p><strong>Note:</strong> The XSL Transformation policy is designed to support only XML documents.</p>
+
 <h2><a class="jumplink" name="configure_policy"></a>Configuring an XSL Transformation policy</h2>
 <p>Configure an XSL Transformation policy using the following elements.</p>
 <p><strong>Note:</strong> <span style="font-family:courier new,courier,monospace;">&lt;xsl:include&gt;</span> and <span style="font-family:courier new,courier,monospace;">&lt;xsl:import&gt;</span> are not supported.</p>

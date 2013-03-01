@@ -12,9 +12,9 @@
 <h2>Sample</h2>
 
 <p>For example, responses to the following API call need to be cached for ten minutes. </p>
-<pre>http://weather.yahooapis.com/forecastrss?w=12797282</pre>
+<pre>http://{org_name}-test.apigee.net/weather/forecastrss?w=23424778</pre>
 
-<p>The query parameter <code>w</code>, which designates WOIED, can be used as a cache key. Whenever a request is received, the API Platform checks the value of the query parameter <code>w</code>. If a valid response is present in the cache, the cached response is returned to the requesting client.</p>. 
+<p>The query parameter <code>w</code>, which designates WOIED, can be used as a CacheKey. With w set as CacheKey,  the API Platform checks the value of the query parameter <code>w</code> whenever a request is received. If a valid (non-expired) response is present in the Cache, the cached response is returned to the requesting client.</p>. 
 
 <pre>&lt;ResponseCache name=&quot;ReponseCache&quot;&gt;
     &lt;CacheKey&gt;
@@ -38,9 +38,9 @@
     &lt;/Response&gt;
 &lt;/PreFlow&gt;</pre>
 
-<p>In the request path, SkipCacheLookup condition is evaluated. Look up is skipped and the cache is refreshed if the condition evaluates to true. For example, the following configuration refreshes the cached response for the configuration below:</p>
+<p>The SkipCacheLookup condition (if configured) is evaluated in the request path. If ti evaluates to true, then the Cache look up is skipped and the cache is refreshed. For example, the following configuration refreshes the cached response for the configuration below:</p>
 
-<pre>'http://{apifactory}org_name}-test.apigee.net/weather/forecastrss?w=23424778' -H "bypass-cache:true"</pre>
+<pre>'http://{org_name}-test.apigee.net/weather/forecastrss?w=23424778' -H "bypass-cache:true"</pre>
 
 <pre>&lt;ResponseCache name=&quot;ResponseCache&quot;&gt;
     &lt;CacheKey&gt;
@@ -55,7 +55,7 @@
 
 <p>A common use of conditional cache refresh is a condition that defines a specific HTTP header that causes the condition to evaluate to true. A scripted client application could be configured to periodically submit a request with the appropriate HTTP header, explicitly causing the response cache to refresh.</p>
 <p>For more information about conditions, see [node:123].</p>
-<p><strong>Note:</strong> ResponseCache relies on a default cache resource configured for your organization when your API Platform account is provisioned. If you have questions about your cache resource configuration, contact <a href="mailto:support@apigee.com">Apigee Support</a>.</p>
+<p><strong>Note:</strong> ResponseCache relies on a default Cache resource configured for your organization when your API Platform account is provisioned. For instructions on configuring cache resources, see [node:259]If you have questions about your cache resource configuration, contact <a href="mailto:support@apigee.com">Apigee Support</a>.</p>
 
 <h2><a class="jumplink" name="configure"></a>Configuring the ResponseCache policy</h2>
 

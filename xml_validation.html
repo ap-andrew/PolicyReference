@@ -2,13 +2,12 @@
 <p>Using validation, the system can reject messages that do not conform to the request message schema definitions. That means developers building apps to consume your API are immediately notified if they are submitting non-conformant requests. Some examples are missing end tags in an XML document, and getting valid responses from malformed request messages.</p>
 <p>Validation can save you a call to tech support, and can help developers avoid time in the forums trying to find troubleshooting help. If developers are notified that they are submitting invalid requests, they can refer to the XML schema for the API to understand how to fix the error. Thus, the XML schema is an important component of your API documentation to help your developers understand how to interact with your API.</p>
 <p>Apigee allows you to configure your API with a Message Validation policy that validates messages with the XML payload.</p>
-<p>The policy also validates that an XML/JSON message is well formed, and the SOAP format is correct. The messages are validated against an XSD or WSDL file to ensure that every opening element tag has a corresponding nested tag. If the XML code is incomplete, the policy displays a message validation error. Note that the policy must be written as follow for any well formedness validation:</p>
+<p>The policy also validates that an XML or JSON message is well-formed, and the SOAP format is correct according to the relevant XSD or WSDL file, &nbsp;ensuring that tags are balanced. If the XML code is incomplete, the policy returns a message validation error. Note that the policy must be written as follows for any well formedness validation:</p>
 <pre>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
 &lt;MessageValidation name="MessageValidation"&gt;
 &lt;/MessageValidation&gt;</pre>
-<h2><a class="jumplink" name="configure_policy"></a>Configuring the Message Validation policy</h2>
-
-<p>Configure the Message Validation using the following elements.</p>
+<h2><a class="jumplink" name="configure_policy"></a>Configuring the MessageValidation policy</h2>
+<p>Configure MessageValidation using the following elements.</p>
 <table border="0" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
 	<thead>
 		<tr>

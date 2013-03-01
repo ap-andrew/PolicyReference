@@ -6,6 +6,8 @@
 	
 <p>The HTTP Content-type header of the source message must be set to <code>application/json</code>. If the HTTP Content-type header of the source message is not <code>application/json</code>, the policy is not enforced. The payload of the JSON message is parsed and converted into XML, and the HTTP Content-type header of the XML-formatted message is set to <code>application/xml</code>.</p>
 
+
+
 <p>Configure the JSONtoXML policy using the following optional elements. Reasonable defaults are provided for each setting, thus all elements in this policy type are optional unless <code>NamespaceBlockName</code> is set, in which case <code>DefaultNamespaceNodeName</code> and <code>NamespaceSeparator</code> must also be specified.</p>
 <table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
 	<thead>
