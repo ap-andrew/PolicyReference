@@ -1,60 +1,68 @@
 <p>[toc]</p>
-<p><em>Rate limiting</em> is used to control the rate of traffic sent to or received by an API. Traffic that is less than or equal to the specified rate is sent, whereas traffic that exceeds the rate is rejected. There are both business and technical reasons to control the traffic an API receives. Rate limiting can be implemented with either quotas or spike arrests on the request path in a flow:</p>
-<ul>
-	<li>Quotas limit the number of API calls your application makes, ensuring that every app consumes a proportionate quantity of API resources for business reasons.</li>
-	<li>Spike arrests stop traffic spikes (or bursts) that can be caused by an increase in usage, buggy clients, or malicious attacks. For more information on spike arrests, see [node:53].</li>
-</ul>
-<h2><a class="jumplink" name="quotas"></a>Using quotas</h2>
-<p>Quota facilitates enables API providers to quantify and control consumption of API resources. </p>
-<p>Quotas limit the number of API requests permitted over a given time interval. When an app reaches the quota limit defined, subsequent API calls are rejected, and the requester receives an error message. Quotas are typically defined as the number of request messages that are permitted over the course of an hour, a day, a week, or a month.</p>
-<p>For example, if the quota is defined as 2000 messages per day (24-hour period), then limiting happens only when 2000 messages is reached regardless of whether this 2000 messages was hit in the first hour or last hour of that period. The caller is blocked from making additional requests until the quota counter is reset at the end of the specified time interval, or until the quota is explicitly reset using  [node:420].</p>
+<p>The API Platform maintains counters that tally the number of requests received from individual apps. This capability enables API providers to enforce limits on the number of API calls made by apps over an interval of time. For example, you may want to limit apps to 1 request per minute, or to 10,000 requests per month.
 
-<h2>Quota and API products</h2>
+<p>When an app reaches the defined Quota limit, subsequent API calls are rejected. The requester receives an error message. Quotas are typically defined as the number of request messages that are permitted over the course of an hour, a day, a week, or a month. </p>
 
-<p>Quota policies usually obtain settings dynamically, based on API product settings. This enables a single API proxy to support different quota settings based on the requesting app. Such dynamic Quota configurations depend on OAuth validation, as the association between a requesting app and the respective API product quota settings are contingent upon the API key or access token presented at runtime. 
-In other words, an app key maps to an API product. The Quota policy element Identifier supports a reference to the expected credential type. Such a dynamic Quota policy is configured as follows</p>
-For example:
+<p>For example, if a Quota is defined as 10,000 messages per month, then limiting happens only when 10,000 messages is reached, regardless of whether 10,000 messages were counted in the first day or last day of that period. The app thereafter is blocked from making additional requests until the Quota counter automatically resets at the end of the specified time interval, or until the Quota is explicitly reset using [node:420].</p>
+
+<p>(A variation on Quota called SpikeArrest prevents traffic spikes (or bursts) that can be caused by an increase in usage, buggy clients, or malicious attacks. For more information on SpikeArrest, see [node:53].)</p>
+	
+<p>Quota settings can be static or dynamic. The following examples demonstrate static and dynamic Quota configurations.</p>
+
+<p><b>Sample static Quota configuration:</b></p>
+
+<p>In a simple, static Quota, you set a count, a time interval, and a time unit.. The following static Quota configuration limits requesting apps to 10,000 requests per month:</p>
+	
+<pre>&lt;Quota name=&quot;QuotaPolicy&quot;&gt;
+    &lt;Allow count=&quot;10000&quot;/&gt;
+    &lt;Interval&gt;1&lt;/Interval&gt;
+    &lt;TimeUnit&gt;month&lt;/TimeUnit&gt;
+&lt;/Quota&gt;</pre>
+
+<p>In the example above the count is 10,000 client requests, over the course of 1 month.</p>
+
+<p><b>Sample dynamic Quota configuration:</b></p>
+
+<p>Dynamic Quota configurations are more useful than static Quotas.Dynamic Quotas enable to you configure a single Quota policy that enforces different Quota settings for different apps, based on the identity of the requesting app. (Another term for Quota settings in this context is "Service Plan". The dynamic Quota checks the apps' "Service Plan" and then enforces those settings.) Dynamic Quota configurations retrieve Quota settings from API product definitions based on reference to Flow variables.</p>
+	
+<p>Quota variables are populated at runtime by resolving an app identifier to an API product. The <code>Identifier</code> can be a field in the request that is unique to each app. For API proxies where OAuth is enforced, you can use <code>client_id</code> as the Identifier, as demonstrated in the sample policy below.</p>
+	
 <pre>&lt;Quota name=&quot;CheckQuota&quot;&gt; 
   &lt;Interval ref=&quot;apiproduct.developer.quota.interval&quot;/&gt;
   &lt;TimeUnit ref=&quot;apiproduct.developer.quota.timeunit&quot;/&gt;
   &lt;Allow countRef=&quot;apiproduct.developer.quota.limit&quot;/&gt;
   &lt;Identifier ref=&quot;client_id&quot;/&gt;
-&lt;/Quota&gt;
-</pre>
-<p>A dynamic Quota policy must be attached to Flow after an OAuth policy.</p>
+&lt;/Quota&gt;</pre>
+	
+<p>The example above uses the variable <code>client_id</code> to identify the requesting app. This works as long as the request message contains a <code>client_id</code> (associated with an OAuth-enabled request).</p>
+
+<p>In some circumstances, Quota settings must be retrieved where no <code>client_id</code> is available, for example for API proxies that do not have security policies applied. In those situations, AccessEntity policy used to retrieve the appropriate API product settings. For more information, see [node:8196].</p>
 
 <h2><a class="jumplink" name="configure"></a>Configuring a Quota policy</h2>
 
-<p>Configure the Quota policy using the following elements.</p>
+<p>Configure Quota policy using the following elements.</p>
 <table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
 	<thead>
 		<tr>
 			<th colspan="2" scope="col" style="text-align: left;">XML Field Name</th>
-			<th scope="col" style="text-align: left;">UI Field Name</th>
 			<th scope="col" style="text-align: left;">Description</th>
 		</tr>
 	</thead>
 	<tbody>
 		<tr>
 			<td colspan="2">Interval (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
-			<td>Calculation interval</td>
 			<td>
-				<div>Specifies the interval of time (in hours, minutes, or days as defined by TimeUnit) applicable to the Quota. For example, a value of 24 for the Interval with a TimeUnit of hours means that the quota is applied over one day (24 hours).</div>
+				<div>Specifies the interval of time (in hours, minutes, or days as defined by TimeUnit) applicable to the Quota. For example, a value of 24 for the <code>Interval</code> with a <code>TimeUnit</code> of hours means that the Quota is caculated over one day (24 hours).</div>
 				<div>Valid value: integer</div>
 			</td>
 		</tr>
 		<tr>
 			<td colspan="2">TimeUnit (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
-			<td>Time unit</td>
-			<td>
-				<div>Unit of time.</div>
-				<div>Valid values: second, minute, hour, day, or month</div>
-				<div><strong>Note:</strong> Distributed quotas cannot be configured in seconds for the time interval.</div>
-			</td>
+			<td>Valid values: second, minute, hour, day, or month
+			<strong>Note:</strong> Distributed quotas cannot be configured in seconds for the time interval.</td>
 		</tr>
 		<tr>
 			<td colspan="2">Allow count (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
-			<td>Allowed limit (count)</td>
 			<td>
 				<div>Specifies a message count for the quota.</div>
 				<div>For example, a value of 100 for the Allow count with a duration of 1 month means that the quota is set to be 100 messages per month.</div>
@@ -65,22 +73,19 @@ For example:
 		</tr>
 		<tr>
 			<td colspan="2">Identifier (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
-			<td>Client identifier</td>
 			<td>Variable used for uniquely identifying the client.</td>
 		</tr>
 		<tr>
 			<td colspan="2">MessageWeight (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
-			<td>Message weight</td>
 			<td>
 				<div>Specifies the weighting defined for each message.</div>
-				<div>Message weight is used to increase the message weighting, which is the amount of resources needed to process the message. Message weight can be extracted from the headers, query parameters, and message body. For example, if the limit is 10 messages/min and the weight is 2, then only 5 messages are allowed for processing (10/2). The rate limit is violated starting with the sixth message.</div>
+				<div>Message weight is used to increase impact of request messages that, for example, consume more computational resources than others. For example, you may want calculate POST messages as being twice as expensove as GET messages. A value representing <code>MessageWeight</code> can be extracted from HTTP headers, query parameters, or an XML or JSON request payload. For example, if the Quota is 10 messages per minute and the MessageWeight for POST requests is 2, then only 5 POST requests are permitted in any 10 minute interval. The Quota is violated (that is, messages rejected) starting with the sixth message.</div>
 			</td>
 		</tr>
 		<tr>
 			<td colspan="2">Distributed</td>
-			<td>Distributed</td>
 			<td>
-				<div>If set to true, the quota defined is distributed across mutiple message processors. For example, if the limit is 10 messages/hour and number of message processors assigned is 2, then the quota is equally distributed in both the processors, i.e., 5 in one processor and 5 in another.</div>
+				<div>If set to <code>true</code>, the Quota defined is distributed across multiple message processors. For example, if the limit is 10 messages/hour and number of message processors assigned is 2, then the Quota is equally distributed in both the processors, i.e., 5 in one processor and 5 in another.</div>
 				<div>Valid values: true or false</div>
 			</td>
 		</tr>
@@ -90,7 +95,7 @@ For example:
 <p>Each policy must conform to a policy schema. All policy constructs such as elements and attributes mentioned above are defined in a schema. To download the schema, <a href="/docs/download/file/fid/196">click here</a>.</p>
 
 <h2><a class="jumplink" name="flow"></a>Quota flow variables</h2>
-<p>Flow variables play a pivotal role in message flow. These variables enable advanced users to customize the behavior of policies and flows, based on the headers or message content, or the context available in the flow. The following predefined flow variables are accessed in quota alert messages. For more information about flow variables, see [node:243].</p>
+<p>The following predefined Flow variables are automatically populated when a Quota policy executes. For more information about Flow variables, see [node:243].</p>
 <table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
 	<thead>
 		<tr>

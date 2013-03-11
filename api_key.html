@@ -1,30 +1,30 @@
-<p>RESTful services are usually available over the open Internet for consumption by developers building apps. In these cases, API providers need a mechanism to prevent unauthorized access to the API. One approach is to provision your developers with an API key that must be presented when invoking the API. "API keys" are called "consumer keys" and "app keys". The names can be used interchangeably.</p>
+<p>RESTful services are often exposed over the open Internet for consumption by developers building apps. API providers need a mechanism to prevent unauthorized access to the API. One approach is to provision developers with API keys. </p>
+
+<p>The API Platform automatically generates API keys on behalf of apps. It enables you to view, approve, and revoke API keys. By applying a policy of the type VerifyApiKey, you can enforce runtime API verification.</p>
+
+<p>For instructions on setting up API keys validation, see [node:3972]</p>
 	
-<p>By enforcing API keys, you gain access control over the apps that consume APIs exposed through the API Platform. The API Platform enables you to revoke API keys of poorly-coded, non-conforming, or malicious apps that may harm your API or your app end users. API keys also enable business enforcement over access to APIs, since API keys are also used to validate that an app is permitted to access specific URIs.</p>
+<p>Note: "API keys" are also referred to as "consumer keys" and "app keys". The names can be used interchangeably.</p>
 
-<p>The API Platform automatically generates a credential pair (consumer key and secret) when a developer app or company app is registered in organization. The credentials are stored in a database on the API Platform, where they can be managed (revoked, approved, deleted, associated with API products, disassociated with API products, etc.) by an organization administrator. By applying APIKeyValidation to an API you also enable runtime verification of API key validity.</p>
-
-<p>API keys are verified at runtime to validate that:</p>
+<p>API keys are verified at runtime to ensure that:</p>
 <ul><li>The API key presented is valid and has not been revoked</li>
 <li>The API key presented is approved to consume an API product that includes the requested URI</li></ul>
 
-<p>The only setting required for the VerifyAPIKey defines the expected location of the API Key in the request message. Only one location is supported.
-</p>
+<p>The only setting required for the VerifyAPIKey defines the expected location of the API key. Only one location is supported per policy instance.</p>
+<p>The API key is extracted from the request message by reference to a Flow variable. For example:</p>
 
-<p>For example, to configure the policy to check a query parameter called <code>apikey</code>:</p>
-
-<pre>&lt;VerifyAPIKey name=&quot;APIKeyValidation&quot;&gt;
-    &lt;APIKey&gt;request.queryparameter.apikey&lt;/APIKey&gt;
+<pre>&lt;VerifyAPIKey name=&quot;APIKeyVerifier&quot;&gt;
+    &lt;APIKey&gt;ref="{variable_name}"&lt;/APIKey&gt;
 &lt;/VerifyAPIKey&gt;</pre>
 
-<p>For example, to configure the policy to check an HTTP header called <code>apikey</code>:</p>
+For example, to extract the API key from a query parameter called <code>apikey</code>:
 
-<pre>&lt;VerifyAPIKey name=&quot;APIKeyValidation&quot;&gt;
-    &lt;APIKey&gt;request.header.apikey&lt;/APIKey&gt;
+<pre>&lt;VerifyAPIKey name=&quot;APIKeyVerifier&quot;&gt;
+    &lt;APIKey ref=&quot;request.queryparam.apikey&quot; /&gt;
 &lt;/VerifyAPIKey&gt;</pre>
 
 
-<p>When a VerifyAPIKey policy is enforced, the API Platform populates a set of flow variables that can be consumed by other policies or code in the API flow. </p>
+<p>When a VerifyAPIKey policy is enforced, the API Platform populates a set of variables. These variables are available to policies or code executed later in the Flow, and are often used to perform custom processing based on attributes of the API key such as the app name, the API product used to authorize the key, or custom attributes of the API key.</p>
 
 <p>The variable prefix is <code>verifyapikey.{policy_name}</code>.</p>
 
@@ -43,6 +43,8 @@
 
 <p>API product  variables will be populated automatically if the API products are configured with valid environment, proxies and API resources (derived from the <code>proxy.pathsuffix</code>). Explicitly setting  <code>flow.resource.name</code> variable is not required.</p>
 <p>Where the API products are not configured with valid environments and API proxies, then <code>flow.resource.name</code> must explicitly be set to populate API product variables in the flow.</p>
+
+<p>For instructions on setting up API products, refer to [node:427].</p>
 
 <p>Analytics variables:</p>
 <p>The following variables are automatically populated in Analytics when a VerifyAPIKey policy is enforced. The variables and values can thereafter be used as dimensions to build Analytics reports to gain visibility into consumption patterns by developers and applications. </p>

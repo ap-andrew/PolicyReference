@@ -1,5 +1,14 @@
 <p>[toc]</p>
-<p>The API Platform stores profile data for a range for "entities", such as developers, apps, and API products. The AccessEntity policy is designed to enable a developer to retrieve profile during API facade message processing, without requiring an explicit callout to the API Platform data store. As such, the AccessEntity policy functions as a policy-based runtime database lookup. The profile data retrieved from the data store can be used to set variables, which can in turn be used to populate and enrich outbound requests to the target service or outbound responses to the requesting app. The profile information can also be used to enable dynamic endpoint routing, flow execution, or policy enforcement. </p>
+<p>The API Platform stores profile data for a range for "entities", such as developers, apps, and API products. The AccessEntity policy enables developers to retrieve profiles during API proxy message processing. The AccessEntity policy functions as a policy-based runtime database lookup. The profile information can be used to enable conditional endpoint routing, flow execution, policy enforcement, and so on. </p>
+	
+<p>For example, you could use the AccessEntity policy to get the profile for an app, an then extract a custom field (such as a department name) from the app profile. Using the department name as a vriable, you could route the request to a specific backend service, or you could forward the department name to Analytics to enable data accounting.</p>
+
+<p>When a policy of type AccessEntity is enforced:</p>
+<ol>
+	<li>The policy sets an entity as an XML-formatted flow variable. The variable that is set is usually consumed by an ExtractVariable or AssignMessage policy, as illustrated in [node:227] and [node:228] .</li>
+	<li>XPath is used to parse the desired properties from the profile. For examples see </li>
+	<li>If the specified entity is not found, the policy returns <code>ResourceNotFoundException</code>.</li>
+</ol>
 
 <p>AccessEntity is used to access profile for the following entities:</p>
 <ul>
@@ -11,44 +20,62 @@
 	<li>Developer</li>
 </ul>
 
-<p>When a policy of type AccessEntity is enforced:</p>
-<ul>
-	<li>The policy sets an entity as an XML-formatted flow variable. The variable that is set is usually consumed by an ExtractVariable or AssignMessage policy, as illustrated in [node:228] or [node:227].</li>
-	<li>XPath can be used to parse the desired properties from the profile</li>
-	<li>If the specified entity is not found, the policy returns <code>ResourceNotFoundException</code>.</li>
-</ul>
-
 <p>The basic of structure of an AccessEntity policy is:</p>
 
-<div id="class"><pre>&lt;AccessEntity enabled=&quot;true&quot; continueOnError=&quot;false&quot; async=&quot;false&quot; name=&quot;{policy_name}&quot;&gt;
+<div id="class"><pre>&lt;AccessEntity name=&quot;{policy_name}&quot;&gt;
     &lt;EntityType  value=&quot;{entity_type}&quot;/&gt;
     &lt;EntityIdentifier ref=&quot;{entity_identifier}&quot; type=&quot;identifer_type&quot;/&gt; 
     &lt;SecondaryIdentifier* ref=&quot;{secondary_identifier}&quot; type=&quot;identifer_type&quot;/&gt;
 &lt;/AccessEntity&gt;</pre></div>
 
-<ul><li><code>EntityType</code>: The name of the type of entity to be retrieved.</li> 
-<li><code>EntityIdentifier</code>: The value that identifies the specific entity whose profile should be retrieved. The <code>ref</code> attribute identifies the variable that provides the source of the identifier, for example, <code>request.queryparameter.apikey</code>. The type identifies the entity type populated by the referenced variable, such as <code>consumerkey</code>.</li>
-<li><code>SecondaryIdentifier</code>: Supported where <code>EntityIdentifier</code> is not guaranteed unique, as with <code>appname</code>, or to filter multiple results. The <code>ref</code> attribute identifies the variable that provides the source of the identifier, for example, <code>request.queryparameter.apikey</code>. The type identifies the entity type populated by the referenced variable, such as <code>consumerkey</code>. The use of multiple <code>SecondaryIdentifier</code> elements is not supported. This element is optional to support backward-compatibility with existing deployments.</li>
-<li><code>type</code>: An attribute that defines the type populated by the entity reference. Supported types are:
-<ul><li>appname</li>
-<li>appid</li>
-<li>developeremail</li>
-<li>developerid</li>
-<li>companyname</li>
-<li>apiproductname</li>
-<li>consumerkey</li>
-<li>apiresource</li></ul></li></ul>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	  <thead>
+		<th>Name</th>
+		<th>Description</th>
+		<th>Default</th>
+		<th>Required?</th>
+     </thead>
+<tbody>
+	<tr><td><b><code>AccessEntity </code></b></td><td colspan="3">A policy used to retrieve entity profiles from the API Platform data store.</td></tr>
 
-<p>Where multiple matches exist for a given <code>EntityIdentifier</code> and <code>SupportingIdentifier</code> combination, the first match will be populated in the flow. An example where such a conflict might arise is where:</p>
+	<tr><td><code>Name</code></td>
+	<td>The unique name of the policy.</td>
+	<td>N/A</td>
+	<td>Yes</td></tr>
+	
+	<tr><td><code>EntityType</code></td>
+	<td>The name of the type of entity to be retrieved. </td>
+	<td>N/A</td>
+	<td>Yes</td></tr>
+	
+	<tr><td><code>EntityIdentifier</code></td>
+	<td><p>The value that identifies the specific entity whose profile should be retrieved. </p><p>The <code>ref</code> attribute identifies the variable that provides the source of the identifier, for example, <code>request.queryparameter.apikey</code></p>. <p>The type identifies the EntityType populated by the referenced variable, such as <code>consumerkey</code>.</p></td>
+	<td>N/A</td>
+	<td>No</td></tr>
+	
+	<tr><td><code>SecondaryIdentifier</code></td>
+	<td><p>Use when <code>EntityIdentifier</code> is not guaranteed unique, as with <code>appname</code>.</p> <p>Also use to filter queries that return multiple results.</p> <p>The <code>ref</code> attribute identifies the variable that provides the source of the identifier, for example, <code>request.queryparameter.apikey</code>.</p> <p>The type identifies the entity type populated by the referenced variable, such as <code>consumerkey</code>. The use of multiple <code>SecondaryIdentifier</code> elements is not supported. This element is optional to support backward-compatibility with existing deployments.</p></td>
+	<td>N/A</td>
+	<td>No</td></tr>
+	
+
+</tbody>
+</table>
+
+
+<p>Where multiple matches exist for a given <code>EntityIdentifier</code> and <code>SupportingIdentifier</code> combination, the first match will be populated in the Flow. An example of such a potential conflict is retrieving an <code>apiproduct</code> is retrieved based on <code>appid</code>. For example:</p>
 <ul><li><code>EntityType</code> is set to <code>apiproduct</code></li>
 <li><code>EntityIdentifier</code> is set to <code>appid</code></li></ul>
-<p>Since an app can be associated with multiple API products, only the first matched API product will be available in the flow.</p>
 
-<p>During an OAuth 2.0 exchange, <code>appname</code> and <code>developerid</code> variables are populated by default in the flow, and can therefore be used by an AccessEntity policy to get profile details on the requesting app. To prevent conflicts, set the <code>EntityIdentifier</code> to <code>appname</code> and <code>developerid</code> as the <code>SecondaryIdentifier</code>.</p>
+<p>Since an app can be associated with multiple API products, only the first matched API product will be available in the Flow.</p>
+
+<p>To resolve potential conflicts, use a SecondaryIdentifier. During an OAuth 2.0 exchange, <code>appname</code> and <code>developerid</code> variables are populated by default in the Flow, and can therefore be used by an AccessEntity policy to get profile details on the requesting app. To prevent conflicts, set the <code>EntityIdentifier</code> to <code>appname</code> and <code>developerid</code> as the <code>SecondaryIdentifier</code>.</p>
 
 <h2>AccessEntity variables</h2>
 
-<p>When the entity profile specified in the AccessEntity policy is retrieved, the resultant XML-formatted profile object is added to the message context. The user-provided name of the AccessEntity policy is set as the variable prefix. For example, if an AccessEntity policy with name of <code>GetDeveloper</code> is executed, then the XML-formatted profile is stored, as a while, under the variable <code>AccessEntity.GetDeveloper</code>. The XML-formatted profile can then be parsed using an XPath defined in an ExtractVariables policy that specifies <code>AccessEntity.GetDeveloper</code> as its source.</p>
+<p>When the entity profile specified in the AccessEntity policy is retrieved, the resultant XML-formatted profile object is added to the message context. The user-provided name of the AccessEntity policy is set as the variable prefix. </p>
+	
+<p>For example, if an AccessEntity policy with name of <code>GetDeveloper</code> is executed, then the XML-formatted profile is stored, as a while, under the variable <code>AccessEntity.GetDeveloper</code>. The XML-formatted profile can then be parsed using an XPath defined in an ExtractVariables policy that specifies <code>AccessEntity.GetDeveloper</code> as its source.</p>
 
 
 <h2><code>EntityType</code> specification</h2>

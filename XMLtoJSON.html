@@ -21,9 +21,8 @@
 
 <p>Assuming that the intent is to convert an XML-formatted response into a JSON-formatted response, the policy would be attached to a response Flow (for example, the ProxyEndpoint response PostFlow). This configuration takes a JSON-formatted response message as the source, and then creates an XML-formatted message that is populated in the <cpde>response</cpde> OutputVariable. The API Platform automatically uses the content of this variable as the message for next processing step.</p>
 
-
 <h2><a class="jumplink" name="configure"></a>Configuring an XML to JSON policy</h2>
-<p>For more advanced control over mapping XML to JSON structures, use the following configuration elements.. All fields are optional. However, if you specify <code>NamespaceBlockName</code>, you must also specify <code>DefaultNamespaceNodeName</code> and <code>NamespaceSeparator</code>.</p>
+<p>For more advanced control over mapping XML to JSON structures, use the following configuration elements. All fields are optional. However, if you specify <code>NamespaceBlockName</code>, you must also specify <code>DefaultNamespaceNodeName</code> and <code>NamespaceSeparator</code>.</p>
 <table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
 	<thead>
 		<tr>
