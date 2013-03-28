@@ -1,10 +1,10 @@
 <p>RESTful services are often exposed over the open Internet for consumption by developers building apps. API providers need a mechanism to prevent unauthorized access to the API. One approach is to provision developers with API keys. </p>
 
-<p>The API Platform automatically generates API keys on behalf of apps. It enables you to view, approve, and revoke API keys. By applying a policy of the type VerifyApiKey, you can enforce runtime API verification.</p>
-
-<p>For instructions on setting up API keys validation, see [node:3972]</p>
+<p>The API Platform automatically generates API keys on behalf of apps. It enables you to view, approve, and revoke API keys. 
 	
-<p>Note: "API keys" are also referred to as "consumer keys" and "app keys". The names can be used interchangeably.</p>
+<p>By applying a policy of the type VerifyApiKey, you can enforce verification of API keys at runtime. This ensures that no app can access a protected API without a valid key.</p>
+	
+<span class="label label-info">Note:</span> "API keys" are also referred to as "consumer keys" and "app keys". The names can be used interchangeably.</p>
 
 <p>API keys are verified at runtime to ensure that:</p>
 <ul><li>The API key presented is valid and has not been revoked</li>

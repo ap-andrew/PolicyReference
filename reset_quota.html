@@ -1,5 +1,5 @@
 <p>[toc]</p>
-<p>If you encounter a fault or an error during quota usage, you need a option that enables you to reset the quota. Apigee provides a Reset Quota policy that allows you to dynamically reset the limit for a specified quota.</p>
+<p>Reset Quota policy enables you to dynamically reset the limit for a specified Quota. For example, you can use this policy to reset a developer's Quota counter when additional API calls are purchased.</p>
 <h2><a class="jumplink" name="configure"></a>Configuring a Reset Quota policy</h2>
 
 <p>Configure your Reset Quota policy using the following elements.</p>
@@ -13,15 +13,15 @@
 	<tbody>
 		<tr>
 			<td>Quota Name</td>
-			<td>Specifies the quota name for which to reset the quota limit.</td>
+			<td>Specifies the name of the Quota policy whose counter should be reset.</td>
 		</tr>
 		<tr>
 			<td>Identifier name</td>
-			<td>Variable used for uniquely identifying the client.</td>
+			<td>Variable used for uniquely identifying the client, for example <code>client_id</code>.</td>
 		</tr>
 		<tr>
 			<td>Allow (Allow integer)</td>
-			<td>Specifies the message count for the quota.</td>
+			<td>Specifies the message count tow which the Quota will be reset.</td>
 		</tr>
 	</tbody>
 </table>

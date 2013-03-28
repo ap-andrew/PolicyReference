@@ -5,10 +5,46 @@
 
 <p><span class="label label-success">Developer Guide</span> For instructions on configuring OAuth 2 on the API Platform, refer to <a href="/enterprise/dev/secure_api">Configuring OAuth</a> in the API Platform Developer Guide.</p>
 
+<p>The OAUthV2 policy type defines a set of operations that define the behavior of the policy. An OAuthV2 policy can be used to secure a protected resource, or ot can be used to enable token distribution endpoints.</p>
+
+<p>OAUthV2 Operations</p>
+
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	  <thead>
+		<th>Name</th>
+		<th>Description</th>
+		<th>Operation</th>
+     </thead>
+<tbody>
+
+	<tr><td><code>Protected Resource</code></td>
+	<td>When attached to an API proxy, verifies that all request messages present valid access tokens.</td>
+	<td>VerifyAccessToken</td></tr>
+	
+	<tr><td><code>Token Endpoint</code></td>
+	<td>When attached to an API proxy, acts a distribution endpoint for access tokens.</td>
+	<td>N/A</td></tr>
+	
+	<tr><td><code>ImplictGrant Token Endpoint</code></td>
+	<td>When attached to an API proxy, acts a distribution endpoint for 'ImplicitGrant' access tokens.</td>
+	<td>GenerateAccessTokenImplicitGrant</td></tr>
+	
+	<tr><td><code>Authorization Endpoint</code></td>
+	<td>When attached to an API proxy, acts a distribution endpoint for authorization codes.</td>
+	<td>GenerateAuthorizationCode</td></tr>
+	
+	<tr><td><code>Refresh Endpoint</code></td>
+	<td>When attached to an API proxy, acts a distribution endpoint for refresh tokens.</td>
+	<td>RefreshAccessToken</td></tr>
+
+</tbody>
+</table>
+
 <p>Setting up OAuth 2.0 is a three step process:</p>
 <ol><li><b>Configure a token endpoint:</b> An OAuth token endpoint defines a URI on the API Platform. The token endpoint is configured with a policy of type <code>OAUthV2</code>. In the <code>OAUthV2</code> policy, the GenerateAccessToken operation is specified. When this operation is specified, you have the option of configuring one or more grant types. For each grant type specified, an additional set of configuration elements are exposed, providing flexibility in the way that APIs exposed through the API Platform manage OAuth-based authorization. </li>
 <li><b>Apply an OAuth validation policy to protected resource URIs:</b> To enforce OAuth at runtime, attach a policy of type <code>OAUthV2</code> to a Flow that exposes a protected resource. In the <code>OAUthV2</code> policy, specify the <code>VerifyAccessToken</code> operation.</li>
 <li><b>Configure one or more API products:</b> The <code>VerifyAccessToken</code> operation resolves the access token to an API product for which the app has been approved. The request URI is verified against the list of URIs defined in the API product. If the request URI is included in the list defined by the approved API product, then the request is forwarded to the protected resource.</li></ol>
+
 
 <h2>Configuring token endpoints</h2>
 
@@ -18,7 +54,7 @@
 
 <p>For example, to configure a token endpoint that generates tokens on requests to the URI path <code>/accesstoken</code>:</p>
 
-<pre class="prettify">&lt;Flow name=&quot;TokenEndpoint&quot;&gt;
+<pre>&lt;Flow name=&quot;TokenEndpoint&quot;&gt;
   &lt;Condition&gt;proxy.pathsuffix MatchesPath &quot;/accesstoken&quot;&lt;/Condition&gt;
   &lt;Request&gt;
     &lt;Step&gt;&lt;Name&gt;GenerateAccessToken&lt;/Name&gt;&lt;/Step&gt;

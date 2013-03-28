@@ -1,0 +1,193 @@
+<p>[toc]</p>
+<p>The ExtractVariables policy type enables you to work with the content of messages as part of policy processing, extracting content from a request or response message, and in turn making that content available as variables to the message flow. By setting variables specific to message content, you can, for example, specify custom, conditional flow behavior based on message content. You can also use such custom variables to populate custom analytics reports. For instructions, see [node:4554].</p>
+<p>To extract message content, you specify patterns for the API Platform to evaluate at runtime. Patterns can be defined to evaluate:</p>
+<ul>
+	<li>URI path</li>
+	<li>Query parameter</li>
+	<li>Header</li>
+	<li>Form parameter</li>
+</ul>
+<p>Within the pattern, a variable definition is enclosed in curly braces and follows the basic format:</p>
+<pre>&lt;Pattern&gt;{variable}&lt;/Pattern&gt;</pre>
+<p>Patterns can be combined and repeated in any order within a single policy.</p>
+<p>Two configuration options are provided:</p>
+<ul>
+	<li><code>ignoreCase</code>: Enables case-sensitivity to be toggled on and off</li>
+	<li><code>IgnoreUnresolvedVariables</code>: If set to <code>false</code>, policy execution stops and the transaction enters an error state.</li>
+</ul>
+<h2>Samples</h2>
+<p>Extract variable from a URI path</p>
+<div id="class">
+	<pre>&lt;ExtractVariables name="ExtractURIVariable"&gt;
+    &lt;DisplayName&gt;Extract Variables Policy for URI extraction&lt;/DisplayName&gt;
+    &lt;URIPath&gt;
+        &lt;Pattern ignoreCase="true"&gt;/weather/{uri}&lt;/Pattern&gt;
+    &lt;/URIPath&gt;
+    &lt;VariablePrefix&gt;path&lt;/VariablePrefix&gt;
+    &lt;IgnoreUnresolvedVariables&gt;true&lt;/IgnoreUnresolvedVariables&gt;
+&lt;/ExtractVariables&gt;</pre>
+</div>
+<p>Example:</p>
+
+	<pre>http://{myorg}-test.apigee.net/weather/forecastrss?w=12797282</pre>
+
+<p>Result:</p>
+<p>The variable <code>path.uri</code> is populated with the value <code>forecastrss</code></p>
+<p>Extract variable from a query parameter</p>
+
+	<pre>&lt;ExtractVariables name="ExtractQueryParamVariable"&gt;
+    &lt;DisplayName&gt;Extract Query Parameters&lt;/DisplayName&gt;
+    &lt;QueryParam name="w"&gt;
+        &lt;Pattern ignoreCase="true"&gt;{location_id}&lt;/Pattern&gt;
+    &lt;/QueryParam&gt;
+    &lt;VariablePrefix&gt;queryparam&lt;/VariablePrefix&gt;
+    &lt;IgnoreUnresolvedVariables&gt;true&lt;/IgnoreUnresolvedVariables&gt;
+&lt;/ExtractVariables&gt;</pre>
+
+<p>Example:</p>
+
+	<pre>http://{myorg}-test.apigee.net/weather/forecastrss?w=12797282</pre>
+
+<p>Result:</p>
+<p>The variable <code>queryparam.location_id</code> is populated with the value  <code>12797282</code></p>
+<p>A common usage of the Extract Variables policy is parsing message content to populate custom variables. Those custom variables can in turn be used to collect custom analytics, for example.</p>
+<p>To parse JSON, use JSONPath:</p>
+
+	<pre>&lt;ExtractVariables name="ParseGeocodingResponse"&gt; 
+  &lt;Source&gt;GeocodingResponse&lt;/Source&gt; 
+  &lt;VariablePrefix&gt;geocoderesponse&lt;/VariablePrefix&gt; 
+  &lt;JSONPayload&gt; 
+    &lt;Variable name="latitude"&gt; 
+      &lt;JSONPath&gt;$.results[0].geometry.location.lat&lt;/JSONPath&gt; 
+    &lt;/Variable&gt; 
+    &lt;Variable name="longitude"&gt; 
+      &lt;JSONPath&gt;$.results[0].geometry.location.lng&lt;/JSONPath&gt; 
+    &lt;/Variable&gt; 
+  &lt;/JSONPayload&gt; 
+&lt;/ExtractVariables&gt;</pre>
+
+<p>To parse XML, use XPath:</p>
+
+	<pre>&lt;ExtractVariables name="ParseWeatherReport"&gt;
+  &lt;Source&gt;WeatherResponse&lt;/Source&gt; 
+  &lt;VariablePrefix&gt;weather&lt;/VariablePrefix&gt;
+  &lt;XMLPayload&gt;
+    &lt;Namespaces&gt;
+      &lt;Namespace prefix="yweather"&gt;http://xml.weather.yahoo.com/ns/rss/1.0&lt;/Namespace&gt;
+    &lt;/Namespaces&gt;
+    &lt;Variable name="location" type="string"&gt;
+      	&lt;XPath&gt;/rss/channel/yweather:location/@city&lt;/XPath&gt;
+    &lt;/Variable&gt;
+  &lt;/XMLPayload&gt;
+&lt;/ExtractVariables&gt;</pre>
+
+<h2><a class="jumplink" name="configure"></a>Configuring the Extract Variables policy</h2>
+
+<p>Configure the Extract Variable policy using the following elements.</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th colspan="3">Field Name</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td colspan="3">Source (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>Contains the message from which information needs to be extracted.
+				<ul>
+					<li>If the source is missing, it is treated as a simple message. For example, <span style="font-family: courier new,courier,monospace;">&lt;Source&gt;message&lt;/Source&gt;</span></li>
+					<li>If the source variable cannot be resolved, or resolves to a non-message type, the policy fails to respond.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="3">VariablePrefix (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>Prefix assigned to the variable</td>
+		</tr>
+		<tr>
+			<td colspan="3">IgnoreUnresolvedVariables (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>
+				<div>If IgnoreUnresolvedVariables is set to false and any variable is unresolvable, the policy fails to respond.<br>
+					If IgnoreUnresolvedVariables is set to true and any variable is unresolvable, it is treated as empty string (null).</div>
+				<div>Valid values: true/false</div>
+				<div>Default value: false</div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="1" rowspan="5">Patterns (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td colspan="2">URIPath</td>
+			<td>Extracts information from the request URI path.</td>
+		</tr>
+		<tr>
+			<td colspan="2">QueryParam</td>
+			<td>Extracts information from the request query parameter.</td>
+		</tr>
+		<tr>
+			<td colspan="2">Header</td>
+			<td>Extracts information from the request and response header.</td>
+		</tr>
+		<tr>
+			<td colspan="2">FormParam</td>
+			<td>Extracts information from the request form parameter. Note that the FormParams is extracted only when the contentType of message is <em>application/x-www-form-urlencoded</em>.</td>
+		</tr>
+		<tr>
+			<td colspan="2">Variable</td>
+			<td>Extracts information from the given variable.</td>
+		</tr>
+		<tr>
+			<td colspan="1" rowspan="5">XMLPayload (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td colspan="2">Namespaces</td>
+			<td>Specifies the namespace to be used in the XPath evaluation. Note that the XML payloads are extracted only when the contentType of message is <em>text/xml</em> or <em>application/xml</em> or <em>application/*+xml</em>.</td>
+		</tr>
+		<tr>
+			<td colspan="1" rowspan="3">Variable</td>
+			<td>name</td>
+			<td>
+				<div>Specifies the variable name where the extracted information needs to be assigned.</div>
+				<div>In the <a href="#example">example</a> below:</div>
+				<ul>
+					<li>if <span style="font-family: courier new,courier,monospace;">&lt;VariablePrefix&gt;</span> is not specified, the extracted values are assigned to <span style="font-family: courier new,courier,monospace;">user</span>.</li>
+					<li>If <span style="font-family: courier new,courier,monospace;">&lt;VariablePrefix&gt;</span> is specified as extracts, the extracted values are assigned to <span style="font-family: courier new,courier,monospace;">extracts.user</span>.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<td>type</td>
+			<td>Specifies the datatype, default is string</td>
+		</tr>
+		<tr>
+			<td>XPath</td>
+			<td>Specifies the XPath defined for the variable. Only XPath 1.0 expressions are supported.</td>
+		</tr>
+		<tr>
+			<td colspan="2" rowspan="1">stopPayloadProcessing</td>
+			<td>
+				<div>Stops the XPath evaluation if sets to true.</div>
+				<div>Valid values: true/false</div>
+				<div>Default value: false</div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="1" rowspan="2">JSONPayload (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td colspan="1" rowspan="2">Variable</td>
+			<td rowspan="1">JSONPath</td>
+			<td>Specifies the JSONPath defined for the variable. Note that the JSON payloads are extracted only when the contentType of message is <em>application/</em><em>json</em>.</td>
+		</tr>
+		<tr>
+			<td rowspan="1">name</td>
+			<td>
+				<div>Specifies the variable name where the extracted information needs to be assigned.</div>
+				<div>In the <a href="#example">example</a> below:</div>
+				<ul>
+					<li>If <span style="font-family: courier new,courier,monospace;">&lt;VariablePrefix&gt;</span> is not specified, the extracted values are assigned to <span style="font-family: courier new,courier,monospace;">customer</span>.</li>
+					<li>If <span style="font-family: courier new,courier,monospace;">&lt;VariablePrefix&gt;</span> is specified as extracts, the extracted values are assigned to <span style="font-family: courier new,courier,monospace;">extracts.customer</span>.</li>
+				</ul>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h2><a class="jumplink" name="schema"></a>Policy schema</h2>
+<p>Each policy must conform to a policy schema. All policy constructs such as elements and attributes mentioned above are defined in a schema. To download the schema, <a href="/docs/download/file/fid/201">click here</a>.</p>
+<h3><a class="jumplink" name="example"></a>Example - Extract Variable policy</h3>
+<p>[gist:2633915]</p>

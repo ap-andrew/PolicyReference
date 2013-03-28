@@ -1,9 +1,27 @@
 <p>[toc]</p>
-<p>Apigee provides a range of out-of-the-box policy capabilities that address common API management requirements. However, there are some cases where your API requires custom behavior that is not implemented in the out-of-the-box policies. In these cases, Apigee provides several options that enable developers to script or code customized API behavior. One approach is to implement the desired behavior in the Java programming language.</p>
-<p><strong>Note:</strong> You must be an Apigee Enterprise customer to use the Java Callout policy.&nbsp;For lightweight operations, &nbsp;such as API calls to remote services, the ServiceCallout policy  is recommended. See [node:156]. For relatively simple interaction with message content, such as modifying or extracting HTTP headers, parameters, or message content, you can use JavaScript or Python languages. For a detailed code example, see [node:3975].</p>
-<h2><a class="jumplink" name="configure"></a>Configuring a Java Callout policy</h2>
-<p>A JavaCallout policy merely references a JAR file. The referenced JAR file contains compiled Java code written to the Java API exposed by the API Platform processing pipeline. The compiled Java is uploaded as a JAR file to the API Platform where it is bundled in an API proxy as a resource.</p>
-<p>For more information on Java patterns and JavaCallout packaging for the API Platform, see [node:222].</p>
+<p>The Apigee API Platform provides a range of out-of-the-box policy capabilities that address common API management requirements. However, there are some cases where your API requires custom behavior that is not implemented in the out-of-the-box policy palette. In these cases, Apigee provides several options that enable developers to script or code customized API behavior. One approach is to implement the desired behavior in the Java programming language.</p>
+<p><strong>Note:</strong> You must be an Apigee Enterprise customer to use the JavaCallout policy.</p>
+<p>For lightweight operations, such as API calls to remote services, the ServiceCallout policy is recommended. See [node:156]. </p>
+<p>For relatively simple interaction with message content, such as modifying or extracting HTTP headers, parameters, or message content, you can use JavaScript or Python languages.</p>
+<p>For a detailed code example, see [node:3975].</p>
+
+<h2>JavaDocs</h2>
+
+To get started writing Java for the API Platform, refer to the <a href="https://github.com/apigee/api-platform-samples/wiki/Apigee-API-Platform-Samples-Wiki">JavaCallout Javadocs</a>.
+
+<h2>JavaCallout Samples</h2>
+
+For commented sample code, see the <a href="https://github.com/apigee/api-platform-samples/tree/master/sample-proxies/java-callout/java/src/com/apigee">JavaCallout samples repository.</a>
+
+<h2>Compiling, deploying, testing</h2>
+
+JavaCallouts depend on two JAR files that are available in the API Platform samples repository on Github.
+
+For instructions on compiling and deploying, see the instructions provided in the <a href="https://github.com/apigee/api-platform-samples/tree/master/sample-proxies/java-callout">JavaCallout overview</a>.
+
+
+<h2><a class="jumplink" name="configure"></a>Configuring a JavaCallout policy</h2>
+<p>A JavaCallout policy merely references a JAR file. The referenced JAR file contains compiled Java code written to the Java API exposed by the API Platform processing pipeline. The compiled Java is included as a JAR file in an API proxy under <span style="font-family:courier new,courier,monospace;">/resources/java</span>.&nbsp;</p>
 <p>Configure the JavaCallout policy using the following elements.</p>
 <table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
 	<thead>
@@ -15,7 +33,7 @@
 	<tbody>
 		<tr>
 			<td>ResourceURL</td>
-			<td>Specifies the Java resource. Note that only resource of type <span style="font-family:courier new,courier,monospace;">java</span> is allowed</td>
+			<td>Specifies the Java resource that is the name of the JAR file). Note that only resource of type <span style="font-family:courier new,courier,monospace;">java</span> is allowed</td>
 		</tr>
 		<tr>
 			<td style="vertical-align: top;">ClassName</td>
@@ -25,6 +43,6 @@
 </table>
 <h2><a class="jumplink" name="schema"></a>Policy schema</h2>
 <p>Each policy must conform to a policy schema. All policy constructs such as elements and attributes mentioned above are defined in a schema. To download the schema, <a href="/docs/download/file/fid/199">click here</a>.</p>
-<h3>Example - JavaCallout policy</h3>
+<h3>Example - Java Callout policy</h3>
 <p>In the example below, the element, ResourceURL specifies the name of the relevant JAR file.</p>
 <p>[gist:2628031]</p>
