@@ -1,43 +1,34 @@
 <p>[toc]</p>
-<p>The API Platform supports a fault handling model that enables exceptions to be managed using a policy of type RaiseFault.</p>
 
-<p>The RaiseFault policy type works in a similar way as the AssignMessage policy type. A RaiseFault policy generates a new message that is returned to the calling client app as a response. Therefore, the mechanics of RaiseFault are similar to AssignMessage. RaiseFault enables you to generate custom response, along with any required HTTP headers, query parameters, or message content from the source message.</p>
+<p>The API Platform enables you to configure custom exception handling using a policy of type RaiseFault.</p>
 
-<p>You can configure an API with a RaiseFault policy that executes when an event, defined as an exception, occurs in the message flow. When executed, the RaiseFault policy transfers the message flow execution to the default ErrorFlow, which in turn returns a fault response to the requesting client app.</p>
+<p>The RaiseFault policy is a variation on the AssignMessage policy type. Like an AssignMessage policy, a RaiseFault policy generates a custom message in response to an error condition. You use RaiseFault to define a FaultResponse that is returned to the requesting app when a specific condition arises.</p>
+
+<p>A FaultResponse can consist of HTTP headers, query parameters, and a message payload. These elements can be dynamically populated using variables, enabling you to craft FaultResponses that are tailored to specific failure conditions. Such tailored FaultResponses can be more useful to app developers and app end users than generic error messages or HTTP response codes.</p>
+
+<p>When executed, the RaiseFault policy transfers the message Flow execution to the default ErrorFlow, which in turn returns the designated FaultResponse to the requesting client app. When the message Flow switches to the default ErrorFlow, no further policy processing occurs. All remaining processing Steps are bypassed, and the FaultResponse is returned directly to the requesting app.</p>
 
 <h2>Sample RaiseFault policy</h2>
 
-<p>In the most common usage, RaiseFault is used to return a custom response message to the requesting app. For example to return a 404:</p>
+<p>In the most common usage, RaiseFault is used to return a custom FaultResponse to the requesting app. For example to return a 404:</p>
 
 <pre>&lt;RaiseFault name=&quot;404&quot;&gt;
  &lt;IgnoreUnresolvedVariables&gt;true&lt;/IgnoreUnresolvedVariables&gt;
  &lt;FaultResponse&gt;
    &lt;Set&gt;
      &lt;StatusCode&gt;404&lt;/StatusCode&gt;
-     &lt;ReasonPhrase&gt;Resource not found&lt;/ReasonPhrase&gt;
+     &lt;ReasonPhrase&gt;The resource requested was not found&lt;/ReasonPhrase&gt;
    &lt;/Set&gt;
  &lt;/FaultResponse&gt;
 &lt;/RaiseFault&gt;</pre>
 
-<p>A more complex example involves returning a custom message payload, along with HTTP headers and an HTTP status code, as follows:</p>
+<p>A more complex example involves returning a custom FaultResponse payload, along with HTTP headers and an HTTP status code. In the following example the FaultResponse is populated with an XML message along with the value of single variable--the HTTP status code received by the API Platform from the backend service.</p>
 
-	<pre>&lt;RaiseFault name="ExceptionHandler"&gt;
+<pre>&lt;RaiseFault name="ExceptionHandler"&gt;
  &lt;IgnoreUnresolvedVariables&gt;true&lt;/IgnoreUnresolvedVariables&gt;
  &lt;FaultResponse&gt;
-   &lt;Copy&gt;
-      &lt;Headers /&gt;
-   &lt;/Copy&gt;
-   &lt;Remove&gt;
-      &lt;Headers&gt;
-         &lt;Header name="h1"/&gt;
-      &lt;/Headers&gt;
-   &lt;/Remove&gt;
-   &lt;Set&gt;
-     &lt;Headers&gt;
-       &lt;Header name="h1"&gt;hello {user}&lt;/Header&gt;
-     &lt;/Headers&gt;
      &lt;Payload contentType="text/xml"&gt;
-       &lt;root&gt;this is my payload {variable.v1}&lt;/root&gt;
+       &lt;root&gt;Please contact support@company.com&lt;/root&gt;
      &lt;/Payload&gt;
      &lt;StatusCode&gt;{response.status.code}&lt;/StatusCode&gt;
      &lt;ReasonPhrase&gt;Server error&lt;/ReasonPhrase&gt;
@@ -45,6 +36,7 @@
  &lt;FaultResponse&gt;
 &lt;RaiseFault&gt;</pre>
 
+<p>For a list of all variables that are available for dynamically populating FaultResponse messages, see [node:243]</p>
 
 <h2><a class="jumplink" name="configure_policy"></a>Configuring a Raise Fault policy</h2>
 <p>Configure the RaiseFault policy using the following elements.</p>
@@ -66,7 +58,7 @@
 		</tr>
 		<tr>
 			<td>FaultResponse: Optional</td>
-			<td>Defines the response message returned to the requesting client. FaultResponse relies on the same settings as the AssignMessage policy type.</td>
+			<td>Defines the response message returned to the requesting client. FaultResponse uses the same settings as the AssignMessage policy type. See [node:228].</td>
 		</tr>
 	</tbody>
 </table>
