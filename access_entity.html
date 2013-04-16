@@ -204,12 +204,12 @@
 
 <h2><a name="Profiles"></a>Retrieving entity profiles using the Platform API</h2>
 <p>When configuring an AccessEntity policy, it can be useful to retrieve sample entity profiles to assist in selection of appropriate identifiers. For details, refer to the [node:4972]</p>
-<p>For example:</p>
+<p>For example the following request can used to retrieve an app profile by using the <code>app_id</code>:</p>
 <h3>Apps</h3>
 <pre>$ curl -H "Accept:text/xml" -X GET \
 https://api.enterprise.apigee.com/v1/o/{org_name}/apps/{app_id} \
 -u myname:mypass</pre>
-<p>Or:</p>
+<p>Alternatively, you can retrieve an app profile by requesting the profile by <code>app_name</code>, as long as you include the association with the developer. For example:</p>
 <pre>$ curl -H "Accept:text/xml" -X GET \
 https://api.enterprise.apigee.com/v1/o/{org_name}/developers/{developer_email}/apps/{app_name} \
 -u myname:mypass</pre>
