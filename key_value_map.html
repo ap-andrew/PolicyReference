@@ -40,21 +40,21 @@
 			<td colspan="3" rowspan="2" style="vertical-align: top;">InitialEntries (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
 			<td colspan="1" rowspan="2" style="vertical-align: top;">Entry</td>
 			<td>Key</td>
-			<td>Parameter (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td>Parameter (<span style="color: rgb(169, 169, 169);">Required</span>)</td>
 			<td>The default value for the key-value entry that you define. A key can be composite, which means that more than one parameter can be appended to make the key. For example, User-ID and Role together is the key.</td>
 		</tr>
 		<tr>
-			<td colspan="2" rowspan="1" style="vertical-align: top;">Value (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td colspan="2" rowspan="1" style="vertical-align: top;">Value (<span style="color: rgb(169, 169, 169);">Required</span>)</td>
 			<td>Specifies the value for a key. In the <a href="#example">example</a> below, the map is initialized by the two key-value entries <span style="font-family: courier new,courier,monospace;">[k1] -&gt; [v1, v2]</span> and <span style="font-family: courier new,courier,monospace;">[k2, k3] -&gt; [v3, v4]</span>.</td>
 		</tr>
 		<tr>
-			<td colspan="3" rowspan="3" style="vertical-align: top;">Put (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td colspan="3" rowspan="3" style="vertical-align: top;">Put (<span style="color: rgb(169, 169, 169);">Required</span>)</td>
 			<td colspan="2" style="vertical-align: top;">Key</td>
-			<td style="vertical-align: top;">Parameter (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td style="vertical-align: top;">Parameter (<span style="color: rgb(169, 169, 169);">Required</span>)</td>
 			<td>Includes an entry inside a key-value map for the specified key.</td>
 		</tr>
 		<tr>
-			<td colspan="3" rowspan="1" style="vertical-align: top;">Value (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td colspan="3" rowspan="1" style="vertical-align: top;">Value (<span style="color: rgb(169, 169, 169);">Required</span>)</td>
 			<td>You can specify multiple values for a key.</td>
 		</tr>
 		<tr>
@@ -66,13 +66,13 @@
 			</td>
 		</tr>
 		<tr>
-			<td colspan="3" rowspan="3" style="vertical-align: top;">Get (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td colspan="3" rowspan="3" style="vertical-align: top;">Get (<span style="color: rgb(169, 169, 169);">Required</span>)</td>
 			<td colspan="2" style="vertical-align: top;">Key</td>
-			<td style="vertical-align: top;">Parameter (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td style="vertical-align: top;">Parameter (<span style="color: rgb(169, 169, 169);">Required</span>)</td>
 			<td>Retrieves a value for the specified key.</td>
 		</tr>
 		<tr>
-			<td colspan="3" style="vertical-align: top;">assignTo (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td colspan="3" style="vertical-align: top;">assignTo (<span style="color: rgb(169, 169, 169);">Required</span>)</td>
 			<td>Assigns the retrieved value to a flow variable or simply a variable.</td>
 		</tr>
 		<tr>
@@ -80,9 +80,9 @@
 			<td>You can specify an index for a multi-valued key. In the <a href="#example">example</a> below, index is 1, meaning the value at index 1 is fetched and assigned to the variable <em>myvar</em>. If not specified, all the values of that entry are assigned to the variable as <em>java.util.List</em>.</td>
 		</tr>
 		<tr>
-			<td colspan="3" style="vertical-align: top;">Delete (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td colspan="3" style="vertical-align: top;">Delete (<span style="color: rgb(169, 169, 169);">Required</span>)</td>
 			<td colspan="2" style="vertical-align: top;">Key</td>
-			<td style="vertical-align: top;">Parameter (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td style="vertical-align: top;">Parameter (<span style="color: rgb(169, 169, 169);">Required</span>)</td>
 			<td>Specifies the key to be deleted.</td>
 		</tr>
 	</tbody>

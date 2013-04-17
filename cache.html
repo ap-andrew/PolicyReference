@@ -13,6 +13,17 @@
 
 <h2>Manage Caches using the API Platform API</h2>
 
+<h3>List available Caches</h3>
+<p>To list all Caches available in an environment:</p>
+
+<pre>$ curl -X GET \ 
+https://api.enterprise.apigee.com/v1/o/{org_name}/environments/{env_name}/caches \
+-u myname:mypass</pre>
+
+<p>Sample response:</p>
+
+<pre>[ "twitter-translate-cache", "mycache" ]</pre>
+
 <h3>Create a Cache</h3>
 
 <p>Use the API Platform API to create a Cache resource. Caches are created per environment. A Cache created in 'test', for example, cannot be access by API proxies deployed in 'prod'. 
@@ -36,7 +47,7 @@ https://api.enterprise.apigee.com/v1/o/{org_name}/environments/test/caches \
 
 <h3>Update a Cache</h3>
 
-<p>To modify the Cache resource created above, issue a complete payload POST request to the same URI as above,  except include the name of the Cache resource as a URI parameter </p>
+<p>To modify the Cache resource created above, issue a complete payload POST request to the same URI as above, but include the name of the Cache resource as a URI parameter:</p>
 
 <pre>$ curl -H "content-type:text/xml" -X POST -d \
 '&lt;Cache name=&quot;test-cache&quot;&gt;
