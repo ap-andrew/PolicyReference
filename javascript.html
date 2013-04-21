@@ -1,0 +1,33 @@
+<p>[toc]</p>
+<p>Apigee provides a range of out-of-the-box policy capabilities that address common API management requirements. However, there are some cases where your API requires custom behavior that is not covered by Apigee's standard policy palette. In these cases, Apigee exposes scripting interfaces to ease the task of implementing custom behaviors in the proxied API message flow. One approach is to attach your own JavaScript to an API flow, which the API Platform then executes at runtime.</p>
+<p>A JavaScript policy contains no actual code. Instead, a JavaScript policy references a JavaScript 'resource' and defines the Step in the API flow where the JavaScript executes. You can upload your JavaScript through the Management UI proxy editor, or you can include it in the <code>/resources</code> directory in API proxies that you develop locally.</p>
+<p>For instructions, policy samples, and JavaScript samples, see [node:3971].</p>
+<p>For instructions on building and deploying full-fledged JavaScript apps for the API Platform, see the [node:3975].</p>
+<h2><a class="jumplink" name="configure"></a>Configuring a JavaScript policy</h2>
+<p>Configure the JavaScript policy using the following elements.</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th>Field Name</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Display Name</td>
+			<td>The name attribute of the JavaScript policy</td>
+		</tr>
+		<tr>
+			<td>Execution Time Limit</td>
+			<td>Specifies the maximum time (in milliseconds) that the script is permitted to execute. For free trial accounts, execution time is limited to 200 ms.</td>
+		</tr>
+		<tr>
+			<td>Resource (JavaScript file)</td>
+			<td>Specifies the JavaScript resource (file), stored under <code>/apiproxy/resources/jsc</code>, that implements the [node:3975]</td>
+		</tr>
+	</tbody>
+</table>
+<h2><a class="jumplink" name="schema"></a>Policy schema</h2>
+<p>Each policy must conform to a policy schema. All policy constructs such as elements and attributes mentioned above are defined in a schema. To download the schema, <a href="/docs/download/file/fid/202">click here</a>.</p>
+<h3>Example - JavaScript policy</h3>
+<p>[gist:2633247]</p>

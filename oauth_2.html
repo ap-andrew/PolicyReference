@@ -1,0 +1,394 @@
+<p>[toc]</p>
+<p>OAuth 2.0 defines a protocol for securing application access to protected resources, which are accessed through APIs. OAuth 2.0 relies on access tokens presented via apps on behalf of app end users when requesting RESTful resources via APIs. These tokens must be obtained before the app can access the protected resource. An access token contains a set of attributes and policies that relate to both the app and the app end user, and these attributes are used for making authorization decisions at run time.</p>
+
+<p><span class="label label-success">Sample Code</span> For working examples of OAuth 2.0-enabled API proxies, please refer to the  <a href="https://github.com/apigee/api-platform-samples">API Platform samples</a> available on GitHub.</p>
+
+<p><span class="label label-success">Developer Guide</span> For instructions on configuring OAuth 2 on the API Platform, refer to <a href="/enterprise/dev/secure_api">Configuring OAuth</a> in the API Platform Developer Guide.</p>
+
+<p>The OAUthV2 policy type defines a set of operations that define the behavior of the policy. An OAuthV2 policy can be used to secure a protected resource, or ot can be used to enable token distribution endpoints.</p>
+
+<p>OAUthV2 Operations</p>
+
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	  <thead>
+		<th>Name</th>
+		<th>Description</th>
+		<th>Operation</th>
+     </thead>
+<tbody>
+
+	<tr><td><code>Protected Resource</code></td>
+	<td>When attached to an API proxy, verifies that all request messages present valid access tokens.</td>
+	<td>VerifyAccessToken</td></tr>
+	
+	<tr><td><code>Token Endpoint</code></td>
+	<td>When attached to an API proxy, acts a distribution endpoint for access tokens.</td>
+	<td>N/A</td></tr>
+	
+	<tr><td><code>ImplictGrant Token Endpoint</code></td>
+	<td>When attached to an API proxy, acts a distribution endpoint for 'ImplicitGrant' access tokens.</td>
+	<td>GenerateAccessTokenImplicitGrant</td></tr>
+	
+	<tr><td><code>Authorization Endpoint</code></td>
+	<td>When attached to an API proxy, acts a distribution endpoint for authorization codes.</td>
+	<td>GenerateAuthorizationCode</td></tr>
+	
+	<tr><td><code>Refresh Endpoint</code></td>
+	<td>When attached to an API proxy, acts a distribution endpoint for refresh tokens.</td>
+	<td>RefreshAccessToken</td></tr>
+
+</tbody>
+</table>
+
+<p>Setting up OAuth 2.0 is a three step process:</p>
+<ol><li><b>Configure a token endpoint:</b> An OAuth token endpoint defines a URI on the API Platform. The token endpoint is configured with a policy of type <code>OAUthV2</code>. In the <code>OAUthV2</code> policy, the GenerateAccessToken operation is specified. When this operation is specified, you have the option of configuring one or more grant types. For each grant type specified, an additional set of configuration elements are exposed, providing flexibility in the way that APIs exposed through the API Platform manage OAuth-based authorization. </li>
+<li><b>Apply an OAuth validation policy to protected resource URIs:</b> To enforce OAuth at runtime, attach a policy of type <code>OAUthV2</code> to a Flow that exposes a protected resource. In the <code>OAUthV2</code> policy, specify the <code>VerifyAccessToken</code> operation.</li>
+<li><b>Configure one or more API products:</b> The <code>VerifyAccessToken</code> operation resolves the access token to an API product for which the app has been approved. The request URI is verified against the list of URIs defined in the API product. If the request URI is included in the list defined by the approved API product, then the request is forwarded to the protected resource.</li></ol>
+
+
+<h2>Configuring token endpoints</h2>
+
+<p>OAuth 2.0 policies are used both to <i>generate</i> and to <i>validate</i> OAuth 2.0-compliant tokens. To generate tokens on behalf of app end users, OAuth 2.0  policies that specify the <code>GenerateAccessToken</code> operation are attached to a token endpoint. It is recommended that you deploy a single API proxy to function as a token endpoint for all API proxies in an environment.</p>
+	
+<p>A token endpoint is simply a URI path that the system uses to identify requests for access tokens. Strictly speaking, a token endpoint is a conditional flow to which an OAuthV2 policy that specified the <code>GenerateAccessToken</code> operation as an element.</p>
+
+<p>For example, to configure a token endpoint that generates tokens on requests to the URI path <code>/accesstoken</code>:</p>
+
+<pre>&lt;Flow name=&quot;TokenEndpoint&quot;&gt;
+  &lt;Condition&gt;proxy.pathsuffix MatchesPath &quot;/accesstoken&quot;&lt;/Condition&gt;
+  &lt;Request&gt;
+    &lt;Step&gt;&lt;Name&gt;GenerateAccessToken&lt;/Name&gt;&lt;/Step&gt;
+  &lt;/Request&gt;
+&lt;/Flow&gt;
+</pre>
+<p>Note that the variable <code>proxy.pathsuffix</code> defines the URI fragment following the base path configured in the ProxyEndpoint. Thus, to obtain an OAuth token, an app makes a request to, for example:</p>
+
+<pre>http://{org_name}-prod.apigee.net/oauth/accesstoken</pre>
+
+<p>In the example URL above, the ProxyEndpoint BasePath is <code>/oauth</code> and suffix is <code>/accesstoken</code>.</p>
+
+<p>The token endpoint URL is provided to your app developers, who invoke this URL in their apps to obtain access tokens at runtime.</p>
+
+<h2>Configuring authorization endpoints</h2>
+
+<p>Similarly, you can configure authorization endpoints to issue authorization codes. For example:</p>
+
+<pre>&lt;Flow name=&quot;AuthorizationEndpoint&quot;&gt;
+  &lt;Condition&gt;proxy.pathsuffix == &quot;/authorize&quot;&lt;/Condition&gt;
+  &lt;Request&gt;
+    &lt;Step&gt;&lt;Name&gt;GenerateAuthCode&lt;/Name&gt;&lt;/Step&gt;
+  &lt;/Request&gt;
+&lt;/Flow&gt;</pre>
+
+<p><span class="label label-success">Sample Code</span> For a sample API proxy configured for authorization code grant type, see the <a href="https://github.com/apigee/api-platform-samples">API Platform samples</a> on GitHub.</p>
+<p><span class="label label-success">Developer Guide</span> For instructions on configuring an API proxy to support authorization code, please see [node:4534].</p>
+
+<h3>OAuth 2.0 Grant Types</h3>
+
+<p>OAuth 2.0 policies generate access tokens using the <code>GrantType</code> method element. Four grant types, specified by OAuth 2.0, are supported: </p>
+
+
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	  <thead>
+		<th>Grant Type</th>
+		<th>Description</th>
+     </thead>
+<tbody>
+	
+	<tr><td><code>Client credentials</code></td>
+	<td>"Two-legged" OAuth, usually implemented for trusted clients (for example, apps developed by the API provider themselves).</td>
+	</tr>
+	
+	<tr><td><code>Authorization code</code></td>
+	<td>"Three-legged" OAuth", which enables an app end users to obtain an access token without exposing credentials to the app. The app requests an access token using an authorization code returned by the intermediary who authenticates the app end user. The API Platform can act as both authorization server (generating authorization codes) and as a token endpoint (issuing access tokens in return for valid authorization codes).</td>
+	</tr>
+	
+	<tr><td><code>Implicit</code></td>
+	<td>A variation on authorization code, usually implemented for browser-based apps implemented in scripting languages such as JavaScript</td>
+	</tr>
+
+	
+	<tr><td><code>Resource Owner Password Credentials</code></td>
+	<td>Used only when apps are trusted, enables a user to obtain an access token in return for provide valid username/password credentials. The benefit of password grant type is the one-time use of password credentials to obtain a long-lived access token.</td>
+	</tr>
+	
+</tbody>
+</table>
+
+
+<h2>Validating access tokens</h2>
+
+<p>Once a token endpoint is set up for an API proxy, a corresponding OAuthV2 policy that specifies the <code>VerifyAccessToken</code> operation is attached to the Flow that exposes the protected resource.</p>
+
+For example, to ensure that all requests to an API are verified, the following policy enforces access token verification:
+
+<pre>&lt;OAuthV2 name=&quot;VerifyOAuthAccessToken&quot;&gt;
+  &lt;Operation&gt;VerifyAccessToken&lt;/Operation&gt;
+&lt;/OAuthV2&gt;</pre>
+
+<p>The policy is attached to the API resource to be protected. To ensure that all requests to an API are verified, attach the policy to the ProxyEndpoint request PreFlow, as follows:</p>
+
+<pre>&lt;ProxyEndpoint name=&quot;default&quot;&gt;
+&lt;PreFlow&gt;
+    &lt;Request&gt;
+	&lt;Step&gt;&lt;Name&gt;VerifyOAuthAccessToken&lt;/Name&gt;&lt;/Step&gt;
+    &lt;/Request&gt;
+&lt;/PreFlow&gt;
+&lt;!-- Remainder of ProxyEndpoint configuration --&gt;</pre>
+
+
+<h2><a class="jumplink" name="details"></a>Grant type policy details</h2>The OAuth 2.0 policy enables the user to specify which API calls to secure with OAuth 2.0. The OAuth policy exposes configuration variables that enable the user to configure the behavior of the policy. Apigee supports the following OAuth policies based on the OAuth 2.0 specification.</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 700px; ">
+	<thead>
+		<tr>
+			<th>Grant Type</th>
+			<th style="width: 75px; ">Policy Format</th>
+			<th style="width: 100px; ">Description</th>
+			<th>Configuration Example</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td rowspan="3">authorization_code</td>
+			<td>Generate Authorization Code</td>
+			<td>Generates an authorization code that can in turn be used to get an access token. 
+			Attach the policy at the authorization end point.</td>
+			<td>
+				<pre>&lt;OAuthV2 name="GetAuthCode"&gt;
+&lt;Operation&gt;GenerateAuthorizationCode
+&lt;/Operation&gt;
+&lt;ExpiresIn&gt;1000&lt;/ExpiresIn&gt;
+&lt;GenerateResponse /&gt;
+&lt;/OAuthV2&gt;</pre>
+			</td>
+		</tr>
+		<tr>
+			<td>Generate AccessToken</td>
+			<td>Generates an access token in exchange for an authorization code. he access token can be used to gain access to the protected resources (target APIs). 
+			Attach the policy at the access token endpoint.</td>
+			<td>
+				<pre>&lt;OAuthV2 name="GenerateAccessToken"&gt;
+&lt;Operation&gt;GenerateAccessToken
+&lt;/Operation&gt;
+&lt;ExpiresIn&gt;1000&lt;/ExpiresIn&gt;
+&lt;GenerateResponse /&gt;
+&lt;SupportedGrantTypes&gt;
+	&lt;GrantType&gt;authorization_code&lt;/GrantType&gt;
+&lt;/SupportedGrantTypes&gt;
+&lt;GrantType&gt;request.queryparam.grant_type&lt;/GrantType&gt;
+&lt;Code&gt;request.queryparam.code&lt;/Code&gt;
+&lt;ClientId&gt;request.queryparam.client_id&lt;/ClientId&gt;
+&lt;RedirectUri&gt;request.queryparam.redirect_uri&lt;/RedirectUri&gt;
+&lt;Scope&gt;request.queryparam.scope&lt;/Scope&gt;
+&lt;/OAuthV2&gt;</pre>
+			</td>
+		</tr>
+		<tr>
+			<td>Refresh AccessToken</td>
+			<td>Token used to re-issue the access token post expiry. Attach the policy at the refresh token end point.</td>
+			<td>
+				<pre>&lt;OAuthV2 name="RefreshAccessToken"&gt;
+&lt;Operation&gt;RefreshAccessToken
+&lt;/Operation&gt;
+&lt;ExpiresIn&gt;1000&lt;/ExpiresIn&gt;
+&lt;GenerateResponse /&gt;
+&lt;/OAuthV2&gt;</pre>
+			</td>
+		</tr>
+		<tr>
+			<td>implicit</td>
+			<td>GenerateImplicit AccessToken</td>
+			<td>Attach the policy at the access token endpoint.</td>
+			<td>
+				<pre>&lt;OAuthV2 name="GenerateAccessTokenImplicit"&gt;
+&lt;Operation&gt;GenerateAccessTokenImplicitGrant
+&lt;/Operation&gt;
+&lt;ExpiresIn&gt;1000&lt;/ExpiresIn&gt;
+&nbsp;&lt;GenerateResponse /&gt;
+
+&lt;ResponseType&gt;request.queryparam.response_type&lt;/ResponseType&gt; 
+&lt;ClientId&gt;request.queryparam.client_id&lt;/ClientId&gt; 
+&lt;RedirectUri&gt;request.queryparam.redirect_uri&lt;/RedirectUri&gt;  
+&lt;Scope&gt;request.queryparam.scope&lt;/Scope&gt;  
+&lt;State&gt;request.queryparam.state&lt;/State&gt; 
+&lt;AppEndUser&gt;request.queryparam.app_enduser&lt;/AppEndUser&gt; 
+&lt;/OAuthV2&gt;</pre>
+			</td>
+		</tr>
+		<tr>
+			<td rowspan="2">password</td>
+			<td>Generate AccessToken</td>
+			<td>Attach the policy at the access token endpoint.</td>
+			<td>
+				<pre>&lt;OAuthV2 name="GenerateAccessToken"&gt;
+&lt;Operation&gt;GenerateAccessToken
+&lt;/Operation&gt;
+&lt;ExpiresIn&gt;1000&lt;/ExpiresIn&gt;
+&lt;GenerateResponse /&gt;
+&lt;SupportedGrantTypes&gt;
+    &lt;GrantType&gt;password&lt;/GrantType&gt;
+&lt;/SupportedGrantTypes&gt;
+&lt;GrantType&gt;request.queryparam.grant_type&lt;/GrantType&gt; 
+&lt;ClientId&gt;request.queryparam.client_id&lt;/ClientId&gt;    
+&lt;Scope&gt;request.queryparam.scope&lt;/Scope&gt;
+&lt;AppEndUser&gt;request.queryparam.app_enduser&lt;/AppEndUser&gt;  
+&lt;UserName&gt;request.queryparam.user_name&lt;/UserName&gt;
+&lt;PassWord&gt;request.queryparam.password&lt;/PassWord&gt; 
+&lt;/OAuthV2&gt;</pre>
+			</td>
+		</tr>
+		<tr>
+			<td>Refresh AccessToken</td>
+			<td>Attach the policy at the refresh token end point.</td>
+			<td>
+				<pre>&lt;OAuthV2 name="RefreshAccessToken"&gt;
+&lt;Operation&gt;RefreshAccessToken
+&lt;/Operation&gt;
+&lt;ExpiresIn&gt;1000&lt;/ExpiresIn&gt;
+&lt;GenerateResponse /&gt;
+&lt;/OAuthV2&gt;</pre>
+			</td>
+		</tr>
+		<tr>
+			<td>client_credentials</td>
+			<td>Generate AccessToken</td>
+			<td>Attach the policy at the access token end point.</td>
+			<td>
+				<pre>&lt;OAuthV2 name="GenerateAccessToken"&gt;
+&lt;Operation&gt;GenerateAccessToken
+&lt;/Operation&gt;
+&lt;ExpiresIn&gt;1000&lt;/ExpiresIn&gt;
+&lt;GenerateResponse /&gt;
+&lt;SupportedGrantTypes&gt;
+  &lt;GrantType&gt;client_credentials&lt;/GrantType&gt;
+&lt;/SupportedGrantTypes&gt;
+&lt;GrantType&gt;request.queryparam.grant_type&lt;/GrantType&gt;
+&lt;/OAuthV2&gt;</pre>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="4">
+				<p><strong>Note:</strong> <em>ExpiresIn</em> (optional) enforces the expiry time of the authorization code in milliseconds. The expiry time of authorization code is system generated plus ExpiresIn value. If ExpiresIn is -1, the system considers it as a infinite life time. If it is not specified, the system applies a default value configured at system level.</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+
+<h2>OAuth 2.0 policy settings reference</h2>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	  <thead>
+		<th>Name</th>
+		<th>Description</th>
+		<th>Valid Values</th>
+		<th>Related Operation and Grant Type combinations</th>
+     </thead>
+<tbody>
+	
+	<tr><td><code>name</code></td>
+	<td>The name of the policy. Must be unique within the API proxy configuration</td>
+	<td>Any string, special characters not supported.</td>
+	<td>All</td></tr>
+	
+	<tr><td><code>Operation</code></td>
+	<td>The OAuth 2.0 operation implemented by the policy</td>
+	<td><ul><li>GenerateAccessToken</li>
+		<li>GenerateAccessTokenImplicitGrant</li>
+		<li>GenerateAuthorizationCode</li>
+		<li>RefreshAccessToken</li></ul></td>
+	<td>All</td></tr>
+	
+	<tr><td><code>ExpiresIn</code></td>
+	<td>ExpiresIn (optional) enforces the expiry time of the authorization code in milliseconds. The expiry time of authorization code is system generated plus <code>ExpiresIn</code> value. If <code>ExpiresIn</code> is -1, the system considers it as a infinite life time. If it is not specified, the system applies a default value configured at system level.</td>
+	<td>Any integer, including -1 (which indicates that access tokens do not expire)</td>
+	<td>All</td></tr>
+	
+	<tr><td><code>SupportedGrantTypes</code></td>
+	<td>Specifies the GrantTypes supported by a token endpoint. An endpoint may support multiple GrantTypes (that is, a single endpoint can be configured distribute access tokens for multiple GrantTypes.)</td>
+	<td>GenerateAccessToken</td>
+	<td>All</td></tr>
+	
+	<tr><td><code>Code</code></td>
+	<td>The expected location in the request message where the authorization code must be presented to the token endpoint.</td>
+	<td>Any variable setting. For example <code>request.queryparam.auth_code</code> indicates that the authorization code should be present as a query parameter, as, for example,  <code>?auth_code=AfGlvs9</code>. To require the authorization code in an HTTP header, for example, set this value to <code>request.header.auth_code</code>.</td>
+	<td>GenerateAccessToken with grant type authorization_code</td></tr>
+	
+	<tr><td><code>ClientId</code></td>
+	<td>The name of the policy. Must be unique within the API proxy configuration</td>
+	<td>Any variable setting. For example <code>request.queryparam.auth_code</code> indicates that the authorization code should be present as a query parameter, as, for example,  <code>?auth_code=AfGlvs9</code>. To require the authorization code in an HTTP header, for example, set this value to <code>request.header.auth_code</code>.</td>
+	<td>GenerateAccessTokenImplicit: Optional
+	GenerateAuthorizationCode:Optional</td></tr>
+	
+	<tr><td><code>RedirectUri</code></td>
+	<td>The expected location in the request message where the RedirectUri must be presented to the token endpoint.</td>
+	<td>Any variable setting. For example <code>request.queryparam.redirect_uri</code> indicates that the RedirectUri should be present as a query parameter, as, for example,  <code>?redirect_uri=login.myapp.com</code>. To require the RedirectUri in an HTTP header, for example, set this value to <code>request.header.redirect_uri</code>.</td>
+	<td>GenerateAccessTokenImplicit: Optional
+	GenerateAuthorizationCode:Optional</td></tr>
+	
+	<tr><td><code>Scope</code></td>
+	<td>The expected location in the request message where the scope must be presented to the token endpoint.</td>
+	<td>Any variable setting. For example <code>request.queryparam.scope</code> indicates that the scope should be present as a query parameter, as, for example,  <code>?scope=READ</code>. To require the scope in an HTTP header, for example, set this value to <code>request.header.scope</code>.</td>
+	<td>All: Optional</td></tr>
+	
+	<tr><td><code>State</code></td>
+	<td>The expected location in the request message where the state must be presented to the token endpoint.</td>
+	<td>Any variable setting. For example <code>request.queryparam.state</code> indicates that the state should be present as a query parameter, as, for example,  <code>?state=HjoiuKJH32</code>. To require the state in an HTTP header, for example, set this value to <code>request.header.state</code>.</td>
+	<td>authorization_code, password</td></tr>
+	
+	<tr><td><code>AppEndUser</code></td>
+	<td>The expected location in the request message where the state must be presented to the token endpoint.</td>
+	<td>Any variable setting. For example <code>request.queryparam.app_enduser</code> indicates that the AppEndUser should be present as a query parameter, as, for example,  <code>?app_enduser=ntesla@theramin.com</code>. To require the AppEndUser in an HTTP header, for example, set this value to <code>request.header.app_enduser</code>.</td>
+	<td>All: Optional</td></tr>
+	
+	<tr><td><code>UserName</code></td>
+	<td>The expected location in the request message where the UserName must be presented to the token endpoint.</td>
+	<td>Any variable setting. For example <code>request.queryparam.app_enduser</code> indicates that the AppEndUser should be present as a query parameter, as, for example,  <code>?app_enduser=ntesla@theramin.com</code>. To require the UserName in an HTTP header, for example, set this value to <code>request.header.username</code>.</td>
+	<td>All: Optional</td></tr>
+	
+	<tr><td><code>Password</code></td>
+	<td>The expected location in the request message where the Password must be presented to the token endpoint.</td>
+	<td>Any variable setting. For example <code>request.queryparam.password</code> indicates that the Password should be present as a query parameter, as, for example,  <code>?password=changeit</code>. To require the Password in an HTTP header, for example, set this value to <code>request.header.password</code>.</td>
+	<td>All: Optional</td></tr>
+	
+	<tr><td><code>GenerateResponse</code></td>
+	<td>An element used in token endpoints, authorization endpoints, and refresh endpoints to indicate that a response should be generated for requests, and that no further processing should take place. (Indicates that the policy is an endpoint.)</td>
+	<td>N/A</td>
+	<td>All: Optional</td></tr>
+
+</tbody>
+</table>
+
+
+<h2>Customizing access tokens</h2>
+
+<p>Custom attributes can be optionally included in access tokens.</p>
+
+<pre>&lt;Attributes&gt; 
+  &lt;Attribute name=&rdquo;attr_name1&rdquo; ref=&rdquo;flow.variable&rdquo; display=&quot;true|false&quot;&gt;value1&lt;/Attribute&gt;
+  &lt;Attribute name=&rdquo;attr_name2&rdquo; ref=&rdquo;flow.variable&rdquo; display=&quot;true|false&quot;&gt;value2&lt;/Attribute&gt;
+&lt;/Attributes&gt;</pre>
+
+<p>Where display is set to true, custom attributes are returned in the response message, where they may be viewable by the app end user. </p>
+<p>Where display is set to false, custom attributes are stored in the data store, but are not returned in the response message. </p>
+
+<h2>Delegating token management</h2>
+
+<p>Remote token stores can be used against the API Platform. If a remote token store is used, the following element should be configured in the GenerateAccessToken policy.</p>
+
+<code>&lt;StoreToken&gt;false&lt;/StoreToken&gt;</code>
+
+<p>If token validation has been delegated to a remote token service, then the following element must be configured, identifying the location of the token in the request message. By specifying an <code>ExternalAccessToken</code> element, you indicate that the API Platform should not attempt to validate the token.</p>
+
+<pre>&lt;ExternalAccessToken&gt; request.header.external_access_token | request.formparam.external_access_token | request.queryparam.external_access_token &lt;/ExternalAccessToken&gt;</pre>
+
+<p>Note that if you configure support for an external access token service, you must implement a ServiceCallout that enforces the token check. </p>
+	
+<p>Such a ServiceCallout is beyond the scope of this document, so contact <a href="mailto:support@apigee.com">support@apigee.com</a> for more information on implementing integrations with remote token services.</p>
+
+<p><strong>Note:</strong> Only bearer tokens are currently supported. MAC tokens are not supported. The access token must be passed in the authorization header. For example, a sample authorization header is <span style="font-family:courier new,courier,monospace;">"Authorization: Bearer {Base64_Of_AccessToken}"</span>.</p>
+
+<p>For information on flow variables populated during the policy execution, refer to [node:241].</p>
+
+
+<h2><a class="jumplink" name="schema"></a>Policy schema</h2>
+<p>Each policy must conform to a policy schema. All policy constructs such as elements and attributes mentioned above are defined in a schema. To download the schema, <a href="/docs/download/file/fid/193">click here</a>.</p>

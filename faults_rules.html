@@ -1,0 +1,103 @@
+<p>[toc]</p>
+
+<h2>FaultRules</h2>
+
+<p>Fault handling is configured by defining a FaultRule and then attaching policies to the FaultRule.</p>
+
+<p>A FaultRule consists of:</p>
+<ul>
+	<li>An optional Condition that classifies a fault based on category, subcategory, name and any additional attributes</li>
+	<li>A set of policies that define fault handling behavior</li>
+</ul>
+
+<p>FaultRules can be defined at the Endpoint, Flow, or policy level. It can be useful to configure a FaultRule at the TargetEndpoint level to manage error conditions caused by interaction with the backend service. </p>
+
+<p>For example, the TargetEndpoint configuration below is configured with a FaultRule. The FaultRule indicates that when an error condition is encountered during message processing, a policy called ReturnError executes.
+</p>
+
+<pre>&lt;TargetEndpoint name=&quot;default&quot;&gt;
+    &lt;FaultRules&gt;
+	  &lt;FaultRule name=&quot;fault-rule&quot;&gt;
+    		&lt;Step&gt;
+        		&lt;Name&gt;ReturnError&lt;/Name&gt;
+    		&lt;/Step&gt;
+        &lt;/FaultRule&gt;
+    &lt;/FaultRules&gt;
+    &lt;HTTPTargetConnection&gt;
+        &lt;Properties/&gt;
+        &lt;URL&gt;http://weather.yahooapis.com&lt;/URL&gt;
+    &lt;/HTTPTargetConnection&gt;
+&lt;/TargetEndpoint&gt;</pre>
+
+<p>The policy called ReturnError is shown below. The policy is of type AssignMessage, and generates a text response for any predefined error condition:
+</p>
+<pre>&lt;AssignMessage name=&quot;ReturnError&quot;&gt;
+    &lt;Set&gt;
+        &lt;Payload type=&quot;text/plain&quot;&gt;SERVICE UNAVAILABLE. PLEASE CONTACT SUPPORT: support@company.com.&lt;/Payload&gt;
+    &lt;/Set&gt;
+&lt;/AssignMessage&gt;</pre>
+
+<h2>Custom handling of HTTP error codes</h2>
+<p>The configuration above works for application-level errors. To return custom responses for transport-level (that is, HTTP) errors, you must configure a Property on the TargetEndpoint that enables the TargetEndpoint to process HTTP response codes.</p>
+
+<p>By default, HTTP response codes 200-300 range are treated as success. HTTP response codes 400 and 500 are treated as failures. Any response from the the backend service automatically invokes the ErrorFlow, returning the error message directly to the requesting client.</p>
+
+<p>In some cases may you need to return custom errors for HTTP codes 400 and 500. For example, you may need to ensure that all backend service URLs are obfuscated from requesting clients.</p>
+
+<p>To do so, you must first configure the TargetEndpoint to treat HTTP response codes 400 and 500 as success codes. By treating those codes as success codes, the TargetEndpoint takes over processing of the response message (rather than pushing the response message into the default ErrorFlow).</p>
+
+<pre>&lt;TargetEndpoint name=&quot;default&quot;&gt;
+  &lt;HTTPTargetConnection&gt;
+    &lt;Properties&gt;
+	  &lt;Property name=&quot;success.codes&quot;&gt;4XX, 500&lt;/Property&gt;
+	&lt;/Properties&gt;
+    &lt;URL&gt;http://weather.yahooapis.com&lt;/URL&gt;
+  &lt;/HTTPTargetConnection&gt;
+&lt;/TargetEndpoint&gt;</pre>
+
+<p>You can then use HTTP response codes 400-499 and 500 to define conditional policy execution that returns a customized response message to the requesting app.
+</p>
+<p>For example, apply the following configuration to a ProxyEndpoint or TargetResponse response Flow.</p>
+
+<pre>&lt;Response&gt;
+  &lt;Step&gt;
+    &lt;Condition&gt;(response.status.code = 400) or (response.status.code = 500)&lt;/Condition&gt;
+    &lt;Name&gt;ReturnError&lt;/Name&gt;
+  &lt;/Step&gt;
+&lt;/Response&gt;
+</pre>
+
+<p>The Flow configuration above causes the AssignMessage policy called ReturnError to generate a response message whenever the TargetEndpoint encounters an HTTP response code of 400 or 500.</p>
+
+<h2>FaultRule processing</h2>
+
+<p>Any number of FaultRules can be defined on ProxyEndpoints and TargetEndpoints. When a fault occurs, only the first FaultRule whose condition evaluates to true is enforced.</p>
+
+<p>FaultRules are evaluated in the following order:</p>
+
+<p>Request Path:</p>
+<ol>
+	<li>Fault in ProxyRequest: FaultRules defined at ProxyEndpoint execute</li>
+	<li>Fault in Routing: FaultRules defined at ProxyEndpoint execute</li>
+	<li>Fault in TargetRequest: FaultRules defined at TargetEndpoint execute</li>
+	<li>Fault in outbound request to target URL: FaultRules defined at TargetEndpoint execute</li>
+</ol>
+<p>Response Path:</p>
+<ol>
+	<li>Fault in TargetResponse: FaultRules defined at TargetEndpoint execute</li>
+	<li>Fault in ProxyResponse: FaultRules defined at ProxyEndpoint execute</li>
+	<li>Fault in returning response to ProxyEndpoint: FaultRules defined at ProxyEndpoint execute</li>
+</ol>
+
+<p>Policy attachments in a FaultRule are enforced in the order in which the Steps are attached to the FaultRule.</p>
+
+<h2>Default Fault Handling</h2>
+
+<p>Default fault handling can be specified at ProxyEndpoint and TargetEndpoint. Default fault handling always evaluates to true and is evaluated only where no other fault handling is defined. </p>
+
+<p>When <code>enforceAlways</code> is set to <code>true</code>, policies are enforced even if fault handling has already been executed. This flag supports the scenario in which a ProxyEndpoint is required to perform some processing on all error responses, even though a FaultRule has already executed for the message Flow. The <code>enforceAlways</code> tag can be useful for 'fail safe' error processing, for example when you need to ensure that response messages are always modified to obfuscate backend target URLs.</p>
+
+<p>If other FaultRules are defined, the default FaultRule is enforced only after all explicit FaultRules have been evaluated, and the default FaultRule enforced only when <code>enforceAlways</code> flag is <code>true</code>.</p>
+
+
+

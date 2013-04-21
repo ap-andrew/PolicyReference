@@ -1,0 +1,94 @@
+<p>[toc]
+</p>
+<p>This policy specifies an API product name and returns the complete profile and settings for an API product. Use the GetAPIProduct policy when you need access to API product settings (usually Quota settings) when no security policy (API key or OAuth) is enforced.</p>
+
+<p>API products can be access statically, by setting the API product name as the element value.</p>
+
+<p>For example:</p>
+
+<pre>&lt;GetAPIProduct name=&quot;GetProductProfile&quot;&gt;
+    &lt;APIProduct&gt;PremiumAPIProduct&lt;/APIProduct&gt;
+&lt;/GetAPIProduct&gt;</pre>
+
+<p>Usually, however, an API product must be retrieved dynamically, based on a variable associated with a request.</p>
+
+<p>For example:</p>
+
+<pre>&lt;GetAPIProduct name=&quot;GetProductProfile&quot;&gt;
+    &lt;APIProduct ref=&quot;{variable_name}&quot; /&gt; 
+&lt;/GetAPIProduct&gt;</pre>
+
+<p>When the GetAPIProduct policy executes, a set of variables are populated with values for the API product retrieved.</p>
+
+<p>The variables have the following prefix:</p>
+<pre>“getapiproduct.{policy_name}”</pre>
+
+<p>With reference to the sample policies above, the variables would have the form:</p>
+
+<pre>getapiproduct.GetProductProfile.apiproduct.name</pre>
+
+<p>The following variables are populated on successful execution of the GetAPIProduct policy:
+</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	  <thead>
+		<th>Name</th>
+		<th>Description</th>
+     </thead>
+<tbody>
+
+	<tr><td><code>apiproduct.name</code></td>
+	<td>The user-given name of the API product. API product names are unique across an organization.</td></tr>
+	
+	<tr><td><code>apiproduct.organization</code></td>
+	<td>The organization in which the API product is deployed</td></tr>
+	
+	<tr><td><code>apiproduct.display.name</code></td>
+	<td>The friendly name of the API product.</td></tr>
+	
+	<tr><td><code>apiproduct.description</code></td>
+	<td>A user-friendly description of the API product, typically displayed in a Developer Portal.</td></tr>
+	
+	<tr><td><code>apiproduct.attributes</code></td>
+	<td>A list of custom attributes defined for an API product</td></tr>
+	
+	<tr><td><code>apiproduct.apiresources</code></td>
+	<td>A list of URIs bundled into the API product</td></tr>
+	
+	<tr><td><code>apiproduct.scopes</code></td>
+	<td>A list of OAuth scopes defined for teh API product</td></tr>
+	
+	<tr><td><code>apiproduct.environments</code></td>
+	<td>A list of valid environments where the API product is enforced</td></tr>
+	
+	<tr><td><code>apiproduct.proxies </code></td>
+	<td>A list of valid API proxies against which the API product is enforced</td></tr>
+	
+	<tr><td><code>apiproduct.developer.quota.limit</code></td>
+	<td>An integer that specifies the number of requests permitted by the Quota. For example in the case of 10 requests per 1 hour, this value is <code>10</code>.</td></tr>
+	
+	<tr><td><code>apiproduct.developer.quota.interval</code></td>
+	<td>An integer that specifies the number of time intervals over which the Quota is counted. For example in the case of 10 requests per 1 hour, this value is <code>1</code>.</td></tr>
+	
+	<tr><td><code>apiproduct.developer.quota.timeunit</code></td>
+	<td>The time unit (minute, day, week, month) over which the Quota is counted. For example in the case of 10 requests per 1 hour, this value is <code>hour</code>.</td></tr>
+	
+	<tr><td><code>apiproduct.approval.type</code></td>
+	<td>A setting that determines whether consumer keys are automatically approved for API products, or whether an admin must manually approve requests to use the API product. If set to manual, the consumer key is returned in the 'pending' state, and must manually be approved before the app can access the provider resources.</td></tr>
+	
+	<tr><td><code>apiproduct.created_by</code></td>
+	<td>Username (email) of the Apigee user who created this API product</td></tr>
+	
+	<tr><td><code>apiproduct.created_at</code></td>
+	<td>UNIX-formatted timestamp indicating when this API product was created</td></tr>
+	
+	<tr><td><code>apiproduct.last_modified_at</code></td>
+	<td>UNIX-formatted timestamp indicating when this API product was last modified</td></tr>
+	
+	<tr><td><code>apiproduct.last_modified_by</code></td>
+	<td>Username (email) of the Apigee user who last modified this API product</td></tr>
+	
+	<tr><td><code>failed</code></td>
+	<td>Indicates that the attempt to retrieve the API product failed</td></tr>
+
+</tbody>
+</table>

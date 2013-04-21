@@ -1,17 +1,18 @@
 <p>[toc]</p>
-<p>The Apigee cache sits between one or more servers (origin servers) and one or more clients, and watches requests, saving copies of the responses. If there is another request for the same URL, the cache can use the copied response instead of asking the originating server for that information.</p>
-<p>There are two main reasons for using a cache:</p>
+<p>The API Platform exposes a Cache resource that can be used at runtime to persist data across transactions.</p>
+<p>There are three main reasons for using a cache:</p>
 <ul>
 	<li><strong>To reduce latency:</strong> The request is satisfied from the cache (which is closer to the client) instead of the origin server, so the cache gets the representation and displays it in a shorter time. This makes the server more responsive.</li>
-	<li><strong>To reduce network traffic:</strong> Representations are reused, so the impact of processing duplicate or redundant requests is reduced. Cache reduces the amount of bandwidth you use, which decreases bandwidth requirements for the system.</li>
+	<li><strong>To reduce network traffic:</strong> Representations are reused, so the impact of processing duplicate or redundant requests is reduced. Cache reduces the amount of bandwidth you use, which decreases bandwidth requirements overall.</li>
+	<li><strong>To persist data across transactions:</strong> Session data can be stored for reuse across HTTP transactions.</li>
 </ul>
+<p><span class="label label-success">Code sample</span> The sample policies in this reference are based on the Twitter Translate sample proxy in [node:4561] on Github. This sample uses the Cache policy to store an OAuth access token for re-use across multiple outbound calls.</p>
 <h2><a class="jumplink" name="define_resource"></a>Defining a Cache resource</h2>
-<p>To use the caching policies, you need to set up a Cache resource. You can create multiple Cache resources in each environment. The scope of a Cache is limited to an account. When the Cache is created, a Cache can be populated with any serializable data.</p>
-<p><strong>Note:</strong> A default Cache resource is configured for your organization when an Apigee organization is created. Under ordinary circumstances, you do not need to explicitly configure a Cache to use the ResponseCaching policy. Only configure a cache when you need to customize the cache settings and configuration optimize performance. If you have questions about your Cache resource configuration, contact <a href="mailto:support@apigee.com">Apigee Support</a>.</p>
-
+<p>You can create multiple Cache resources in each environment. For data segregation, the scope of a Cache is limited to an environment in which the Cache is created. (For example, API proxies running in a 'test' environment cannot access data in a Cache running in 'prod'.) Once the Cache is created, it can be populated with any serializable data by using Cache policies.</p>
+<p><strong>Note:</strong> A default Cache resource is configured for every organization. Under ordinary circumstances, you do not need to explicitly configure a Cache. Only configure a Cache when you need to customize the Cache settings and configuration optimize performance. If you have questions about your Cache resource configuration, contact <a href="mailto:support@apigee.com">Apigee Support</a>.</p>
 <p>See also: <strong>ResponseCaching policy:</strong> See [node:26].</p>
-
 <h2>Manage Caches using the API Platform API</h2>
+<<<<<<< HEAD
 
 <h3>List available Caches</h3>
 <p>To list all Caches available in an environment:</p>
@@ -24,26 +25,28 @@ https://api.enterprise.apigee.com/v1/o/{org_name}/environments/{env_name}/caches
 
 <pre>[ "twitter-translate-cache", "mycache" ]</pre>
 
+=======
+>>>>>>> 5054529f415155d7bafc4b3cce0986551380e81e
 <h3>Create a Cache</h3>
-
-<p>Use the API Platform API to create a Cache resource. Caches are created per environment. A Cache created in 'test', for example, cannot be access by API proxies deployed in 'prod'. 
-For example:</p>
-
+<p>Use the API Platform API to create a Cache resource. Caches are created per environment. For data segregation, a Cache created in 'test', for example, cannot be accessed by API proxies deployed in 'prod'.</p>
+<p>For example:</p>
 <pre>$ curl -H "content-type:text/xml" -X POST -d \
-'&lt;Cache name=&quot;test-cache&quot;&gt;
-	&lt;Description&gt;A Cache resource for the test environment.&lt;/Description&gt;
-	&lt;MaxElementsInMemory&gt;100&lt;/MaxElementsInMemory&gt;
-	&lt;MaxElementsOnDisk&gt;1000&lt;/MaxElementsOnDisk&gt;
-	&lt;OverflowToDisk&gt;true&lt;/OverflowToDisk&gt;
-	&lt;Persistent&gt;false&lt;/Persistent&gt;
-	&lt;ExpirySettings&gt;
-	  &lt;TimeoutInSec&gt;300&lt;/TimeoutInSec&gt;
-	&lt;/ExpirySettings&gt;&lt;Compression&gt;
+'&lt;Cache name="test-cache"&gt;
+  &lt;Description&gt;A Cache resource for the test environment.&lt;/Description&gt;
+  &lt;MaxElementsInMemory&gt;100&lt;/MaxElementsInMemory&gt;
+  &lt;MaxElementsOnDisk&gt;1000&lt;/MaxElementsOnDisk&gt;
+  &lt;OverflowToDisk&gt;true&lt;/OverflowToDisk&gt;
+  &lt;Persistent&gt;false&lt;/Persistent&gt;
+  &lt;ExpirySettings&gt;
+	&lt;TimeoutInSec&gt;300&lt;/TimeoutInSec&gt;
+  &lt;/ExpirySettings&gt;
+        &lt;Compression&gt;
 	&lt;MinimumSizeInKB&gt;1024&lt;/MinimumSizeInKB&gt;
-	&lt;/Compression&gt;
+  &lt;/Compression&gt;
 &lt;/Cache&gt;' \
 https://api.enterprise.apigee.com/v1/o/{org_name}/environments/test/caches \
 -u myname:mypass</pre>
+<<<<<<< HEAD
 
 <h3>Update a Cache</h3>
 
@@ -128,6 +131,8 @@ For example, the following PopulateCache policy writes the value of the variable
     &lt;PurgeChildEntries&gt;true&lt;/PurgeChildEntries&gt;
 &lt;/InvalidateCache&gt;</pre>
 
+=======
+>>>>>>> 5054529f415155d7bafc4b3cce0986551380e81e
 <h2>Configuring a Cache resource</h2>
 <p>You can configure a Cache resource using the following elements.</p>
 <table border="0" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
@@ -140,21 +145,21 @@ For example, the following PopulateCache policy writes the value of the variable
 	<tbody>
 		<tr>
 			<td colspan="2">Description</td>
-			<td>Description of the resource.</td>
+			<td>Description of the Cache resource.</td>
 		</tr>
 		<tr>
 			<td colspan="2">MaxElementsInMemory</td>
-			<td>Maximum number of cache entries allowed in memory. Upon reaching the maximum limit, entries are discarded using Least Recently Used (LRU) algorithm.</td>
+			<td>Maximum number of Cache entries allowed in memory. Upon reaching the maximum limit, entries are discarded using Least Recently Used (LRU) algorithm.</td>
 		</tr>
 		<tr>
 			<td colspan="2">MaxElementsOnDisk</td>
-			<td>Maximum number of cache entries allowed in the disk. Upon reaching the maximum limit, entries are discarded using LRU algorithm.</td>
+			<td>Maximum number of Cache entries allowed in the disk. Upon reaching the maximum limit, entries are discarded using LRU algorithm.</td>
 		</tr>
 		<tr>
 			<td colspan="2">OverflowToDisk</td>
 			<td>Valid values: true/false<br>
 				Default value: false<br>
-				If true, the elements discarded from in-memory cache are stored to a disk cache. The elements discarded from disk cache are permanently deleted.</td>
+				If true, the elements discarded from in-memory Cache are stored to a disk Cache. The elements discarded from disk Cache are permanently deleted.</td>
 		</tr>
 		<tr>
 			<td colspan="2">Persistent</td>
@@ -184,10 +189,60 @@ For example, the following PopulateCache policy writes the value of the variable
 </table>
 <h3>Example - Cache resource configuration</h3>
 <p>[gist:2627206]</p>
-
-
+<h3>Update a Cache</h3>
+<p>To modify the Cache resource created above, issue a complete payload POST request to the same URI as above, except include the name of the Cache resource as a URI parameter</p>
+<pre>$ curl -H "content-type:text/xml" -X POST -d \
+'&lt;Cache name="test-cache"&gt;
+	&lt;Description&gt;Updating the Cache.&lt;/Description&gt;
+	&lt;MaxElementsInMemory&gt;100&lt;/MaxElementsInMemory&gt;
+	&lt;MaxElementsOnDisk&gt;1000&lt;/MaxElementsOnDisk&gt;
+	&lt;OverflowToDisk&gt;true&lt;/OverflowToDisk&gt;
+	&lt;Persistent&gt;false&lt;/Persistent&gt;
+	&lt;ExpirySettings&gt;
+	  &lt;TimeoutInSec&gt;300&lt;/TimeoutInSec&gt;
+	&lt;/ExpirySettings&gt;
+        &lt;Compression&gt;
+	  &lt;MinimumSizeInKB&gt;1024&lt;/MinimumSizeInKB&gt;
+	&lt;/Compression&gt;
+&lt;/Cache&gt;' \
+https://api.enterprise.apigee.com/v1/o/{org_name}/environments/test/caches/{cache_name} \
+-u myname:mypass</pre>
+<h3>Delete a Cache</h3>
+<p>To delete the Cache resource created above, use the DELETE verb:</p>
+<pre>$ curl -X DELETE \ 
+https://api.enterprise.apigee.com/v1/o/{org_name}/environments/test/caches/{cache_name}/entries \
+-u myname:mypass</pre>
+<h3>View Cache contents</h3>
+<pre>$ curl https://api.enterprise.apigee.com/v1/o/{org_name}/environments/test/caches/{cache_name} \
+-u myname:mypass</pre>
+<h3>Delete a Cache entry</h3>
+<pre>$ curl -X DELETE \ 
+https://api.enterprise.apigee.com/v1/o/{org_name}/environments/test/caches/{cache_name}/entries/{cache_entry_key} \
+-u myname:mypass</pre>
+<h3>Flush the Cache</h3>
+<pre>$ curl https://api.enterprise.apigee.com/v1/o/{org_name}/environments/test/caches/{cache_name}?action=clear&amp;prefix={cache_key_prefix} \
+-u myname:mypass</pre>
+<h2>Access the Cache at runtime</h2>
+<p>One reason why you may need to use the Cache resource is when you have OAuth access tokens that are used for outbound calls from the API Platform to protected backend services. Without a Cache in which to store the OAuth access token, the application would be required to obtain a new access token for each request.</p>
+<p>In the following example, an OAuth access token is written to the Cache using PopulateCache and retrieved for subsequent requests by LookupCache, until the access token expires. (Application logic, written in JavaScript executes the logic on top of the Cache.)</p>
+<p>For code samples and example Cache policies, see the Twitter Translate sample proxy in [node:4561].</p>
+<h3>PopulateCache</h3>
+<p>The PopulateCache policy type enables you to write data to the Cache. In this example application an OAuth access token is written to the Cache.</p>
+<p>The the PopulateCache policy below writes the value of the <code>source</code> to the Cache resource named <code>test-cache</code>. The source in this case is a custom variable named&nbsp;<code>twitter-translate.apiAccessToken</code>.</p>
+<p>(Variables can be populated by policies or by code. The <code>source</code> variable in this example is populated by the following JavaScript call: <code>context.setVariable('twitter-translate.apiAccessToken', getAccessToken());</code>)</p>
+<p>The policy also defines a CacheKey, which consists of a KeyFragment. The CacheKey is used as a reference by the LookupCache policy to retrieve the value of the access token. (See <a href="#CacheKeys">Working with CacheKeys</a>.)</p>
+<pre>&lt;PopulateCache name="token-cache"&gt;
+    &lt;CacheResource&gt;mycache&lt;/CacheResource&gt;
+    &lt;Source&gt;twitter-translate.apiAccessToken&lt;/Source&gt;
+    &lt;Scope&gt;Exclusive&lt;/Scope&gt;
+    &lt;CacheKey&gt;
+        &lt;KeyFragment&gt;apiAccessToken&lt;/KeyFragment&gt;
+    &lt;/CacheKey&gt;
+    &lt;ExpirySettings&gt;
+        &lt;TimeoutInSec&gt;600&lt;/TimeoutInSec&gt;
+    &lt;/ExpirySettings&gt;
+&lt;/PopulateCache&gt;</pre>
 <h2><a class="jumplink" name="populate"></a>Configuring the PopulateCache policy</h2>
-
 <p>Configure the PopulateCache policy using the following elements.</p>
 <table border="0" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
 	<thead>
@@ -199,38 +254,54 @@ For example, the following PopulateCache policy writes the value of the variable
 	<tbody>
 		<tr>
 			<td colspan="2">CacheResource</td>
-			<td>Specifies the cache resource to be used.</td>
+			<td>Specifies the Cache resource to be used.</td>
 		</tr>
 		<tr>
 			<td colspan="2">Source</td>
-			<td>Writes specified information from the source to the cache.</td>
+			<td>Writes specified information from the source to the Cache.</td>
 		</tr>
 		<tr>
 			<td colspan="2">Scope</td>
 			<td>
-				<div>Used to construct the prefix, when Prefix in CacheKey is not provided. If Prefix is provided, then Scope is ignored.</div>
-				<div>Allowed values are Global, Application, Proxy, Target, and Exclusive.</div>
+				<p>Used to create a namespace for data in the Cache. <code>Scope</code> defines the default prefix for the CacheKey created by this policy. <code>Scope</code> is used to construct the <code>CacheKey</code> <code>Prefix</code>, when an explicit <code>Prefix</code> element is not defined for a <code>CacheKey</code>. If <code>Prefix</code> is provided, then <code>Prefix</code> overrides <code>Scope</code>.</p>
+				<p>Supported settings are Global, APIProxy, Proxy, Target, Exclusive.</p>
+				<p>See <a href="#CacheKeys">Working with CacheKeys</a>.</p>
 			</td>
 		</tr>
 		<tr>
 			<td colspan="1" rowspan="2">CacheKey</td>
 			<td>Prefix</td>
 			<td>
-				<div>Used for matching future requests to the cached response.</div>
-				<div>If provided, it is used as the prefix for all the entries put into the cache by the policy.</div>
+				<div>Used to create a namespace for data in the Cache. CacheKey is used by LookupCache policy to reference Cached data.&nbsp;<span style="font-size: 12px;">The structure of a CacheKey is </span><code style="font-size: 12px;">{Scope/Prefix}__{KeyFragment}__{KeyFragment}__{KeyFragment} . . .</code></div>
+				<div>
+					<p>You can define as many KeyFragments as needed to prevent namespace collisions in your cached data.</p>
+				</div>
+				<div>If defined, the value of <code>Prefix</code> used as the prefix value of the <code>CacheKey</code> for entries written to the Cache. <code>Prefix</code> overrides <code>Scope</code> elements.</div>
+				<div>&nbsp;</div>
+				<div>See&nbsp;<a href="#CacheKeys">Working with CacheKeys</a>.</div>
+				<div>&nbsp;</div>
 			</td>
 		</tr>
 		<tr>
 			<td>KeyFragment</td>
 			<td>
-				<div>A cache key fragment can either contain a key or a value.</div>
-				<div>All the fragments together (plus the prefix) are concatenated to create the cache key. For example, if a request message has headers id1=1 &amp; id2=1 then the resultant cache key is <em>Apigee__1__2</em>.</div>
+				<div>A <code>KeyFragment</code> can either contain a key (a static name that you provide) or a value (a dynamic entry set by referencing a variable).</div>
+				<div>&nbsp;</div>
+				<div>KeyFragment elements are prepended with <code>Prefix</code> and concatenated to define the <code>CacheKey</code>. For example, where <code>Prefix</code> is set to <code>UserToken</code>), and 2 KeyFragments are defined as follows:
+					<pre>&lt;CacheKey&gt;
+  &lt;Prefix&gt;UserToken&lt;/Prefix&gt;
+  &lt;KeyFragment&gt;apiAccessToken&lt;/KeyFragment&gt;
+  &lt;KeyFragment&gt;{request.queryparam.client_id}&lt;/KeyFragment&gt;
+&lt;/CacheKey&gt;</pre>
+					<p>The result is a CacheKey of <code>UserToken__apiAccessToken__{value_of_client_id}</code>.</p>
+					<p>See&nbsp;<a href="#CacheKeys">Working with CacheKeys</a>.</p>
+				</div>
 			</td>
 		</tr>
 		<tr>
 			<td colspan="1" rowspan="3">ExpirySettings</td>
 			<td>TimeoutInSeconds</td>
-			<td>Duration (in seconds, ss) to leave for the cached entry.</td>
+			<td>Duration (in seconds) to live for the cached entry.</td>
 		</tr>
 		<tr>
 			<td>TimeOfDay</td>
@@ -242,7 +313,16 @@ For example, the following PopulateCache policy writes the value of the variable
 		</tr>
 	</tbody>
 </table>
-
+<h3>LookupCache</h3>
+<p>Once values are populated in the Cache, a corresponding LookupCache policy can be configured to retrieve cached data at runtime. The following LookupCache policy reads from the Cache resource named <code>test-cache</code> and writes the value to the variable <code>twitter-translate.apiAccessToken</code>.</p>
+<pre>&lt;LookupCache enabled="true" continueOnError="false" async="false" name="token-cache"&gt;
+    &lt;CacheResource&gt;mycache&lt;/CacheResource&gt;
+    &lt;AssignTo&gt;twitter-translate.apiAccessToken&lt;/AssignTo&gt;
+    &lt;Scope&gt;Exclusive&lt;/Scope&gt;
+    &lt;CacheKey&gt;
+        &lt;KeyFragment&gt;apiAccessToken&lt;/KeyFragment&gt;
+    &lt;/CacheKey&gt;
+&lt;/LookupCache&gt;</pre>
 <h2>Configuring the LookupCache policy</h2>
 <p>Configure the LookupCache policy using the following elements.</p>
 <table border="0" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
@@ -255,43 +335,186 @@ For example, the following PopulateCache policy writes the value of the variable
 	<tbody>
 		<tr>
 			<td colspan="2">CacheResource</td>
-			<td>Specifies the cache resource to be used.</td>
+			<td>Specifies the Cache resource to be used.</td>
 		</tr>
 		<tr>
 			<td colspan="2">AssignTo</td>
-			<td>Specifies the variable where the cache entry needs to be assigned. Note that the variable must have write permissions.</td>
+			<td>Specifies the variable where the Cache entry is assigned after it has been retrieved from the Cache. Note that the variable must have write permissions.</td>
 		</tr>
 		<tr>
 			<td colspan="2">Scope</td>
-			<td>Used to construct the prefix, when a Prefix is not provided in CacheKey. If a Prefix element is present in CacheKey, then Scope is ignored.<br>
-			<ul><li>Global: Cache keys prepended with <code>envName__</code></li>
-			<li>Application: Cache key prepended <code>envName__appName</code></li>
-			<li>Proxy: Cache key prepended with <code>__proxyEndpointName</code></li>
-			<li>Target: Cache key prepended with <code>__targetEndpointName</code></li>
-			<li>Exclusive: Cache key prepended with <code>envName__apiProxyName</code></li></ul></td>
+			<td>
+				<p>Used to construct the <code>Prefix</code> for a <code>CacheKey</code>, when a <code>Prefix</code> is not provided in <code>CacheKey</code>. If a <code>Prefix</code> element is present in <code>CacheKey</code>, it supersedes any defined <code>Scope</code>.</p>
+				<p>See&nbsp;<a href="#CacheKeys">Working with CacheKeys</a>.</p>
+			</td>
 		</tr>
 		<tr>
 			<td colspan="1" rowspan="2">CacheKey</td>
 			<td>Prefix</td>
 			<td>
-				<div>Used for matching future requests to the cached response.</div>
-				<div>If provided, it is used as the prefix for all entries put into the cache by the policy.</div>
+				<div>Used to create a namespace for matching requests to the cached responses.</div>
+				<div>&nbsp;</div>
+				<div>If defined, the value of <code>Prefix</code> used as the prefix value of the <code>CacheKey</code> for entries written to the Cache. Any Prefix element that is defined overrides <code>Scope</code> settings.</div>
+				<div>&nbsp;</div>
+				<div><span style="font-size: 12px;">See&nbsp;</span><a href="#CacheKeys" style="font-size: 12px;">Working with CacheKeys</a><span style="font-size: 12px;">.</span></div>
+				<div>&nbsp;</div>
 			</td>
 		</tr>
 		<tr>
 			<td>KeyFragment</td>
 			<td>
-				<div>A cache key fragment can either contain a key or a value.</div>
-				<div>All fragments together (plus the prefix) are concatenated to create the cache key. For example, if a request message has headers id1=1 &amp; id2=1 then the cache key is <em>Apigee__1__2</em>.</div>
+				<div>A&nbsp;<code>KeyFragment</code>&nbsp;can either contain a key (a static name that you provide) or a value (a dynamic entry set by referencing a variable).</div>
+				<div>&nbsp;</div>
+				<div>KeyFragment elements are prepended with&nbsp;<code>Prefix</code>&nbsp;and concatenated to define the&nbsp;<code>CacheKey</code>. For example, where&nbsp;<code>Prefix</code>&nbsp;is set to&nbsp;<code>UserToken</code>), and 2 KeyFragments are defined as follows:
+					<pre>&lt;CacheKey&gt;
+  &lt;Prefix&gt;UserToken&lt;/Prefix&gt;
+  &lt;KeyFragment&gt;apiAccessToken&lt;/KeyFragment&gt;
+  &lt;KeyFragment&gt;request.queryparam.client_id&lt;/KeyFragment&gt;
+&lt;/CacheKey&gt;</pre>
+					<p>The result is a CacheKey of&nbsp;<code>UserToken__apiAccessToken__{value_of_client_id}</code>.</p>
+					<p>See&nbsp;<a href="#CacheKeys">Working with CacheKeys</a>.</p>
+				</div>
 			</td>
 		</tr>
 	</tbody>
 </table>
-<h4>Example: LookupCache policy</h4>
-<p>[gist:2627295]</p>
-<h4>Flow variables - Read from Cache policy</h4>
-<p>Flow variables play a pivotal role in the message flow. These variables enable advanced users to customize the behavior of policies and flows, based on HTTP headers or message content, or the context available in the flow. For more information about flow variables, see [node:243].</p>
-<p>The following predefined flow variables are available after you customize the behavior of the cache you define in a LookupCache policy.</p>
+<h3>InvalidateCache</h3>
+<p>The Cache resource can be invalidated explicitly by specifying an HTTP header. When a request that contains the specified HTTP header is received, the Cache is flushed.</p>
+<pre>&lt;InvalidateCache name="InvalidateMyCache"&gt;
+    &lt;CacheResource&gt;test-cache&lt;/CacheResource&gt;
+    &lt;Scope&gt;Exclusive&lt;/Scope&gt;
+    &lt;CacheKey&gt;
+         &lt;Prefix&gt;apiAccessToken&lt;/Prefix&gt;
+        &lt;KeyFragment ref="request.header.invalidate_cache" /&gt;
+    &lt;/CacheKey&gt;
+    &lt;PurgeChildEntries&gt;true&lt;/PurgeChildEntries&gt;
+&lt;/InvalidateCache&gt;</pre>
+<h2><a class="jumplink" name="invalidate"></a>Configuring the InvalidateCache policy</h2>
+<p>Configure the InvalidateCache policy using the following elements.</p>
+<table border="0" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th colspan="2" style="text-align: left;">Field Name</th>
+			<th style="text-align: left;">Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td colspan="2">CacheResource (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td>Specifies the cache resource to be used.</td>
+		</tr>
+		<tr>
+			<td colspan="2">Scope (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>
+				<p>Used to construct the prefix, when Prefix in CacheKey is not provided. If Prefix is provided, then Scope is ignored.</p>
+				<p>Allowed values are Global, Application, Proxy, Target, and Exclusive.</p>
+				<p>See&nbsp;<a href="#CacheKeys">Working with CacheKeys</a>.</p>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="1" rowspan="3">CacheContext (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>Application</td>
+			<td rowspan="3" style="vertical-align: middle;">
+				<p>Used to construct the CacheKey.</p>
+				<p>See&nbsp;<a href="#CacheKeys">Working with CacheKeys</a>.</p>
+			</td>
+		</tr>
+		<tr>
+			<td>Proxy</td>
+		</tr>
+		<tr>
+			<td>Target</td>
+		</tr>
+		<tr>
+			<td colspan="1" rowspan="2">CacheKey (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>Prefix</td>
+			<td>
+				<div>
+					<div>Used to create a namespace for matching requests to the cached responses.</div>
+					<div>&nbsp;</div>
+					<div>If defined, the value of&nbsp;<code>Prefix</code>&nbsp;used as the prefix value of the&nbsp;<code>CacheKey</code>&nbsp;for entries written to the Cache. Any Prefix element that is defined overrides&nbsp;<code>Scope</code>&nbsp;settings.</div>
+					<div>&nbsp;</div>
+					<div><span style="font-size: 12px;">See&nbsp;</span><a href="#CacheKeys" style="font-size: 12px;">Working with CacheKeys</a><span style="font-size: 12px;">.</span></div>
+				</div>
+				<div>&nbsp;</div>
+			</td>
+		</tr>
+		<tr>
+			<td>KeyFragment</td>
+			<td>
+				<div>
+					<div>A&nbsp;<code>KeyFragment</code>&nbsp;can either contain a key (a static name that you provide) or a value (a dynamic entry set by referencing a variable).</div>
+					<div>&nbsp;</div>
+					<div>KeyFragment elements are prepended with&nbsp;<code>Prefix</code>&nbsp;and concatenated to define the&nbsp;<code>CacheKey</code>. For example, where&nbsp;<code>Prefix</code>&nbsp;is set to&nbsp;<code>UserToken</code>), and 2 KeyFragments are defined as follows:
+						<pre>&lt;CacheKey&gt;
+  &lt;Prefix&gt;UserToken&lt;/Prefix&gt;
+  &lt;KeyFragment&gt;apiAccessToken&lt;/KeyFragment&gt;
+  &lt;KeyFragment&gt;request.queryparam.client_id&lt;/KeyFragment&gt;
+&lt;/CacheKey&gt;</pre>
+						<p>The result is a CacheKey of&nbsp;<code>UserToken__apiAccessToken__{value_of_client_id}</code>.</p>
+					</div>
+				</div>
+				<div>&nbsp;</div>
+				<div>See&nbsp;<a href="#CacheKeys">Working with CacheKeys</a>.</div>
+				<div>&nbsp;</div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">PurgeChildEntries (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>Valid values: true/false<br>
+				Default value: false</td>
+		</tr>
+	</tbody>
+</table>
+<h2><a name="CacheKeys"></a>Working with CacheKeys</h2>
+<p>CacheKeys can be used to control how your data is stored in the Cache. A CacheKey is a unique pointer to a piece of data stored in the Cache. As such, the CacheKey constructs the name of each piece of data stored in the Cache. The CacheKey you define in the PopulateCache policy is the name that you use in the LookupCache policy to get the specific entry that you need from the Cache.</p>
+	
+<p>A very simple example of a CacheKey is the following:</p>
+	
+<pre>&lt;CacheKey&gt;
+  &lt;KeyFragment&gt;hello&lt;/KeyFragment&gt;
+  &lt;KeyFragment&gt;world&lt;/KeyFragment&gt;
+&lt;CacheKey&gt;</pre>
+	
+<p>The configuration above creates a CacheKey of <code>hello__world</code>.</p>
+
+<p>Where the API proxy is deployed in the 'apigee' organization and deployed in the environment named 'prod', the Scope is <code>apigee__prod__</code>.
+</p>
+
+<p>The string value of the CacheKey is a list of KeyFragment values separated by two underscores: <code>hello__world</code>. Combine the KeyFragment and the Scope to derive the CacheKey: <code>apigee__prod__hello__world</code>.</p>
+
+<p>To use the same CacheKey in different environments, without risking conflicts, you can use the Global Scope. Returning to the example above, the final values for the default environments 'test' and 'prod' would be <code>apigee__test__hello__world</code> and <code>apigee__prod__hello__world</code>, respectively. The CacheKey configuration is the same, but refers to different data depending on the runtime environment. Once the CacheKey has been combined with the Scope, the final value is not a CacheKey, but rather is an unambiguous identifier for that CacheKey/Scope combination.</p>
+
+<p>The Scope element is designed to be used as a default Prefix for CacheKeys. Scopes can be defined with increasing specificity from Global to Exclusive.</p>
+<p>A Global scope generalizes a Cache entry across an environment in an organization. Each Cache entry with a Global scope is prefixed with <code>orgName__envName__</code>. Therefore, if you define a CacheKey entry with the KeyFragment apiAccessToken and a Global Scope, each entry is stored as <code>orgName__envName__apiAccessToken</code>, followed by the serialized value of the access token. For an API proxy deployed in an environment called 'test' in an organization called 'apifactory', access tokens would be stored under the following CacheKey: <code>apifactory__test__apiAccessToken</code>.</p>
+<p>An Exclusive Scope is the most specific, and therefore presents minimal risk of namespace collisions within a given Cache. Each Cache entry with an Exclusive scope is prefixed with <code>orgName__envName__apiProxyName__deployedRevisionNumber__proxyOrTargetName__[serializedCacheKey]</code>. A sample CacheKey using Exclusive Scope would look like the following: <code>apifactory__test__weatherapi__16__default__apiAccessToken</code>.</p>
+<ul>
+	<li><b>Global</b>: CacheKey prepended with <code>orgName__envName__</code></li>
+	<li><b>APIProxy</b>: CacheKey prepended <code>orgName__envName__apiProxyName</code></li>
+	<li><b>deployedRevisionNumber</b>: CacheKey prepended with <code>orgName__envName__apiProxyName__deployedRevisionNumber</code></li>
+	<li><b>Proxy</b>: Cache key prepended with <code>orgName__envName__apiProxyName__deployedRevisionNumber__proxyEndpointName</code></li>
+	<li><b>Target</b>: Cache key prepended with <code>orgName__envName__apiProxyName__deployedRevisionNumber__targetEndpointName</code></li>
+	<li><b>Exclusive</b>: Cache key prepended with <code>orgName__envName__apiProxyName__deployedRevisionNumber__proxyOrTargetName__[serializedCacheKey]</code>, where <code>serializedCacheKey</code> is composed of KeyFragment elements, separated by <code>__</code> (two underscores).</li>
+</ul>
+
+<p>You can have multiple KeyFragments that can either have an explicit value (for example, <KeyFragment>apiAccessToken</KeyFragment>) or that use the value of a context variable.</p>
+
+<p>To include a variable in the Cache Key, identify the variable as a reference in the KeyFragment. For example, to make the CacheKey unique to the Content-Type of the request message, you could set <code>&lt;KeyFragment ref=&quot;request.header.Content-Type&quot;/&gt;</code>, which defines a KeyFragment as the value of the context variable <code>request.header.Content-Type</code>.</p>
+
+<p>For example, in the configuration below, the <code>request.header.Content-Type</code> variable has the value <code>application/json</code>.</p>
+<pre>&lt;CacheKey&gt;
+  &lt;KeyFragment&gt;apiAccessToken&lt;/KeyFragment&gt;
+  &lt;KeyFragment ref=&quot;request.header.Content-Type&quot; /&gt;
+  &lt;KeyFragment&gt;bar&lt;/KeyFragment&gt;
+&lt;/CacheKey&gt;</pre>
+
+<p>The result a CacheKey of <code>{Scope}__apiAccessToken__application/json__bar</code>.</p>
+
+<p>If you require an explicit namespace, then use Prefix instead of Scope. Prefix overrides any Scope settings. The Lookup Cache policy that retrieves data from the Cache must refer to the specific Prefix and KeyFragment structure to retrieve data from the Cache.</p>
+
+<h2>Cache Flow variables</h2>
+<p>Flow variables can be used to configure dynamic runtime behavior for policies and flows, based on HTTP headers or message content, or the context available in the Flow. For more information about flow variables, see [node:243].</p>
+<p>The following predefined Flow variables are available after you customize the behavior of the Cache you define in a LookupCache policy.</p>
 <table border="0" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
 	<thead>
 		<tr>
@@ -328,60 +551,5 @@ For example, the following PopulateCache policy writes the value of the variable
 		</tr>
 	</tbody>
 </table>
-
-<h2><a class="jumplink" name="invalidate"></a>Configuring the InvalidateCache policy</h2>
-
-<p>Configure the InvalidateCache policy using the following elements.</p>
-<table border="0" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
-	<thead>
-		<tr>
-			<th colspan="2" style="text-align: left;">Field Name</th>
-			<th style="text-align: left;">Description</th>
-		</tr>
-	</thead>
-	<tbody>
-		<tr>
-			<td colspan="2">CacheResource (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
-			<td>Specifies the cache resource to be used.</td>
-		</tr>
-		<tr>
-			<td colspan="2">Scope (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
-			<td>Used to construct the prefix, when Prefix in CacheKey is not provided. If Prefix is provided, then Scope is ignored.<br>
-				Allowed values are Global, Application, Proxy, Target, and Exclusive.</td>
-		</tr>
-		<tr>
-			<td colspan="1" rowspan="3">CacheContext (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
-			<td>Application</td>
-			<td rowspan="3" style="vertical-align: middle;">Used to construct the cache key.</td>
-		</tr>
-		<tr>
-			<td>Proxy</td>
-		</tr>
-		<tr>
-			<td>Target</td>
-		</tr>
-		<tr>
-			<td colspan="1" rowspan="2">CacheKey (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
-			<td>Prefix</td>
-			<td>
-				<div>Used for matching future requests to the cached response.</div>
-				<div>If provided, it is used as the prefix for all entries put into the cache by the policy.</div>
-			</td>
-		</tr>
-		<tr>
-			<td>KeyFragment</td>
-			<td>
-				<div>A cache key fragment can either contain a key or a value.</div>
-				<div>All fragments (plus the prefix) are concatenated to create the cache key. For example, if a request message has headers id1=1 &amp; id2=1 then the cache key is <em>Apigee__1__2</em>.</div>
-			</td>
-		</tr>
-		<tr>
-			<td colspan="2">PurgeChildEntries (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
-			<td>Valid values: true/false<br>
-				Default value: false</td>
-		</tr>
-	</tbody>
-</table>
-
 <h2><a class="jumplink" name="schema"></a>Policy schema</h2>
 <p>Each policy must conform to a policy schema. All policy constructs such as elements and attributes mentioned above are defined in a schema. To download the schema, <a href="/docs/download/file/fid/197">click here</a>.</p>

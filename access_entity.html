@@ -1,7 +1,13 @@
 <p>[toc]</p>
-<p>The API Platform stores profile data for a range for "entities", such as developers, apps, and API products. The AccessEntity policy is designed to enable a developer to retrieve profile during API facade message processing, without requiring an explicit callout to the API Platform data store. As such, the AccessEntity policy functions as a policy-based runtime database lookup. The profile data retrieved from the data store can be used to set variables, which can in turn be used to populate and enrich outbound requests to the target service or outbound responses to the requesting app. The profile information can also be used to enable dynamic endpoint routing, flow execution, or policy enforcement. </p>
-
-<p>AccessEntity is used to access profile for the following entities:</p>
+<p>The API Platform stores profile data for a range for "entities", such as developers, apps, and API products. The AccessEntity policy enables developers to retrieve profiles during API proxy message processing. The AccessEntity policy functions as a policy-based runtime database lookup. The profile information can be used to enable conditional endpoint routing, flow execution, policy enforcement, and so on.</p>
+<p>For example, you could use the AccessEntity policy to get the profile for an app, and then extract a custom field (such as a department name) from the app profile. Using the department name as a variable, you could route the request to a specific backend service, or you could forward the department name to Analytics to enable data accounting.</p>
+<p>When a policy of type AccessEntity is enforced:</p>
+<ol>
+	<li>The policy sets an entity as an XML-formatted flow variable. The variable that is set is usually consumed by an ExtractVariable or AssignMessage policy, as illustrated in [node:227] and [node:228] .</li>
+	<li>XPath is used to parse the desired properties from the profile. For examples see&nbsp;<a href="#Profiles">Retrieving entity profilres using the Platform API</a>.</li>
+	<li>If the specified entity is not found, the policy returns <code>ResourceNotFoundException</code>.</li>
+</ol>
+<p>AccessEntity is used to access profiles for the following entities:</p>
 <ul>
 	<li>App</li>
 	<li>API product</li>
@@ -10,198 +16,245 @@
 	<li>Consumer key</li>
 	<li>Developer</li>
 </ul>
-
-<p>When a policy of type AccessEntity is enforced:</p>
-<ul>
-	<li>The policy sets an entity as an XML-formatted flow variable. The variable that is set is usually consumed by an ExtractVariable or AssignMessage policy, as illustrated in [node:228] or [node:227].</li>
-	<li>XPath can be used to parse the desired properties from the profile</li>
-	<li>If the specified entity is not found, the policy returns <code>ResourceNotFoundException</code>.</li>
-</ul>
-
 <p>The basic of structure of an AccessEntity policy is:</p>
-
-<div id="class"><pre>&lt;AccessEntity enabled=&quot;true&quot; continueOnError=&quot;false&quot; async=&quot;false&quot; name=&quot;{policy_name}&quot;&gt;
-    &lt;EntityType  value=&quot;{entity_type}&quot;/&gt;
-    &lt;EntityIdentifier ref=&quot;{entity_identifier}&quot; type=&quot;identifer_type&quot;/&gt; 
-    &lt;SecondaryIdentifier* ref=&quot;{secondary_identifier}&quot; type=&quot;identifer_type&quot;/&gt;
-&lt;/AccessEntity&gt;</pre></div>
-
-<ul><li><code>EntityType</code>: The name of the type of entity to be retrieved.</li> 
-<li><code>EntityIdentifier</code>: The value that identifies the specific entity whose profile should be retrieved. The <code>ref</code> attribute identifies the variable that provides the source of the identifier, for example, <code>request.queryparameter.apikey</code>. The type identifies the entity type populated by the referenced variable, such as <code>consumerkey</code>.</li>
-<li><code>SecondaryIdentifier</code>: Supported where <code>EntityIdentifier</code> is not guaranteed unique, as with <code>appname</code>, or to filter multiple results. The <code>ref</code> attribute identifies the variable that provides the source of the identifier, for example, <code>request.queryparameter.apikey</code>. The type identifies the entity type populated by the referenced variable, such as <code>consumerkey</code>. The use of multiple <code>SecondaryIdentifier</code> elements is not supported. This element is optional to support backward-compatibility with existing deployments.</li>
-<li><code>type</code>: An attribute that defines the type populated by the entity reference. Supported types are:
-<ul><li>appname</li>
-<li>appid</li>
-<li>developeremail</li>
-<li>developerid</li>
-<li>companyname</li>
-<li>apiproductname</li>
-<li>consumerkey</li>
-<li>apiresource</li></ul></li></ul>
-
-<p>Where multiple matches exist for a given <code>EntityIdentifier</code> and <code>SupportingIdentifier</code> combination, the first match will be populated in the flow. An example where such a conflict might arise is where:</p>
-<ul><li><code>EntityType</code> is set to <code>apiproduct</code></li>
-<li><code>EntityIdentifier</code> is set to <code>appid</code></li></ul>
-<p>Since an app can be associated with multiple API products, only the first matched API product will be available in the flow.</p>
-
-<p>During an OAuth 2.0 exchange, <code>appname</code> and <code>developerid</code> variables are populated by default in the flow, and can therefore be used by an AccessEntity policy to get profile details on the requesting app. To prevent conflicts, set the <code>EntityIdentifier</code> to <code>appname</code> and <code>developerid</code> as the <code>SecondaryIdentifier</code>.</p>
-
-<h2>AccessEntity variables</h2>
-
-<p>When the entity profile specified in the AccessEntity policy is retrieved, the resultant XML-formatted profile object is added to the message context. The user-provided name of the AccessEntity policy is set as the variable prefix. For example, if an AccessEntity policy with name of <code>GetDeveloper</code> is executed, then the XML-formatted profile is stored, as a while, under the variable <code>AccessEntity.GetDeveloper</code>. The XML-formatted profile can then be parsed using an XPath defined in an ExtractVariables policy that specifies <code>AccessEntity.GetDeveloper</code> as its source.</p>
-
-
-<h2><code>EntityType</code> specification</h2>
+<div id="class">
+	<pre>&lt;AccessEntity name="{policy_name}"&gt;
+    &lt;EntityType  value="{entity_type}"/&gt;
+    &lt;EntityIdentifier ref="{entity_identifier}" type="identifer_type"/&gt; 
+    &lt;SecondaryIdentifier* ref="{secondary_identifier}" type="identifer_type"/&gt;
+&lt;/AccessEntity&gt;</pre>
+	<p>Configuring an AccessEntity policy</p>
+	<p>AccessEntity policies expose the following configuration settings:</p>
+</div>
 <table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
 	<thead>
 		<tr>
-			<th>EntityType</th><th>EntityIdentifier</th><th>SecondaryIdentifier</th>
+			<th>Name</th>
+			<th>Description</th>
+			<th>Default</th>
+			<th>Required?</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td><b><code>AccessEntity </code></b></td>
+			<td colspan="3">A policy used to retrieve entity profiles from the API Platform data store.</td>
+		</tr>
+		<tr>
+			<td><code>Name</code></td>
+			<td>The unique name of the policy.</td>
+			<td>N/A</td>
+			<td>Yes</td>
+		</tr>
+		<tr>
+			<td><code>EntityType</code></td>
+			<td>The name of the type of entity to be retrieved. For a reference of entity types, see the <a href="#Entities">EntityType specification</a>.&nbsp;</td>
+			<td>N/A</td>
+			<td>Yes</td>
+		</tr>
+		<tr>
+			<td><code>EntityIdentifier</code></td>
+			<td>
+				<p>The value that identifies the specific entity whose profile should be retrieved.</p>
+				<p>The <code>ref</code> attribute identifies the variable that provides the source of the identifier, for example, <code>request.queryparameter.apikey</code></p>
+				.
+				<p>The type identifies the EntityType populated by the referenced variable, such as <code>consumerkey</code>.</p>
+			</td>
+			<td>N/A</td>
+			<td>No</td>
+		</tr>
+		<tr>
+			<td><code>SecondaryIdentifier</code></td>
+			<td>
+				<p>Use when <code>EntityIdentifier</code> is not guaranteed unique, as with <code>appname</code>.</p>
+				<p>Also use to filter queries that return multiple results.</p>
+				<p>The <code>ref</code> attribute identifies the variable that provides the source of the identifier, for example, <code>request.queryparameter.apikey</code>.</p>
+				<p>The type identifies the entity type populated by the referenced variable, such as <code>consumerkey</code>. The use of multiple <code>SecondaryIdentifier</code> elements is not supported. This element is optional to support backward-compatibility with existing deployments.</p>
+			</td>
+			<td>N/A</td>
+			<td>No</td>
+		</tr>
+	</tbody>
+</table>
+<p>Where multiple matches exist for a given <code>EntityIdentifier</code> and <code>SupportingIdentifier</code> combination, the first match will be populated in the Flow. An example of such a potential conflict is retrieving an <code>apiproduct</code> is retrieved based on <code>appid</code>. For example:</p>
+<ul>
+	<li><code>EntityType</code> is set to <code>apiproduct</code></li>
+	<li><code>EntityIdentifier</code> is set to <code>appid</code></li>
+</ul>
+<p>Since an app can be associated with multiple API products, only the first matched API product will be available in the Flow.</p>
+<p>To resolve potential conflicts, use a SecondaryIdentifier. During an OAuth 2.0 exchange, <code>appname</code> and <code>developerid</code> variables are populated by default in the Flow, and can therefore be used by an AccessEntity policy to get profile details on the requesting app. To prevent conflicts, set the <code>EntityIdentifier</code> to <code>appname</code> and <code>developerid</code> as the <code>SecondaryIdentifier</code>.</p>
+<h2>AccessEntity variables</h2>
+<p>When the entity profile specified in the AccessEntity policy is retrieved, the resultant XML-formatted profile object is added to the message context. The user-provided name of the AccessEntity policy is set as the variable prefix.</p>
+<p>For example, if an AccessEntity policy with name of <code>GetDeveloper</code> is executed, then the XML-formatted profile is stored, as a while, under the variable <code>AccessEntity.GetDeveloper</code>. The XML-formatted profile can then be parsed using an XPath defined in an ExtractVariables policy that specifies <code>AccessEntity.GetDeveloper</code> as its source.</p>
+<h2><a name="Entities"></a>EntityType specification</h2>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th>EntityType</th>
+			<th>EntityIdentifiers</th>
+			<th>SecondaryIdentifiers</th>
 		</tr>
 	</thead>
 	<tbody>
 		<tr>
 			<td><code>apiproduct</code></td>
-			<td><ul><li><code>apiproductname</code></li>
-				    <li><code>appname</code></li>
-			        <li><code>appid</code></li>
-			        <li><code>consumerkey</code></li>
-			</ul></td>
-			<td><ul><li><code>developeremail</code></li>
-			        <li><code>developerid</code></li>
-			        <li><code>companyname</code></li>
-				    <li><code>apiresource</code></li>
-			</ul>
-			<p>The <code>SecondaryIdentifiers</code> <code>developeremail</code>, <code>developerid</code> and <code>companyname</code> used only when the <code>EntityIdentifier</code> is <code>appname</code>.</p> <p>The<code>SecondaryIdentifier</code> <code>apiresource</code>  used only when the <code>EntityIdentifier</code> is <code>appname</code>, <code>appid</code>, and <code>consumerkey</code>.</p></td>
+			<td>
+				<ul>
+					<li><code>apiproductname</code></li>
+					<li><code>appname</code></li>
+					<li><code>appid</code></li>
+					<li><code>consumerkey</code></li>
+				</ul>
+			</td>
+			<td>
+				<ul>
+					<li><code>developeremail</code></li>
+					<li><code>developerid</code></li>
+					<li><code>companyname</code></li>
+					<li><code>apiresource</code></li>
+				</ul>
+				<p>The <code>SecondaryIdentifiers</code> <code>developeremail</code>, <code>developerid</code> and <code>companyname</code> are used only when the <code>EntityIdentifier</code> is <code>appname</code>.</p>
+				<p>The<code>SecondaryIdentifier</code> <code>apiresource</code> is used only when the <code>EntityIdentifier</code> is <code>appname</code>, <code>appid</code>, and <code>consumerkey</code>.</p>
+			</td>
 		</tr>
 		<tr>
 			<td><code>app</code></td>
-			<td><ul><li><code>appname*</code></li>
-			        <li><code>appid*</code></li>
-			        <li><code>consumerkey</code></li>
-			</ul></td>
-			<td><ul><li><code>developeremail</code></li>
-			        <li><code>developerid</code></li>
-			        <li><code>companyname</code></li>
-			</ul>
-			<p><i>Used only when identifier is <code>appname</code>, as value of <code>appname</code> is not guaranteed to be unique across an organization</i>.</p></td>
+			<td>
+				<ul>
+					<li><code>appname</code></li>
+					<li><code>appid</code></li>
+					<li><code>consumerkey</code></li>
+				</ul>
+			</td>
+			<td>
+				<ul>
+					<li><code>developeremail</code></li>
+					<li><code>developerid</code></li>
+					<li><code>companyname</code></li>
+				</ul>
+				<p>Used only when identifier is <code>appname</code>, because the value of <code>appname</code> is not guaranteed to be unique across an organization.</p>
+			</td>
 		</tr>
 		<tr>
 			<td><code>company</code></td>
-			<td><ul><li><code>companyname*</code></li>
-				    <li><code>appid</code></li>
-			        <li><code>consumerkey</code></li>
-			</ul></td>
+			<td>
+				<ul>
+					<li><code>companyname</code></li>
+					<li><code>appid</code></li>
+					<li><code>consumerkey</code></li>
+				</ul>
+			</td>
 			<td>None</td>
 		</tr>
 		<tr>
 			<td><code>companydeveloper</code></td>
-			<td><ul><li><code>companyname*</code></li>
-			</ul></td>
+			<td>
+				<ul>
+					<li><code>companyname</code></li>
+				</ul>
+			</td>
 			<td>None</td>
 		</tr>
 		<tr>
 			<td><code>consumerkey</code></td>
-			<td><ul><li><code>consumerkey</code></li></ul></td>
-			<td>None (<code>consumerkey</code> is globally unique)</td>
+			<td>
+				<ul>
+					<li><code>consumerkey</code></li>
+				</ul>
+			</td>
+			<td>None</td>
 		</tr>
 		<tr>
 			<td><code>developer</code></td>
-			<td><ul><li><code>developeremail*</code></li>
-			        <li><code>developerid*</code></li>
-				    <li><code>appid (Not guaranteed to be unique within an organization)</code></li>
-			        <li><code>consumerkey</code></li>
-			</ul></td>
+			<td>
+				<ul>
+					<li><code>developeremail</code></li>
+					<li><code>developerid</code></li>
+					<li><code>appid</code></li>
+					<li><code>consumerkey</code></li>
+				</ul>
+			</td>
 			<td>None</td>
 		</tr>
 	</tbody>
 </table>
-
 <h2>Example: AccessEntity policy</h2>
 <p>[gist:3143613]</p>
-
 <h2>Configuring ExtractVariables to use AccessEntity lookup</h2>
-
 <p>When an AccessEntity policy executes, the result is a flow variable populated with an XML-formatted profile object. The XML-formatted profile object can be used as a source of data for a flow by configuring an ExtractVariables policy to parse the profile.</p>
-
-<p>In the following example, an ExtractVariables policy is used to parse a developer profile retrieved by AccessEntity to obtain the value of a custom attribute. The source is set to the variable where the developer profile is stored by the AccessEntity policy, which is <code>AccessEntity.{policy_name}</code>. The profile can be parsed using XPath, just as any other XML document. Sample profiles for entities managed by the API Platform are provided below.
-</p>
-<pre>&lt;ExtractVariables name=&quot;GetDeveloperAttribute&quot;&gt;
+<p>In the following example, an ExtractVariables policy is used to parse a developer profile retrieved by AccessEntity to obtain the value of a custom attribute. The source is set to the variable where the developer profile is stored by the AccessEntity policy, which is <code>AccessEntity.{policy_name}</code>. The profile can be parsed using XPath, just as any other XML document. Sample profiles for entities managed by the API Platform are provided below.</p>
+<pre>&lt;ExtractVariables name="GetDeveloperAttribute"&gt;
   &lt;Source&gt;AccessEntity.GetDeveloper&lt;/Source&gt; 
   &lt;VariablePrefix&gt;developer_attribute&lt;/VariablePrefix&gt;
   &lt;XMLPayload&gt;
     &lt;Variable name=&quot;developer_attribute&quot; type=&quot;string&quot;&gt;
-      	&lt;XPath&gt;/developer/attributes/@name&lt;/XPath&gt;
+      &lt;XPath&gt;/Developer/Attributes/Name&lt;/XPath&gt;
     &lt;/Variable&gt;
   &lt;/XMLPayload&gt;
 &lt;/ExtractVariables&gt;</pre>
 
-<h2>Retrieving entity profiles using the Platform API</h2>
-<p>When configuring an AccessEntity policy, it can be useful to retrieve sample entity profiles to assist in selection of appropriate identifiers. For details, refer to the [node:4972]
-</p>
-<p>For example:</p>
 
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AccessEntity name="GetDeveloper">
+	<EntityType value="developer"/>
+    <EntityIdentifier ref="request.queryparam.apikey"/>
+</AccessEntity>
+
+
+
+<h2><a name="Profiles"></a>Retrieving entity profiles using the Platform API</h2>
+<p>When configuring an AccessEntity policy, it can be useful to retrieve sample entity profiles to assist in selection of appropriate identifiers. For details, refer to the [node:4972]</p>
+<p>For example the following request can used to retrieve an app profile by using the <code>app_id</code>:</p>
 <h3>Apps</h3>
 <pre>$ curl -H "Accept:text/xml" -X GET \
 https://api.enterprise.apigee.com/v1/o/{org_name}/apps/{app_id} \
 -u myname:mypass</pre>
-
-<p>Or:</p>
-
+<p>Alternatively, you can retrieve an app profile by requesting the profile by <code>app_name</code>, as long as you include the association with the developer. For example:</p>
 <pre>$ curl -H "Accept:text/xml" -X GET \
 https://api.enterprise.apigee.com/v1/o/{org_name}/developers/{developer_email}/apps/{app_name} \
 -u myname:mypass</pre>
-
 <p>Sample profile:</p>
-
-<pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;
-&lt;App name=&quot;weatherapp&quot;&gt;
-    &lt;AccessType&gt;&lt;/AccessType&gt;
-    &lt;ApiProducts/&gt;
-    &lt;Credentials&gt;
-        &lt;Credential&gt;
-            &lt;Attributes/&gt;
-            &lt;ConsumerKey&gt;XLotL3PRxNkUGXhGAFDPOr6fqtvAhuZe&lt;/ConsumerKey&gt;
-            &lt;ConsumerSecret&gt;iNUyEaOOh96KR3YL&lt;/ConsumerSecret&gt;
-            &lt;ApiProducts&gt;
-                &lt;ApiProduct&gt;
-                    &lt;Name&gt;weather_free&lt;/Name&gt;
-                    &lt;Status&gt;approved&lt;/Status&gt;
-                &lt;/ApiProduct&gt;
-            &lt;/ApiProducts&gt;
-            &lt;Scopes/&gt;
-            &lt;Status&gt;approved&lt;/Status&gt;
-        &lt;/Credential&gt;
-    &lt;/Credentials&gt;
-    &lt;AppFamily&gt;default&lt;/AppFamily&gt;
-    &lt;AppId&gt;7b3ec55d-de8b-4ab5-8025-d949285bed4f&lt;/AppId&gt;
+<pre>&lt;ApiProduct name="FreeProduct"&gt;
+    &lt;ApiResources&gt;
+        &lt;ApiResource&gt;/**&lt;/ApiResource&gt;
+    &lt;/ApiResources&gt;
+    &lt;ApprovalType&gt;auto&lt;/ApprovalType&gt;
     &lt;Attributes/&gt;
-    &lt;CallbackUrl&gt;login.weatherapp.com&lt;/CallbackUrl&gt;
-    &lt;CreatedAt&gt;1349797216488&lt;/CreatedAt&gt;
-    &lt;CreatedBy&gt;developer@apigee.com&lt;/CreatedBy&gt;
-    &lt;DeveloperId&gt;4Y4xd0KRZ1wmHJqu&lt;/DeveloperId&gt;
-    &lt;LastModifiedAt&gt;1349797216488&lt;/LastModifiedAt&gt;
-    &lt;LastModifiedBy&gt;developer@apigee.com&lt;/LastModifiedBy&gt;
-    &lt;Scopes/&gt;
-    &lt;Status&gt;approved&lt;/Status&gt;
-&lt;/App&gt;</pre>
-
-
+    &lt;CreatedAt&gt;1362502867450&lt;/CreatedAt&gt;
+    &lt;CreatedBy&gt;ambrown2000@yahoo.com&lt;/CreatedBy&gt;
+    &lt;Description&gt;You get what you pay for!&lt;/Description&gt;
+    &lt;DisplayName&gt;Free API bundle&lt;/DisplayName&gt;
+    &lt;Environments&gt;
+        &lt;Environment&gt;test&lt;/Environment&gt;
+        &lt;Environment&gt;prod&lt;/Environment&gt;
+    &lt;/Environments&gt;
+    &lt;LastModifiedAt&gt;1362502867450&lt;/LastModifiedAt&gt;
+    &lt;LastModifiedBy&gt;ambrown2000@yahoo.com&lt;/LastModifiedBy&gt;
+    &lt;Proxies&gt;
+        &lt;Proxy&gt;apikey&lt;/Proxy&gt;
+        &lt;Proxy&gt;oauth-authcode&lt;/Proxy&gt;
+        &lt;Proxy&gt;oauth-client-credentials&lt;/Proxy&gt;
+        &lt;Proxy&gt;oauth-verify-accesstoken&lt;/Proxy&gt;
+        &lt;Proxy&gt;oauth-login-app&lt;/Proxy&gt;
+    &lt;/Proxies&gt;
+    &lt;Quota&gt;1&lt;/Quota&gt;
+    &lt;QuotaInterval&gt;1&lt;/QuotaInterval&gt;
+    &lt;QuotaTimeUnit&gt;minute&lt;/QuotaTimeUnit&gt;
+    &lt;Scopes&gt;
+        &lt;Scope&gt;READ&lt;/Scope&gt;
+    &lt;/Scopes&gt;
+&lt;/ApiProduct&gt;</pre>
 <h3>API product</h3>
-
 <pre>$ curl  -H "Accept:text/xml" -X GET \
 https://api.enterprise.apigee.com/v1/o/{org_name}/apiproducts/{apiproduct_name} \
 -u myname:mypass</pre>
-
 <p>Sample XPath, retrieves the second API resource (URI) from the API product named <code>weather_free</code>:</p>
-
 <pre>/ApiProduct['@name=weather_free']/ApiResources/ApiResource[1]/text()</pre>
-
 <p>Sample profile:</p>
-
-<pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;
-&lt;ApiProduct name=&quot;weather_free&quot;&gt;
+<pre>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
+&lt;ApiProduct name="weather_free"&gt;
     &lt;ApiResources&gt;
-        &lt;ApiResource&gt;/forecastrss&lt;/ApiResource&gt;
+        &lt;ApiResource&gt;/forecastrss, /reports&lt;/ApiResource&gt;
     &lt;/ApiResources&gt;
     &lt;ApprovalType&gt;auto&lt;/ApprovalType&gt;
     &lt;Attributes&gt;
@@ -236,17 +289,13 @@ https://api.enterprise.apigee.com/v1/o/{org_name}/apiproducts/{apiproduct_name} 
     &lt;Proxies/&gt;
     &lt;Scopes/&gt;
 &lt;/ApiProduct&gt;</pre>
-
 <h3>Company</h3>
-
 <pre>$ curl   -H "Accept:text/xml" -X GET \
 https://api.enterprise.apigee.com/v1/o/{org_name}/companies/{company_name} \
 -u myname:mypass</pre>
-
 <p>Sample profile:</p>
-
-<pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;
-&lt;Company name=&quot;theramin&quot;&gt;
+<pre>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
+&lt;Company name="theramin"&gt;
     &lt;Apps/&gt;
     &lt;DisplayName&gt;Theramin Corporation&lt;/DisplayName&gt;
     &lt;Organization&gt;apigee-pm&lt;/Organization&gt;
@@ -262,35 +311,26 @@ https://api.enterprise.apigee.com/v1/o/{org_name}/companies/{company_name} \
     &lt;LastModifiedAt&gt;1349208631291&lt;/LastModifiedAt&gt;
     &lt;LastModifiedBy&gt;andrew@apigee.com&lt;/LastModifiedBy&gt;
 &lt;/Company&gt;</pre>
-
 <h3>Company developer</h3>
 <pre>$ curl -H "Accept:text/xml" -X GET \
 https://api.enterprise.apigee.com/v1/o/{org_name}/companies/{company_name}/developers/{developer_name} \
 -u myname:mypass</pre>
-
 <p>Sample profile:</p>
-
-<pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;
+<pre>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
 &lt;Developers&gt;
     &lt;Developer&gt;
         &lt;Email&gt;ntesla@theramin.com&lt;/Email&gt;
         &lt;Role&gt;developer&lt;/Role&gt;
     &lt;/Developer&gt;
 &lt;/Developers&gt;</pre>
-
-
 <h3>Consumer key</h3>
 <pre>$ curl -H "Accept:text/xml" -X GET \
 https://api.enterprise.apigee.com/v1/o/{org_name}/developers/{developer_email}/apps/{app_name}/keys/{consumer_key} \
 -u myname:mypass</pre>
-
 <p>Sample XPath:</p>
-
 <pre>/Credential/ApiProducts/ApiProduct[Name='weather_free']/Status/text()</pre>
-
 <p>Sample profile:</p>
-
-<pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;
+<pre>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
 &lt;Credential&gt;
     &lt;Attributes/&gt;
     &lt;ConsumerKey&gt;XLotL3PRxNkUGXhGAFDPOr6fqtvAhuZe&lt;/ConsumerKey&gt;
@@ -304,21 +344,15 @@ https://api.enterprise.apigee.com/v1/o/{org_name}/developers/{developer_email}/a
     &lt;Scopes/&gt;
     &lt;Status&gt;approved&lt;/Status&gt;
 &lt;/Credential&gt;</pre>
-
 <h3>Developer</h3>
 <pre>$ curl -H "Accept:text/xml" -X GET \
 https://api.enterprise.apigee.com/v1/o/{org_name}/developers/{developer_email} \
 -u myname:mypass</pre>
-
-
 <p>Sample XPath:</p>
-
 <pre>/Developer/Attributes/Attribute[Name='my_custom_attribute']/Value/text()</pre>
 <pre>/Developer/Email/text()</pre>
-
 <p>Sample profile:</p>
-
-<pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;
+<pre>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
 &lt;Developer&gt;
     &lt;Apps&gt;
         &lt;App&gt;weatherappx&lt;/App&gt;

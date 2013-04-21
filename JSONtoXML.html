@@ -1,14 +1,19 @@
 <p>[toc]</p>
-
 <p>The API Platform enables developers to convert messages from the JavaScript object notation (JSON) format to the extensible markup language (XML) format by using the JSONtoXML policy type. This policy is useful for enabling backend XML services to support RESTful apps that require JSON (for example, due to a lack of an XML parsing capabilities on the client).</p>
-
-<p>In a typical mediation scenario, a JSONtoXML policy on the inbound request flow is often paired with an XMLtoJSON policy on the outbound response flow. By combining policies this way, a JSON API can be exposed for services that natively support only XML. For scenarios where APIs are consumed by diverse clients apps which may require either JSON and XML, the format of the response can be dynamically set by configuring JSONtoXML and XMLtoJSON policies to execute conditionally. See the API Platform Developer Guide topic [node:4583] for an implementation of this scenario. </p>
-	
-<p>The HTTP Content-type header of the source message must be set to <code>application/json</code>. If the HTTP Content-type header of the source message is not <code>application/json</code>, the policy is not enforced. The payload of the JSON message is parsed and converted into XML, and the HTTP Content-type header of the XML-formatted message is set to <code>application/xml</code>.</p>
-
-
-
-<p>Configure the JSONtoXML policy using the following optional elements. Reasonable defaults are provided for each setting, thus all elements in this policy type are optional unless <code>NamespaceBlockName</code> is set, in which case <code>DefaultNamespaceNodeName</code> and <code>NamespaceSeparator</code> must also be specified.</p>
+<p>In a typical mediation scenario, a JSONtoXML policy on the inbound request flow is often paired with an XMLtoJSON policy on the outbound response flow. By combining policies this way, a JSON API can be exposed for services that natively support only XML.</p>
+<p>For scenarios where APIs are consumed by diverse clients apps which may require either JSON and XML, the format of the response can be dynamically set by configuring JSONtoXML and XMLtoJSON policies to execute conditionally.</p>
+<p>See the API Platform Developer Guide topic [node:4583] for an implementation of this scenario.</p>
+<h2>Sample</h2>
+<p>A set of configuration options are provided to customize the XML output by the JSONtoXML policy. The JSONtoXML policy defines a set of reasonable defaults. It is often useful to apply the default (empty) JSONtoXML policy and iteratively add configuration elements as required.</p>
+<p>The minimum required configuration is the following:</p>
+<pre>&lt;JSONToXML name="jsontoxml"&gt;
+  &lt;Options&gt;
+  &lt;/Options&gt;
+&lt;/JSONToXML&gt;</pre>
+<h2>Configuring a JSONtoXML policy</h2>
+<p>All elements in this policy type are optional unless you need to define XML namespaces. If <code>NamespaceBlockName</code> is set, <code>DefaultNamespaceNodeName</code> and <code>NamespaceSeparator</code> must also be specified.</p>
+<p>The HTTP Content-type header of the source message must be set to&nbsp;<code>application/json</code>. If the HTTP Content-type header of the source message is not&nbsp;<code>application/json</code>, then the policy is not enforced.</p>
+<p>The payload of the JSON message is parsed and converted into XML. The HTTP Content-type header of the XML-formatted message is set to&nbsp;<code>application/xml</code>.</p>
 <table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
 	<thead>
 		<tr>
@@ -19,134 +24,163 @@
 	<tbody>
 		<tr>
 			<td>Source</td>
-			<td>The variable containing the JSON-formatted message to be converted to XML.
+			<td>The variable containing the JSON-formatted message to be converted to XML. Usually, you set this to <code>request</code> or <code>response</code>, depending on whether the message to be transformed is inbound or outbound.
 				<ul>
-					<li>If source is missing, it is treated as a simple message. For example, <code>&lt;Source&gt;message&lt;/Source&gt;</code></li>
+					<li>If <code>source</code> is missing, it is treated as a simple message. For example, <code>&lt;Source&gt;message&lt;/Source&gt;</code></li>
 					<li>If the source variable cannot be resolved, or resolves to a non-message type, the policy execution fails.</li>
 				</ul>
 			</td>
 		</tr>
 		<tr>
-			<td>Output variable</td>
+			<td>OutputVariable</td>
 			<td>
-				<div>The variable name of the resultant XML-formatted message.</div>
-				<div>If <code>OutputVariable</code> is not specified, then the source variable is treated as <code>OutputVariable</code>.</div>
+				<p>The variable name of the resultant XML-formatted message. Usually, you set this to <code>request</code> or <code>response</code>, depending on whether the message to be transformed is inbound or outbound. In most cases, an JSON request is transformed into an XML request. Similarly, a JSON response is usually transformed into an XML response.</p>
+				<p>If <code>OutputVariable</code> is not specified, then the source variable is treated as <code>OutputVariable</code>. That is, the policy assumes that a JSON request, for example, is being converted into an XML request.</p>
 			</td>
 		</tr>
 		<tr>
-			<td>Invalid character replacement</td>
+			<td>InvalidCharsReplacement</td>
 			<td>
-				<div>Replaces any JSON elements that are invalid in XML with the defined string. For example:</div>
-				<pre>{"this is%%%invalid" : "value1/value2"}</pre>
-				<div>converts to:</div>
-				<pre>&lt;this_is_invalid&gt;value1value2&lt;/this_is_invalid&gt;</pre>
-			</td>
-		</tr>
-		<tr>
-			<td>Text node name</td>
-			<td>
-				<div>Converts the property into XML text. For example:</div>
+				<div>To assist with handling invalid XML that may cause issues with a parser, this setting replaces any JSON elements that produce invalid XML with the string. For example, the following setting:</div>
+				<pre>&lt;InvalidCharsReplacement&gt;_&lt;/InvalidCharsReplacement&gt;</pre>
+				<p>Converts this JSON object</p>
 				<pre>{
- "root" : {
- "one": "value1",
- "#text": "value0",
- "two" : "value2"}
+    "First%%%Name": "John"
 }</pre>
-				<div>converts to:</div>
-				<pre>&lt;root&gt;
-  &lt;one&gt;value1&lt;/one&gt;value0&lt;two&gt;value2&lt;/two&gt;
-&lt;/root&gt;</pre>
-				<div>If <code>TextNodeName</code> is not specified, this XML is generated:</div>
-				<pre>&lt;root&gt;&lt;one&gt;value1&lt;/one&gt;&lt;_text&gt;value0&lt;/_text&gt;&lt;two&gt;value2&lt;/two&gt;&lt;/root&gt;</pre>
+				<p>to this XML structure:</p>
+				<pre>&lt;First_Name&gt;John&lt;First_Name&gt;</pre>
 			</td>
 		</tr>
 		<tr>
-			<td>Null value</td>
+			<td>TextNodeName</td>
 			<td>
-				<div>Indicates a null value. By default the value is <code>NULL</code>. For example, where <code>I_AM_NULL</code> is configured for the Null value:</div>
-				<pre>{"root" : "I_AM_NULL"}</pre>
-				<div>converts to:</div>
-				<pre>&lt;root&gt;&lt;/root&gt;</pre>
-				<div>Where no value (or a value other than <code>I_AM_NULL</code>) is specified for the Null value, then the same payload converts to:</div>
-				<pre>&lt;root&gt;I_AM_NULL&lt;/root&gt;</pre>
-			</td>
-		</tr>
-		<tr>
-			<td>Attribute block name</td>
-			<td>
-				<div>Converts the property into XML attributes. For example:</div>
+				<p>Converts a JSON property into an XML text node with the specified name. For example, the following setting:</p>
+				<pre>&lt;TextNodeName&gt;age&lt;/TextNodeName&gt;</pre>
+				<p>converts this JSON:</p>
 				<pre>{
-"root" : 
-{
-   "#attrs" : 
-{
-   "@att1" : "value1",
-   "@att2" : "value2"
-   "att3" : "value3"
- }, 
-   "child" : "value0",
+    "person": {
+        "firstName": "John",
+        "lastName": "Smith",
+        "age": 25
+    }
+}</pre>
+				<p>to this XML structure:</p>
+				<pre>&lt;person&gt;
+  &lt;firstName&gt;John&lt;/firstName&gt;25&lt;lastName&gt;Smith&lt;/lastName&gt;
+&lt;/person&gt;</pre>
+				<p>If <code>TextNodeName</code> is not specified, the XML is generated, using the default setting for a text node:</p>
+				<pre>&lt;person&gt;
+  &lt;firstName&gt;John&lt;/firstName&gt;
+  &lt;_text&gt;25&lt;/_text&gt;
+  &lt;lastName&gt;Smith&lt;/lastName&gt;
+&lt;/person&gt;</pre>
+			</td>
+		</tr>
+		<tr>
+			<td>NullValue</td>
+			<td>Indicates a null value. By default the value is <code>NULL</code>.
+				<p>For example the following setting:</p>
+				<pre>&lt;NullValue&gt;I_AM_NULL&lt;/NullValue&gt;</pre>
+				Converts the following JSON object:
+				<pre>{"person" : ""}</pre>
+				<p>to the following XML element:</p>
+				<pre>&lt;person&gt;&lt;/person&gt;</pre>
+				<p>Where no value (or a value other than <code>I_AM_NULL</code>) is specified for the Null value, then the same payload converts to:</p>
+				<pre>&lt;person&gt;I_AM_NULL&lt;/person&gt;</pre>
+			</td>
+		</tr>
+		<tr>
+			<td>AttributeBlockName</td>
+			<td>
+				<p>Enables you to specify when JSON elements are converted into XML attributes (rather than XML elements).</p>
+				<p>For example, the following setting converts properties inside an object named <code>#attrs</code> into XML attributes:</p>
+				<pre>&lt;AttributeBlockName&gt;#attrs&lt;/AttributeBlockName&gt;</pre>
+				<p>The following JSON object:</p>
+				<pre>{
+    "person" : {
+        "#attrs" : {
+            "firstName" : "John",
+            "lastName" : "Smith"
+        },        
+        "occupation" : "explorer",
+    }
+}</pre>
+				<p>is converted to the following XML structure:</p>
+				<pre>&lt;person firstName="John" lastName="Smith"&gt;
+  &lt;occupation&gt;explorer&lt;/occupation&gt;
+&lt;/person&gt;</pre>
+			</td>
+		</tr>
+		<tr>
+			<td>AttributePrefix</td>
+			<td>
+				<p>Converts the property starting with the specified prefix into XML attributes. Where the attribute prefix is set to <code>@</code>, for example:</p>
+				<pre>&lt;AttributePrefix&gt;@&lt;/AttributePrefix&gt;</pre>
+				<p>Converts the following JSON object:</p>
+				<pre>{
+"person" : {
+   "@firstName" : "John",
+   "@lastName" : "Smith"
+   "occupation" : "explorer",
+
  }
 }</pre>
-				<div>converts to:</div>
-				<pre>&lt;root att1="value1" att2="value2"&gt;&lt;child&gt;value0&lt;/child&gt;&lt;/root&gt;</pre>
-				<div><strong>Note:</strong> The property <code>"att3" : "value3"</code> is ignored as it does not start with the <code>@</code> symbol.</div>
+				<p>to the following XML structure:</p>
+<pre>&lt;person firstName="John" lastName="Smith"&gt;
+  &lt;occupation&gt;explorer&lt;/occupation&gt;
+&lt;/person&gt;</pre>
 			</td>
 		</tr>
 		<tr>
-			<td>Attribute prefix</td>
+			<td>NamespaceBlockName</td>
 			<td>
-				<div>Converts the property starting with the specified prefix into XML attributes. For example:</div>
+				<p>JSON has no support for namespaces, while XML documents often require them. The NamespaceBlockName enables you to define a JSON property that serves as the source of a namespace definition in the XML that is produced by the policy. (This means that the source JSON must provide a property that can be mapped into a namespace that is expected by application that consumes the resulting XML.)</p>
+				<p>For example, the following settings:</p>
+				<pre>&lt;NamespaceBlockName&gt;#namespaces&lt;/NamespaceBlockName&gt;
+&lt;DefaultNamespaceNodeName&gt;$default&lt;/DefaultNamespaceNodeName&gt;
+&lt;NamespaceSeparator&gt;:&lt;/NamespaceSeparator&gt;</pre>
+				<p>indicates that a property called <code>#namespaces</code> exists in the source JSON that contains at least one namespace designated as the default.  For example:</p>
 				<pre>{
- "root" : {
-   "@att1" : "value1",
-   "child" : "value0",
-   "@att2" : "value2"
- }
+   "population": {
+       "#namespaces": {
+           "$default": "http://www.w3.org/1999/people",
+           "xmlns:exp": "http://www.w3.org/1999/explorers"
+       },
+       "person": "John Smith",
+       "exp:person": "Pedro Cabral"
+   }
 }</pre>
 				<div>converts to:</div>
-				<pre>&lt;root att1="value1" att2="value2"&gt;&lt;child&gt;value0&lt;/child&gt;&lt;/root&gt;</pre>
+				<pre>&lt;person xmlns="http://www.w3.org/1999/people" xmlns:exp="http://www.w3.org/1999/explorers"&gt;
+  &lt;person&gt;John Smith&lt;/person&gt;
+  &lt;exp:person&gt;Pedro Cabral&lt;/exp:person&gt;
+&lt;/person&gt;</pre>
 			</td>
 		</tr>
 		<tr>
-			<td>Namespace block name</td>
-			<td colspan="1" rowspan="3">
-				<div>Configures XML namespace properties. For example:</div>
-				<pre>{
- "root" : {
-   "#namespaces" : 
+			<td>ArrayRootElementName</td>
+			<td>
+				<p>Converts a JSON array into a list of XML elements with specified parent and child element names.</p>
+				<p>For example, the following settings:</p>
+				<pre>&lt;ArrayRootElementName&gt;Array&lt;/ArrayRootElementName&gt;
+&lt;ArrayItemElementName&gt;Item&lt;/ArrayItemElementName&gt;</pre>
+				<p>Converts the following JSON array:</p>
+				<pre>[
+"John Cabot",
 {
-   "$default" : "http://default",
-   "xmlns:ns1" : "http://ns1"
- },
-   "child1" : "value0",
-   "ns1:child2" : "value1"
- }
-}</pre>
-				<div>converts to:</div>
-				<pre>&lt;root xmlns="http://default" xmlns:ns1="http://ns1"&gt;&lt;child1&gt;value0&lt;/child1&gt;&lt;ns1:child2&gt;value1&lt;/ns1:child2&gt;&lt;/root&gt;</pre>
+ "explorer": "Pedro Cabral"
+},
+"John Smith"
+]</pre>
+				<p>into the following XML structure:</p>
+				<pre>&lt;Array&gt;
+  &lt;Item&gt;John Cabot&lt;/Item&gt;
+  &lt;Item&gt;
+    &lt;explorer&gt;Pedro Cabral&lt;/explorer&gt;
+  &lt;/Item&gt;
+  &lt;Item&gt;John Smith&lt;/Item&gt;
+&lt;/Array&gt;</pre>
 			</td>
-		</tr>
-		<tr>
-			<td>Default namespace node name</td>
-		</tr>
-		<tr>
-			<td>Namespace separator</td>
-		</tr>
-		<tr>
-			<td>Array root element name</td>
-			<td colspan="1" rowspan="2">
-				<div>Configures an XML array and item. For example:</div>
-				<pre>[ "one", { "two": 2 }, "three" ]</pre>
-				<div>converts to:</div>
-				<pre><code>&lt;Array&gt;
-   &lt;Item&gt;one&lt;/Item&gt;
-   &lt;Item&gt; &lt;two&gt;2&lt;/two&gt;&lt;/Item&gt;
-   &lt;Item&gt;three&lt;/Item&gt;
-&lt;/Array&gt;</code></pre>
-			</td>
-		</tr>
-		<tr>
-			<td>Array item element name</td>
 		</tr>
 	</tbody>
 </table>

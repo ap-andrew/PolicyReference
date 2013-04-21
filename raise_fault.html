@@ -1,86 +1,45 @@
 <p>[toc]</p>
-<p>The API Platform supports a fault handling model that enables exceptions to be managed using policies. Two mechanism are supported:</p>
-<ul>
-	<li>RaiseFault Policies</li>
-	<li>Per policy FaultRules</li>
-</ul>
-<h2>RaiseFault Policy</h2>
-<p>The RaiseFault policy type works in a similar way as the AssignMessage policy type. A RaiseFault policy effectively generates a new message that is returned to the calling client app as a response. Therefore, the mechanics of RaiseFault are similar to AssignMessage. RaiseFault enables a new message to generated and to be populated with headers, query parameters, or content from the source message (that is, the message that caused the exception) you can configure your API with a RaiseFault policy that executes when an event, defined as an exception, occurs in the message flow. When executed, the RaiseFault policy transfers the message flow execution to the default ErrorFlow, which in turn returns a fault response to the requesting client app.</p>
-<h2>Policy FaultRules</h2>
-<p>Fault handling is configured by defining a FaultRule and attaching policies to the FaultRule.</p>
-<p>A FaultRule consists of:</p>
-<ul>
-	<li>An optional condition which classifies a fault based on category, subcategory, name and any additional attributes</li>
-	<li>A set of policies that define fault handling behavior</li>
-</ul>
-<p>Any number of FaultRules can be defined on ProxyEndpoints and TargetEndpoints. When a fault occurs, only the first FaultRule whose condition evaluates to true is enforced.</p>
-<p>FaultRules are evaluated in the following order:</p>
-<p>Request Path:</p>
-<ol>
-	<li>Fault in ProxyRequest: FaultRules defined at ProxyEndpoint</li>
-	<li>Fault in Routing: FaultRules defined at ProxyEndpoint</li>
-	<li>Fault in TargetRequest: FaultRules defined at TargetEndpoint</li>
-	<li>Fault in outbound request to target URL: FaultRules defined at TargetEndpoint</li>
-</ol>
-<p>Response Path:</p>
-<ol>
-	<li>Fault in TargetResponse: FaultRules defined at TargetEndpoint</li>
-	<li>Fault in ProxyResponse: FaultRules defined at ProxyEndpoint</li>
-	<li>Fault in returning response to ProxyEndpoint: FaultRules defined at ProxyEndpoint</li>
-</ol>
-<p>Policy attachments in a FaultRule are enforced in the order in which the policies are attached.</p>
-<h2>Default Fault Handling</h2>
-<p>Default fault handling can be specified at ProxyEndpoint and TargetEndpoint. Default fault handling always evaluates to true and is evaluated only where no other fault handling is defined. When <code>enforceAlways</code> is set to <code>true</code>, policies are enforced even if fault handling has already been executed. This flag is provided to address use cases in which a ProxyEndpoint is required to perform some processing on all error responses, for example adding an HTTP header or modifying the response to obfuscate a target URL regardless of whether other, more specific types of exception handling were performed. If other FaultRules are defined, the default FaultRule is enforced only after those are evaluated and enforced only when <code>enforceAlways</code> flag is <code>true</code>.</p>
-<p>Customizing Fault Responses Response Content The most common use case is returning a custom response message to the requesting app. This is implemented by attaching a RaiseFault policy that returns the appropriate response. In the process of making this simpler, the following is the proposal (not yet implemented):</p>
-<p>Custom error responses can be implemented by making templates available in, for example, <code>apiproxy/resources/messages</code>.) Under /messages <code>{fault_category}/{fault_sub_category}/{fault_name}/text_xml.template</code> <code>{fault_category}/{fault_sub_category}/{fault_name}/application_json.template</code> <code>{fault_category}/{fault_sub_category}/{fault_name}/text_html.template</code></p>
-<p>Whenever the fault occurs, the system will have a default mechanism of generating error messages based on the fault. Templates can be defined at the category, sub-category or fault name level, enabling generic handling of faults by category.</p>
-<p><code>{fault_category}/text_xml.template</code></p>
-<p><code>{fault_category}/{fault_sub_category}/text_xml.template</code> <code>Content-Type</code> is set based on the HTTP request's <code>Accept</code> header.</p>
-<p>The media type is converted into an identifier as: <code>text/xml</code> =&gt; <code>text_xml</code> <code>application/json</code> =&gt; <code>application_json</code></p>
-<p>Localization is supported by adding the locale identifier as a suffix to the file name. The template is mapped based on the "Locale" HTTP header in the request. If locale can not be determined, the default locale is picked.</p>
-<ul>
-	<li><code>text_xml_en.template</code></li>
-	<li><code>text_xml_fr.template</code></li>
-	<li><code>text_xml.template (default locale)</code></li>
-</ul>
-<p>Within the template, contents can be customized by specifying variables in the form <code>{variable_name}</code>. The API Platform will substitute variable values as necessary before returning the response. The framework tries to first find the most specific error message (based on fault name). In the absence of such a template, the sub-category level messages are looked up and in the absence of which the category level messages are looked up.</p>
+
+<p>The API Platform enables you to configure custom exception handling using a policy of type RaiseFault.</p>
+
+<p>The RaiseFault policy is a variation on the AssignMessage policy type. Like an AssignMessage policy, a RaiseFault policy generates a custom message in response to an error condition. You use RaiseFault to define a FaultResponse that is returned to the requesting app when a specific condition arises.</p>
+
+<p>A FaultResponse can consist of HTTP headers, query parameters, and a message payload. These elements can be dynamically populated using variables, enabling you to craft FaultResponses that are tailored to specific failure conditions. Such tailored FaultResponses can be more useful to app developers and app end users than generic error messages or HTTP response codes.</p>
+
+<p>When executed, the RaiseFault policy transfers the message Flow execution to the default ErrorFlow, which in turn returns the designated FaultResponse to the requesting client app. When the message Flow switches to the default ErrorFlow, no further policy processing occurs. All remaining processing Steps are bypassed, and the FaultResponse is returned directly to the requesting app.</p>
+
 <h2>Sample RaiseFault policy</h2>
-<p>Following policy, when attached will raise fault and the message flow shifts to error flow.</p>
-<div id="well">
-	<pre>&lt;RaiseFault name="InvalidResponseCode" /&gt;</pre>
-</div>
-<p>After the policy execution the following flow variables will be available in the flow fault.name [value = InvalidResponseCode] fault.type [value = RaiseFault] fault.category [value = Messaging, Policy, Transport, System ] The above variables can be used in the fault handling section to handle each fault differently. Also the fault can be handled with in the policy..</p>
-<p>The error response is generated using constructs similar to those in the&nbsp;AssignMessage policy.</p>
-<div id="well">
-	<pre>&lt;RaiseFault name="ExceptionHandler"&gt;
+
+<p>In the most common usage, RaiseFault is used to return a custom FaultResponse to the requesting app. For example to return a 404:</p>
+
+<pre>&lt;RaiseFault name=&quot;404&quot;&gt;
  &lt;IgnoreUnresolvedVariables&gt;true&lt;/IgnoreUnresolvedVariables&gt;
  &lt;FaultResponse&gt;
-   &lt;Copy&gt;
-      &lt;Headers /&gt;
-   &lt;/Copy&gt;
-   &lt;Remove&gt;
-      &lt;Headers&gt;
-         &lt;Header name="h1"/&gt;
-      &lt;/Headers&gt;
-   &lt;/Remove&gt;
    &lt;Set&gt;
-     &lt;Headers&gt;
-       &lt;Header name="h1"&gt;hello {user}&lt;/Header&gt;
-       &lt;Header name="h2"/&gt;bye {user}&lt;/Header&gt;
-       &lt;Header name="h3.2"/&gt;bye {user}&lt;/Header&gt;
-     &lt;/Headers&gt;
+     &lt;StatusCode&gt;404&lt;/StatusCode&gt;
+     &lt;ReasonPhrase&gt;The resource requested was not found&lt;/ReasonPhrase&gt;
+   &lt;/Set&gt;
+ &lt;/FaultResponse&gt;
+&lt;/RaiseFault&gt;</pre>
+
+<p>A more complex example involves returning a custom FaultResponse payload, along with HTTP headers and an HTTP status code. In the following example the FaultResponse is populated with an XML message along with the value of single variable--the HTTP status code received by the API Platform from the backend service.</p>
+
+<pre>&lt;RaiseFault name="ExceptionHandler"&gt;
+ &lt;IgnoreUnresolvedVariables&gt;true&lt;/IgnoreUnresolvedVariables&gt;
+ &lt;FaultResponse&gt;
      &lt;Payload contentType="text/xml"&gt;
-       &lt;root&gt;this is my payload {variable.v1}&lt;/root&gt;
+       &lt;root&gt;Please contact support@company.com&lt;/root&gt;
      &lt;/Payload&gt;
-     &lt;StatusCode&gt;{response.status.code} OR 500&lt;/StatusCode&gt;
+     &lt;StatusCode&gt;{response.status.code}&lt;/StatusCode&gt;
      &lt;ReasonPhrase&gt;Server error&lt;/ReasonPhrase&gt;
    &lt;/Set&gt;
  &lt;FaultResponse&gt;
 &lt;RaiseFault&gt;</pre>
-</div>
-<p>You can attach a list of policies to the defined RaiseFault policy for processing in the ErrorFlow. In cases where fault handling must be specific to the application, endpoint, or operations, you can define fault handling at the attachment points. For more information on the fault-handling mechanism, see [node:184].</p>
+
+<p>For a list of all variables that are available for dynamically populating FaultResponse messages, see [node:243]</p>
+
 <h2><a class="jumplink" name="configure_policy"></a>Configuring a Raise Fault policy</h2>
-<p>Configure the Raise Fault policy using the following elements.</p>
+<p>Configure the RaiseFault policy using the following elements.</p>
 <table border="0" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
 	<thead>
 		<tr>
@@ -90,25 +49,25 @@
 	</thead>
 	<tbody>
 		<tr>
-			<td>IgnoreUnresolvedVariables (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>IgnoreUnresolvedVariables: Optional</td>
 			<td>
-				<div>Ignores any unresolved variable error in the message flow.</div>
+				<div>Ignores any unresolved variable error in the Flow.</div>
 				<div>Valid values: true/false</div>
 				<div>Default value: true</div>
 			</td>
 		</tr>
 		<tr>
-			<td>FaultResponse (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
-			<td>Displays the fault response.</td>
+			<td>FaultResponse: Optional</td>
+			<td>Defines the response message returned to the requesting client. FaultResponse uses the same settings as the AssignMessage policy type. See [node:228].</td>
 		</tr>
 	</tbody>
 </table>
 <h2><a class="jumplink" name="schema"></a>Policy schema</h2>
-<p>Each policy must conform to a policy schema. All policy constructs such as elements and attributes mentioned above are defined in a schema. To download the schema, <a href="/docs/download/file/fid/192">click here</a>.</p>
+<p>Polices conform to a policy schema. All policy constructs such as elements and attributes mentioned above are defined in a schema. To download the schema, <a href="/docs/download/file/fid/192">click here</a>.</p>
 <h3>Example - RaiseFault policy</h3>
 <p>[gist:4347657]</p>
 <h3>RaiseFault flow variables</h3>
-<p>Flow variables play a pivotal role in message flow. These variables let advanced users customize the behavior of policies and flows, based on HTTP headers, message content, or Flow context. The following predefined Flow variables are available folllwoing RaiseFault policy execution. For more information about Flow variables, see [node:243].</p>
+<p>Flow variables enable dynamic behavior of policies and Flows at runtime, based on HTTP headers, message content, or Flow context. The following predefined Flow variables are available after a RaiseFault policy executes. For more information about Flow variables, see [node:243].</p>
 <table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
 	<thead>
 		<tr>
@@ -139,4 +98,3 @@
 		</tr>
 	</tbody>
 </table>
-<p><b>Note:</b> These variables are used in the fault handling flow to handle each fault differently.</p>

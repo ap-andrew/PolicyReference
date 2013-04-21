@@ -1,0 +1,32 @@
+<p>[toc]</p>
+<p>Apigee provides a range of out-of-the-box policy capabilities that address common API management requirements. However, there are some cases where your API requires custom behavior that is not covered by Apigee's standard policy palette. In these cases, Apigee exposes scripting interfaces to ease the task of implementing custom behaviors in the proxied API message flow. One approach is to attach your own JavaScript to an API flow, which the API Platform then executes at runtime.</p>
+
+<p>A Python policy contains no actual code. Instead, a Python policy references a Python 'resource' and defines the Step in the API flow where the Python script  executes. You can upload your JavaScript through the Management UI proxy editor, or you can include it in the <code>/resources/py</code> directory in API proxies that you develop locally.</p>
+
+<p>For working sample Python scripts, see [node:4561].
+</p>
+
+<h2><a class="jumplink" name="configure"></a>Configuring a Python Script policy</h2>
+<p>Configure the Python Script policy using the following elements.</p>
+<table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
+	<thead>
+		<tr>
+			<th>Field Name</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>ResourceURL</td>
+			<td>Specifies the name of the Python script stored in the API proxy under <code>/resources/py</code>. Note: the filename must match exactly or an <p>InternalClassification</p> error will be thrown at runtime.</td>
+		</tr>
+		<tr>
+			<td>IncludeURL (Optional)</td>
+			<td>Scripts are evaluated strictly in the order of the IncludeURL list.</td>
+		</tr>
+	</tbody>
+</table>
+<h2><a class="jumplink" name="schema"></a>Policy schema</h2>
+<p>Each policy must conform to a policy schema. All policy constructs such as elements and attributes mentioned above are defined in a schema. To download the schema, <a href="/docs/download/file/fid/202">click here</a>.</p>
+<h3>Example - Python Script policy</h3>
+<p>[gist:2633262]</p>

@@ -8,9 +8,11 @@ The XSL policy type enables XSLT to execute as a processing step in an API proxy
 
 <p>The XSL policy requires two inputs:</p>
 <ul>
-	<li>An name of an XSLT stylesheet, which contains a set of transformation rules) stored in the PAI proxy under <code>/resources/xsl</code></li>
+	<li>The name of an XSLT stylesheet, which contains a set of transformation rules) stored in the API proxy under <code>/resources/xsl</code></li>
 	<li>The source of the XML to be transformed (typically a request or response message)</li>
 </ul>
+
+<h2>Sample</h2>
 
 <p>A simple XSL policy is:</p>
 
@@ -87,7 +89,7 @@ Here are the odd-numbered items from the list:
 		</tr>
 		<tr>
 			<td colspan="3" rowspan="1">Source (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
-			<td>Contains the message from which information needs to be extracted.
+			<td>Contains the message from which information needs to be extracted. Usually this value is set to <code>request</code> or <code>response</code>, depending on whether the message to be transformed is inbound or outbound.
 				<ul>
 					<li>If source is missing, it is treated as a simple message. For example, <span style="font-family: courier new,courier,monospace;">&lt;Source&gt;message&lt;/Source&gt;</span></li>
 					<li>If the source variable cannot be resolved, or resolves to a non-message type, the transformation step fails.</li>
@@ -97,7 +99,7 @@ Here are the odd-numbered items from the list:
 		<tr>
 			<td colspan="3" rowspan="1">OutputVariable (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
 			<td>
-				<div>A variable that stores the output of the transformation.</div>
+				<div>A variable that stores the output of the transformation. Usually, this value is the same as source, either <code>request</code> or <code>response</code>, since a transformation is typically applied inline.</div>
 				<div>If OutputVariable is not specified, the message content is replaced with the output of the transformation.</div>
 			</td>
 		</tr>

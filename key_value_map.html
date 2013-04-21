@@ -1,17 +1,21 @@
 <p>[toc]</p>
-<p>The KeyValueMapOperation policy stores data in cache on the API Platform. <code>KeyValue</code> refers to any arbitrary data. Each key/value pair that you define in persisted to the cache, along with an associated expiration interval. 
+
+<p>The KeyValueMapOperation policy is designed to provide lightweight persistence for data that needs to be accessed by policies or code running on API Platform.  KeyValueMapOperations are typically used to persist information that needs to be reused over multiple request/response transactions, such as SessionIds. KeyValueMaps can be used to temporarily write to a cache, or they can be used to persist data in API Platform data store.</p>
 	
-<p>An example usage of a KeyValueMap is session persistence, where some session token, for example <code>SessionID</code>, is stored cached for use in multiple contexts--for example multiple outbound requests.  
-</p>
-<p>KeyValueMapOperation  policy supports the following map operations of a key on a referenced key-value map.</p>
+<p><code>KeyValue</code> refers to any arbitrary data in the format <code>key=value</code>, for example <code>SessionID=sfF8d9fe8ci</code>. KeyValue pairs can be stored, retrieved and deleted by defining policies.</p>
+	
+<p>The following operations are supported in the KeyValueMapOperations policy.</p>
 <ul>
-	<li><strong>PUT:</strong> Include an entry inside a key/value map.</li>
-	<li><strong>GET:</strong> Retrieve a value for a key.</li>
-	<li><strong>DELETE:</strong> Delete a key.</li>
+	<li><strong>PUT:</strong> Writes an entry to a KeyValueMap</li>
+	<li><strong>GET:</strong> Retrieves the value for the key specified</li>
+	<li><strong>DELETE:</strong> Deletes the key or value specified</li>
 </ul>
+
+<p>Note: KeyValueMaps can also be managed using the API Platform API. Refer to the API Platform API reference for details on the <a href="/api/api_resources/7-key-value-maps">KeyValueMaps API</a>.</p>
+
 <h2><a class="jumplink" name="configure"></a>Configuring the KeyValueMapOperation policy</h2>
 
-<p>Configure the Key Value Map Operation policy using the following elements.</p>
+<p>Configure the KeyValueMap Operation policy using the following elements.</p>
 <table border="1" cellpadding="1" cellspacing="1" class="table" style="width: 690px;">
 	<thead>
 		<tr>
@@ -20,8 +24,32 @@
 		</tr>
 	</thead>
 	<tbody>
+		<tr>		
+			<td colspan="6" style="vertical-align: top;">Scope (Optional)</td>
+			<td>
+				<div>Valid values: organization, environment, apiproxy</div>
+				<div>Default value: environment</div>
+				<div>Defines the boundary of accessibility for KeyValueMaps. The default scope is environment, meaning that, by default, maps entries are shared by all API proxies running in an environment.</div>
+			</td>
+		</tr>
+		
+		<tr>		
+			<td colspan="6" style="vertical-align: top;">PersistInDB (Optional)</td>
+			<td>
+				<div>Valid values: true | false</div>
+				<div>Default value: false</div>
+				<div>When set to true, causes KeyValueMap entries to be stored in the API platform data store.</div>
+			</td>
+		</tr>
 		<tr>
-			<td colspan="6" style="vertical-align: top;">ExclusiveCache (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td colspan="6" style="vertical-align: top;">ExpiryTimeInSecs (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
+			<td>
+				<div>Indicates the duration of a specific key entry being retained in the KeyValueMap before it expires. In the <a href="#example">example</a> below, the map entry expires after 60 seconds.</div>
+				<div>The default value is -1, which indicates that the entry never expires.</div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="6" style="vertical-align: top;">ExclusiveCache (<b>DEPRECATED</b>: Use <code>Scope</code> instead.)</td>
 			<td>
 				<div>Valid values: true/false</div>
 				<div>Default value: false</div>
@@ -30,18 +58,16 @@
 			</td>
 		</tr>
 		<tr>
-			<td colspan="6" style="vertical-align: top;">ExpiryTimeInSecs (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
-			<td>
-				<div>Indicates the duration of a specific key entry being retained in the key-value map before it expires. In the <a href="#example">example</a> below, the map entry expires after 60 seconds.</div>
-				<div>The default value is -1, which indicates that the entry never expires.</div>
-			</td>
-		</tr>
-		<tr>
 			<td colspan="3" rowspan="2" style="vertical-align: top;">InitialEntries (<span style="color: rgb(169, 169, 169);">Optional</span>)</td>
 			<td colspan="1" rowspan="2" style="vertical-align: top;">Entry</td>
 			<td>Key</td>
+<<<<<<< HEAD
 			<td>Parameter (<span style="color: rgb(169, 169, 169);">Required</span>)</td>
 			<td>The default value for the key-value entry that you define. A key can be composite, which means that more than one parameter can be appended to make the key. For example, User-ID and Role together is the key.</td>
+=======
+			<td>Parameter (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td>Seed values for KeyValueMaps, which are populated in the KeyValueMap when it is initialized. A key can be composite, which means that more than one parameter can be appended to make the key. For example, <code>userID</code> and <coe>role</coe> combined constitute a <code>key</code>.</td>
+>>>>>>> 5054529f415155d7bafc4b3cce0986551380e81e
 		</tr>
 		<tr>
 			<td colspan="2" rowspan="1" style="vertical-align: top;">Value (<span style="color: rgb(169, 169, 169);">Required</span>)</td>
@@ -50,8 +76,13 @@
 		<tr>
 			<td colspan="3" rowspan="3" style="vertical-align: top;">Put (<span style="color: rgb(169, 169, 169);">Required</span>)</td>
 			<td colspan="2" style="vertical-align: top;">Key</td>
+<<<<<<< HEAD
 			<td style="vertical-align: top;">Parameter (<span style="color: rgb(169, 169, 169);">Required</span>)</td>
 			<td>Includes an entry inside a key-value map for the specified key.</td>
+=======
+			<td style="vertical-align: top;">Parameter (<span style="color: rgb(169, 169, 169);">Mandatory</span>)</td>
+			<td>Includes an entry inside a KeyValueMap for the specified key.</td>
+>>>>>>> 5054529f415155d7bafc4b3cce0986551380e81e
 		</tr>
 		<tr>
 			<td colspan="3" rowspan="1" style="vertical-align: top;">Value (<span style="color: rgb(169, 169, 169);">Required</span>)</td>
@@ -89,5 +120,5 @@
 </table>
 <h2><a class="jumplink" name="schema"></a>Policy schema</h2>
 <p>Each policy must conform to a policy schema. All policy constructs such as elements and attributes mentioned above are defined in a schema. To download the schema, <a href="/docs/download/file/fid/203">click here</a>.</p>
-<h3><a class="jumplink" name="example"></a>Example - Key Value Map Operation policy</h3>
+<h3><a class="jumplink" name="example"></a>Example - KeyValueMap Operation policy</h3>
 <p>[gist:2633928]</p>
